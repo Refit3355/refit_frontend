@@ -1,6 +1,7 @@
 package com.refit.app.ui.composable.common
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -9,6 +10,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -18,6 +20,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.refit.app.R
 import com.refit.app.ui.composable.model.basic.BottomNavItem
+import com.refit.app.ui.theme.DarkBlack
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 
@@ -71,25 +74,25 @@ fun BottomBar(navController: NavHostController) {
                             painter = painterResource(
                                 id = if (item.route == selectedTab) item.selectedIcon else item.unselectedIcon
                             ),
-                            contentDescription = item.label
+                            contentDescription = item.label,
+                            tint = Color.Unspecified,
+                            modifier = Modifier.size(24.dp)
                         )
                     },
                     label = {
                         Text(
                             text = item.label,
                             style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = FontWeight.Medium,
+                                fontWeight = FontWeight(500),
                                 fontSize = 13.sp,
-                                fontFamily = Pretendard
+                                fontFamily = Pretendard,
                             )
                         )
                     },
                     colors = NavigationBarItemDefaults.colors(
                         indicatorColor = Color.Transparent,
-                        selectedIconColor = MainPurple,
-                        unselectedIconColor = Color.Gray,
                         selectedTextColor = MainPurple,
-                        unselectedTextColor = Color.Gray
+                        unselectedTextColor = DarkBlack
                     )
                 )
             }
