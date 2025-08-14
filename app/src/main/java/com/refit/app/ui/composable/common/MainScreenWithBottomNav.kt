@@ -26,6 +26,7 @@ import com.refit.app.ui.screen.HomeScreen
 import com.refit.app.ui.screen.MyScreen
 import com.refit.app.ui.screen.MyfitScreen
 import com.refit.app.ui.screen.NotificationScreen
+import com.refit.app.ui.screen.SearchScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -41,8 +42,13 @@ fun MainScreenWithBottomNav(
 
     Scaffold(
         topBar = {
-            Column(modifier = Modifier.padding(top = 8.dp)) {
-                TopBar(navController = navController, currentRoute = currentRoute)
+            Box(Modifier.padding(vertical = 8.dp)) {
+                RefitTopBar(
+                    config = appBarFor(
+                        route = currentRoute,
+                        nav = navController
+                    )
+                )
             }
         },
         bottomBar = {
@@ -71,6 +77,7 @@ fun MainScreenWithBottomNav(
                 // 검색/알림/장바구니
                 composable("notifications") { NotificationScreen(navController) }
                 composable("cart") { CartScreen(navController) }
+                composable("search") { SearchScreen(navController) }
             }
         }
     }
