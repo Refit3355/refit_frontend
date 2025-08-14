@@ -48,9 +48,4 @@ sealed class AppBarConfig {
         val onBack: () -> Unit,
     ) : AppBarConfig()
 
-    data class Custom(
-        val title: @Composable () -> Unit,
-        val navIcon: (@Composable () -> Unit)? = null,
-        val actions: (@Composable () -> Unit)? = null
-    ) : AppBarConfig()
 }
