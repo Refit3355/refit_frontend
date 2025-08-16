@@ -78,6 +78,9 @@ fun MainScreenWithBottomNav(
                 composable("notifications") { NotificationScreen(navController) }
                 composable("cart") { CartScreen(navController) }
                 composable("search") { SearchScreen(navController) }
+
+                // 개발중 : 삼성헬스 데이터 확인용 스크린
+                composable("health_dev") { com.refit.app.ui.screen.HealthScreen() }
             }
         }
     }
