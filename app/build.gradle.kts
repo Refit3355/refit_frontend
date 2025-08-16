@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.refit.app"
-        minSdk = 24
+        minSdk = 28
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -58,4 +58,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("androidx.navigation:navigation-compose:2.9.3")
+
+    // 헬스 데이터
+    implementation("androidx.health.connect:connect-client:1.2.0-alpha01")
 }

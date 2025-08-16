@@ -30,6 +30,7 @@ val bottomNavItems = listOf(
     BottomNavItem("myfit", "마이핏", R.drawable.ic_closet_selected, R.drawable.ic_closet_unselected),
     BottomNavItem("community", "커뮤니티", R.drawable.ic_community_selected, R.drawable.ic_community_unselected),
     BottomNavItem("my", "MY", R.drawable.ic_my_selected, R.drawable.ic_my_unselected),
+    BottomNavItem("health_dev", "헬스", R.drawable.ic_community_selected, R.drawable.ic_community_unselected)
 )
 
 @Composable
