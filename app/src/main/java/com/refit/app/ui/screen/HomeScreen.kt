@@ -30,7 +30,7 @@ fun HomeScreen(navController: NavController) {
                 .clickable { navController.navigate("health_dev") },
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.elevatedCardColors(
-                containerColor = Color(0xFF1976D2)
+                containerColor = Color(0xFF0B5BD3)
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {

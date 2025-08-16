@@ -2,91 +2,78 @@ package com.refit.app.ui.screen
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.health.connect.client.PermissionController
-import com.refit.app.health.DailyRow
-import com.refit.app.health.HealthRepo
-import kotlinx.coroutines.launch
-import java.time.format.DateTimeFormatter
-import kotlin.math.roundToInt
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.refit.app.data.health.HealthRepo
+import com.refit.app.ui.composable.health.DailyList
+import com.refit.app.ui.composable.health.LoadingState
+import com.refit.app.ui.viewmodel.health.HealthViewModel
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 
-// 중복 실행 가드
-private var isFetching = false
-
+/**
+ * Health Connect 데이터를 보여주는 Screen
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HealthScreen() {
+fun HealthScreen(vm: HealthViewModel = viewModel()) {
     val ctx = LocalContext.current
-    val scope = rememberCoroutineScope()
-
-    var days by remember { mutableStateOf(30) }
-    var rows by remember { mutableStateOf<List<DailyRow>>(emptyList()) }
-    var loading by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-    var permissionGranted by remember { mutableStateOf(false) }
+    val uiState by vm.uiState.collectAsState()
 
     // 권한 요청 런처
     val launcher = rememberLauncherForActivityResult(
         PermissionController.createRequestPermissionResultContract()
     ) { _ ->
-        permissionGranted = true
-        scope.launch {
-            fetch(
-                ctx, days,
-                onStart = { loading = true; error = null },
-                onDone = { r -> rows = r; loading = false },
-                onError = { e -> error = e; loading = false }
-            )
-        }
+        vm.onPermissionGranted(ctx)
     }
 
-    // 최초 진입 시 권한 체크
-    LaunchedEffect(Unit) {
-        val client = HealthRepo.client(ctx)
-        val granted = client.permissionController.getGrantedPermissions()
-        if (!granted.containsAll(HealthRepo.readPerms)) {
-            permissionGranted = false
-        } else {
-            permissionGranted = true
-            fetch(
-                ctx, days,
-                onStart = { loading = true; error = null },
-                onDone = { r -> rows = r; loading = false },
-                onError = { e -> error = e; loading = false }
-            )
-        }
-    }
-
-    Column(Modifier.fillMaxSize().padding(16.dp)) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
         Text(
-            "Health Connect 미리보기",
+            "[임시] Health Connect 개발 및 연동 확인용 화면입니다.",
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF222222)
         )
         Spacer(Modifier.height(8.dp))
 
-        // 컨트롤 영역
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            // 일수 선택
+        // 컨트롤 영역: 조회 범위 선택, 가져오기 버튼
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             var expanded by remember { mutableStateOf(false) }
             ExposedDropdownMenuBox(
                 expanded = expanded,
-                onExpandedChange = { expanded = !expanded }
+                onExpandedChange = { expanded = !expanded },
+                modifier = Modifier
+                    .weight(0.65f)
             ) {
                 OutlinedTextField(
-                    value = "${days}일",
+                    value = "${uiState.days}일",
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("조회 범위") },
-                    modifier = Modifier.menuAnchor().weight(1f)
+                    singleLine = true,
+                    minLines = 1,
+                    maxLines = 1,
+                    textStyle = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
+                        .heightIn(min = 56.dp)
+                        .align(Alignment.CenterVertically)
                 )
                 ExposedDropdownMenu(
                     expanded = expanded,
@@ -97,151 +84,71 @@ fun HealthScreen() {
                             text = { Text("${d}일") },
                             onClick = {
                                 expanded = false
-                                days = d
-                                if (permissionGranted && !loading) {
-                                    scope.launch {
-                                        fetch(
-                                            ctx, days,
-                                            onStart = { loading = true; error = null },
-                                            onDone = { r -> rows = r; loading = false },
-                                            onError = { e -> error = e; loading = false }
-                                        )
-                                    }
-                                }
+                                vm.onDaysChanged(ctx, d)
                             }
                         )
                     }
                 }
             }
 
-            // 새로고침 버튼
+            // 조회 버튼
             Button(
                 onClick = {
-                    if (loading) return@Button
-                    if (!permissionGranted) {
-                        launcher.launch(HealthRepo.readPerms)
-                    } else {
-                        scope.launch {
-                            fetch(
-                                ctx, days,
-                                onStart = { loading = true; error = null },
-                                onDone = { r -> rows = r; loading = false },
-                                onError = { e -> error = e; loading = false }
-                            )
+                    if (!uiState.loading) {
+                        if (!uiState.permissionGranted) {
+                            launcher.launch(HealthRepo.readPerms)
+                        } else {
+                            vm.fetch(ctx)
                         }
                     }
+                },
+                modifier = Modifier
+                    .weight(0.35f)
+                    .height(56.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF0B5BD3),
+                    contentColor = Color.White
+                ),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 3.dp,
+                    pressedElevation = 6.dp
+                )
+            ) {
+                if (uiState.loading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("불러오는 중...", fontWeight = FontWeight.Bold, color = Color.White)
+                } else {
+                    Text(
+                        text = "기록 조회",
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Color.White
+                    )
                 }
-            ) { Text(if (loading) "불러오는 중…" else "가져오기") }
+            }
         }
 
         Spacer(Modifier.height(12.dp))
 
         // 상태 표시
         when {
-            loading -> {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    CircularProgressIndicator()
-                    Spacer(Modifier.height(8.dp))
-                    Text("불러오는 중...")
-                }
-            }
-            !permissionGranted -> {
+            uiState.loading -> LoadingState()
+            !uiState.permissionGranted -> {
                 Text(
-                    "권한이 필요합니다. “가져오기”를 눌러 권한을 허용하세요.",
+                    "권한이 필요합니다. 조회 버튼을 누른 후 권한 승인을 허용해주세요.",
                     color = MaterialTheme.colorScheme.error
                 )
             }
-            error != null -> Text("오류: $error", color = MaterialTheme.colorScheme.error)
-            rows.isEmpty() -> Text("데이터가 없습니다.")
-            else -> DailyList(rows)
+            uiState.error != null -> Text("오류: ${uiState.error}", color = MaterialTheme.colorScheme.error)
+            uiState.rows.isEmpty() -> Text("데이터가 없습니다.")
+            else -> DailyList(uiState.rows)
         }
     }
 }
-
-private suspend fun fetch(
-    ctx: android.content.Context,
-    days: Int,
-    onStart: () -> Unit,
-    onDone: (List<DailyRow>) -> Unit,
-    onError: (String) -> Unit
-) {
-    if (isFetching) return
-    try {
-        isFetching = true
-        onStart()
-        val r = HealthRepo.readDailyAll(ctx, days.toLong())
-        onDone(r)
-    } catch (e: Exception) {
-        val msg = e.message ?: e.toString()
-        val pretty = if (
-            msg.contains("rate limited", ignoreCase = true) ||
-            msg.contains("quota", ignoreCase = true) ||
-            msg.contains("request rejected", ignoreCase = true)
-        ) "요청이 너무 빠르게 전송되었습니다. 잠시 후 다시 시도해 주세요."
-        else msg
-        onError(pretty)
-    } finally {
-        isFetching = false
-    }
-}
-
-@Composable
-private fun DailyList(rows: List<DailyRow>) {
-    val fmt = remember { DateTimeFormatter.ofPattern("yyyy-MM-dd") }
-    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        items(rows) { row ->
-            ElevatedCard(Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(12.dp)) {
-                    Text(
-                        row.date.format(fmt),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Spacer(Modifier.height(6.dp))
-
-                    InfoLine("걸음수(steps)", row.steps?.toString())
-                    InfoLine("운동칼로리(active kcal)", row.activeKcal?.round1())
-
-                    val bp = when {
-                        row.systolicMmhg != null && row.diastolicMmhg != null ->
-                            "${row.systolicMmhg.round1()}/${row.diastolicMmhg.round1()} mmHg"
-                        row.systolicMmhg != null -> "${row.systolicMmhg.round1()} mmHg"
-                        row.diastolicMmhg != null -> "${row.diastolicMmhg.round1()} mmHg"
-                        else -> null
-                    }
-                    InfoLine("혈압(blood pressure)", bp)
-
-                    val mgdl = row.bloodGlucoseMgdl
-                    val mmol = mgdl?.let { it * 0.0555 }
-                    val glucoseText = when (mgdl) {
-                        null -> null
-                        else -> "${mgdl.round1()} mg/dL (${mmol?.round2()} mmol/L)"
-                    }
-                    InfoLine("혈당(blood glucose)", glucoseText)
-
-                    InfoLine("영양 섭취(nutrition kcal)", row.intakeKcal?.round1())
-                    val sleep = row.sleepMinutes?.let { "${it} min (${(it / 60.0).round1()} h)" }
-                    InfoLine("수면(sleep)", sleep)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun InfoLine(label: String, value: String?) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(label)
-        Text(value ?: "-", fontWeight = FontWeight.SemiBold)
-    }
-}
-
-private fun Double.round1(): String =
-    ((this * 10).roundToInt() / 10.0).toString()
-
-private fun Double.round2(): String =
-    ((this * 100).roundToInt() / 100.0).toString()
