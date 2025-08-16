@@ -13,8 +13,8 @@ import java.time.LocalDate
 import java.time.ZoneId
 
 /**
- * Health Connect 데이터 접근의 Facade
- * - 개별 reader 들을 조합하여 하루 단위 데이터 반환
+ * Health Connect 데이터 접근에 대한 퍼사드
+ * 개별 reader 들을 조합하여 하루 단위 데이터 반환
  */
 object HealthRepo {
     fun client(ctx: Context) = HealthConnectClient.getOrCreate(ctx)
@@ -30,7 +30,7 @@ object HealthRepo {
     )
 
     /**
-     * 지정한 일수(days)만큼의 건강 데이터를 하루 단위로 읽어옴
+     * 지정한 일수만큼의 건강 데이터를 하루 단위로 읽어옴
      */
     suspend fun readDailyAll(ctx: Context, days: Long = 30): List<DailyRow> {
         require(days >= 1) { "days must be >= 1" }
