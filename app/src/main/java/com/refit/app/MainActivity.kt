@@ -15,11 +15,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.health.connect.client.PermissionController
 import com.refit.app.data.health.HealthRepo
+import com.refit.app.network.RetrofitInstance
+import com.refit.app.network.TokenManager
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        TokenManager.init(this)
+        RetrofitInstance.init(this)
 
         enableEdgeToEdge()
 
