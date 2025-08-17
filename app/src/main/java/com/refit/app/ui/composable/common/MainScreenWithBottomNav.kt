@@ -19,6 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.refit.app.ui.screen.CartScreen
 import com.refit.app.ui.screen.CategoryScreen
 import com.refit.app.ui.screen.CommunityScreen
@@ -26,6 +27,7 @@ import com.refit.app.ui.screen.HomeScreen
 import com.refit.app.ui.screen.MyScreen
 import com.refit.app.ui.screen.MyfitScreen
 import com.refit.app.ui.screen.NotificationScreen
+import com.refit.app.ui.screen.ProductDetailScreen
 import com.refit.app.ui.screen.SearchScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -81,6 +83,15 @@ fun MainScreenWithBottomNav(
 
                 // 개발중 : 삼성헬스 데이터 확인용 스크린
                 composable("health_dev") { com.refit.app.ui.screen.HealthScreen() }
+
+                // 상품 상세 페이지
+                composable(
+                    route = "product/{id}",
+                    arguments = listOf(navArgument("id") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val id = backStackEntry.arguments!!.getInt("id")
+                    ProductDetailScreen(productId = id, navController = navController)
+                }
             }
         }
     }

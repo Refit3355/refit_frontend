@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.refit.app.data.product.model.Product
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.map
 
 @Composable
 fun ProductGrid(
+    navController: NavController,
     items: List<Product>,
     isLoading: Boolean,
     hasMore: Boolean,
@@ -44,9 +46,11 @@ fun ProductGrid(
             modifier = Modifier.fillMaxSize()
         ) {
             items(items.size) { i ->
+                val p = items[i]
                 ProductCard(
                     item = items[i],
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { navController.navigate("product/${p.id}") }
                 )
             }
 

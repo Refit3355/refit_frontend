@@ -2,6 +2,7 @@ package com.refit.app.ui.composable.product
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -22,7 +23,11 @@ import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
-fun ProductCard(item: Product, modifier: Modifier = Modifier) {
+fun ProductCard(
+    item: Product,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
     val imageShape = RoundedCornerShape(12.dp)
     val hasDiscount = item.discountRate > 0 && item.discountedPrice < item.price
 
@@ -44,7 +49,7 @@ fun ProductCard(item: Product, modifier: Modifier = Modifier) {
     )
 
     Card(
-        modifier = modifier,
+        modifier = modifier.clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)

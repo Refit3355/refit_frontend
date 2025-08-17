@@ -175,6 +175,7 @@ fun CategoryScreen(
 
         // 4) 상품 그리드 (무한 스크롤 포함)
         ProductGrid(
+            navController = navController,
             items = state.items,
             isLoading = state.isLoading,
             hasMore = state.hasMore,

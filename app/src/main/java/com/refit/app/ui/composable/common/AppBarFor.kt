@@ -62,7 +62,10 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
 
         else ->
             AppBarConfig.BackWithActions(
-                title = "상세",
+                title = when {
+                    route.startsWith("product") -> "상품 상세"
+                    else -> "Re:fit"
+                },
                 onBack = { nav.popBackStack() },
                 onAlarmClick = { nav.navigate("notifications") },
                 onCartClick  = { nav.navigate("cart") },
