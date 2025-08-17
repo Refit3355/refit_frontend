@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
 
                 // 앱 시작 시 Health Connect 권한 자동 요청
-                RequestHealthPermissionsOnStart()
+//                RequestHealthPermissionsOnStart()
 
                 // 알림 클릭 여부 판단
                 val navigateTo = intent?.getStringExtra("navigateTo")
