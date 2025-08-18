@@ -1,3 +1,5 @@
+package com.refit.app.data.product.usecase
+
 import com.refit.app.data.product.model.Product
 import com.refit.app.data.product.model.ProductsPage
 import com.refit.app.data.product.repository.ProductRepository

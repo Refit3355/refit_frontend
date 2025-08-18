@@ -1,9 +1,9 @@
 package com.refit.app.data.product.modelAndView
 
-import GetProductsUseCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.refit.app.data.product.model.ProductUiState
+import com.refit.app.data.product.usecase.GetProductsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
