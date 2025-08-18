@@ -81,11 +81,6 @@ fun CategoryScreen(
         if (selectedGroup == Group.BEAUTY) beautyCats else healthCats
     }
 
-    // 그룹 전환 시 카테고리 초기화
-    LaunchedEffect(selectedGroup) {
-        selectedCategoryIndex = 0
-    }
-
     // 데이터 로딩
     LaunchedEffect(selectedGroup, selectedCategoryIndex, selectedSortIndex) {
         val groupParam = selectedGroup.param
@@ -100,7 +95,12 @@ fun CategoryScreen(
         // 1) 뷰티/헬스
         GroupSegmented(
             selected = selectedGroup,
-            onSelected = { selectedGroup = it },
+            onSelected = {
+                if (selectedGroup != it) {
+                    selectedGroup = it
+                    selectedCategoryIndex = 0
+                }
+            },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(horizontal = 16.dp)
