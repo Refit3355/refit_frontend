@@ -2,6 +2,7 @@ package com.refit.app.ui.composable.productDetail
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,12 +11,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.foundation.Image
+import androidx.compose.runtime.remember
+import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -27,6 +27,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.refit.app.R
+import com.refit.app.ui.theme.DarkBlack
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 
@@ -52,26 +54,31 @@ fun DetailBottomBar(
             // 찜
             Column(
                 modifier = Modifier
-                    .width(56.dp)
-                    .clickable { onToggleWish() },
+                    .width(60.dp)
+                    .clickable(
+                        indication = null, // 리플 제거
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) { onToggleWish() },
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(
-                    imageVector = if (wished) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                    contentDescription = "찜",
-                    tint = if (wished) MainPurple else Color(0xFFBDBDBD)
+                Image(
+                    painter = painterResource(
+                        if (wished) R.drawable.ic_heart_red else R.drawable.ic_heart_empty
+                    ),
+                    contentDescription = "찜"
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
-                    text = "찜",
+                    text = "찜하기",
                     style = MaterialTheme.typography.labelSmall.copy(
                         fontFamily = Pretendard,
                         fontWeight = FontWeight.Medium,
-                        fontSize = 12.sp
+                        fontSize = 14.sp
                     ),
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    color = if (wished) Color(0xFFEC1A47) else DarkBlack
                 )
             }
+
 
             Spacer(Modifier.width(12.dp))
 

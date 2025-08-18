@@ -17,6 +17,8 @@ import com.refit.app.ui.composable.productDetail.ProductDetailBody
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
+import com.refit.app.data.local.wish.WishViewModel
+
 
 enum class SheetMode { CART, BUY }
 
@@ -27,6 +29,10 @@ fun ProductDetailScreen(
     vm: ProductDetailViewModel = viewModel()
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
+
+    val wishVm: WishViewModel = viewModel()
+    val wishedIds by wishVm.wishedIds.collectAsStateWithLifecycle()
+    val isWished = remember(productId, wishedIds) { (productId.toLong() in wishedIds) }
 
     LaunchedEffect(productId) { vm.load(productId) }
 
@@ -43,8 +49,8 @@ fun ProductDetailScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             DetailBottomBar(
-                wished = false,
-                onToggleWish = { /* TODO: 찜 토글 */ },
+                wished = isWished,
+                onToggleWish = { wishVm.toggle(productId.toLong()) },
                 onAddCart = {
                     sheetMode = SheetMode.CART
                     showSheet = true
