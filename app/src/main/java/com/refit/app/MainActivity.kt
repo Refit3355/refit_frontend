@@ -15,11 +15,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.health.connect.client.PermissionController
 import com.refit.app.data.health.HealthRepo
+import com.refit.app.network.RetrofitInstance
+import com.refit.app.network.TokenManager
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        TokenManager.init(this)
+        RetrofitInstance.init(this)
 
         enableEdgeToEdge()
 
@@ -28,7 +32,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
 
                 // 앱 시작 시 Health Connect 권한 자동 요청
-                RequestHealthPermissionsOnStart()
+//                RequestHealthPermissionsOnStart()
 
                 // 알림 클릭 여부 판단
                 val navigateTo = intent?.getStringExtra("navigateTo")
