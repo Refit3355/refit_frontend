@@ -68,4 +68,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     implementation("io.coil-kt:coil-compose:2.6.0")
+
+    // 찜 저장
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 }
