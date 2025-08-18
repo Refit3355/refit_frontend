@@ -1,5 +1,7 @@
 package com.refit.app.ui.composable.productDetail
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -10,16 +12,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
+import coil.request.ImageRequest
+import coil.size.Dimension
+import coil.size.Size
 import com.refit.app.data.product.model.ProductDetail
 import com.refit.app.ui.screen.formatRecommended
 import com.refit.app.ui.theme.Pretendard
@@ -119,14 +129,43 @@ fun ProductDetailBody(
         }
 
         items(detail.images.sortedBy { it.order }) { img ->
-            AsyncImage(
-                model = img.url,
-                contentDescription = null,
-                contentScale = ContentScale.FillWidth,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 0.dp)
-            )
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                val context = LocalContext.current
+                val density = LocalDensity.current
+                val widthPx = with(density) { maxWidth.toPx().toInt() }
+
+                // 세로는 대략 3배까지 허용(원하는 값으로 조절)
+                val maxHeightPx = widthPx * 3
+
+                SubcomposeAsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(img.url)
+                        // 화면 폭 기준으로 다운샘플링하도록 사이즈 지정
+                        .size(Size(Dimension.Pixels(widthPx), Dimension.Pixels(maxHeightPx)))
+                        // 너무 큰 하드웨어 비트맵으로 인한 텍스처 제한 회피 (필요할 때만)
+                        .allowHardware(false)
+                        // 메모리 절약(필요 시)
+                        // .bitmapConfig(Bitmap.Config.RGB_565)
+                        .build(),
+                    contentDescription = null,
+                    contentScale = ContentScale.FillWidth,
+                    loading = {
+                        Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    },
+                    error = {
+                        Text(
+                            "이미지를 불러오지 못했어요",
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp, vertical = 12.dp)
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             Spacer(Modifier.height(12.dp))
         }
     }
