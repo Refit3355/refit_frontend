@@ -64,7 +64,7 @@ fun ProductCard(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Column(Modifier.padding(12.dp)) {
+        Column(Modifier.padding(6.dp)) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

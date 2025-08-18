@@ -29,6 +29,7 @@ import com.refit.app.ui.screen.MyfitScreen
 import com.refit.app.ui.screen.NotificationScreen
 import com.refit.app.ui.screen.ProductDetailScreen
 import com.refit.app.ui.screen.SearchScreen
+import com.refit.app.ui.screen.WishScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -92,6 +93,9 @@ fun MainScreenWithBottomNav(
                     val id = backStackEntry.arguments!!.getInt("id")
                     ProductDetailScreen(productId = id, navController = navController)
                 }
+
+                // 찜 목록
+                composable("wish") { WishScreen(navController) }
             }
         }
     }
