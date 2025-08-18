@@ -64,6 +64,7 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
             AppBarConfig.BackWithActions(
                 title = when {
                     route.startsWith("product") -> "상품 상세"
+                    route.startsWith("wish") -> "찜 목록"
                     else -> "Re:fit"
                 },
                 onBack = { nav.popBackStack() },
