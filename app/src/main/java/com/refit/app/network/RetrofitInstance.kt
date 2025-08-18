@@ -29,9 +29,10 @@ object RetrofitInstance {
         }
 
         val baseUrl = baseUrlOverride ?: if (debug)
-            "http://172.30.1.60:8080/"     // 개발(실제 기기)
+            //"http://localhost/127.0.0.1:8080/"     // 로컬 + 개발(실제 기기) - http://<PC의 LAN IP>:8080
+            "http://10.0.2.2:8080/" // 애뮬레이터
         else
-            "https://server-address/"   // 운영
+            "https://api.refit.today/"   // 운영
 
         val client = OkHttpClient.Builder()
             .connectTimeout(60, TimeUnit.SECONDS)
