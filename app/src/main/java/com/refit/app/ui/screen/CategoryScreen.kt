@@ -29,6 +29,7 @@ import com.refit.app.R
 import com.refit.app.data.product.modelAndView.ProductListViewModel
 import com.refit.app.ui.composable.product.ProductGrid
 import com.refit.app.ui.composable.product.SortBottomSheet
+import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 
 @Composable
@@ -131,7 +132,7 @@ fun CategoryScreen(
                 append("총 ")
                 withStyle(
                     SpanStyle(
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MainPurple,
                         fontWeight = FontWeight.SemiBold
                     )
                 ) {
