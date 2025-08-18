@@ -14,44 +14,45 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignupTopBar(
+fun StepTopBar(
     title: String,
     stepIndex: Int,
     stepCount: Int = 3,
     onBack: () -> Unit
 ) {
-   val progress = (stepIndex + 1).toFloat() / stepCount
+    val progress = (stepIndex + 1).toFloat() / stepCount
 
-   Column (
-       modifier = Modifier
-           .fillMaxWidth()
-           .background(MaterialTheme.colorScheme.surface)
-   ){
-       TopAppBar(
-           title = {Text(title)},
-           navigationIcon = {
-               IconButton(onClick = onBack) {
-                   Icon(Icons.Default.ArrowBack, contentDescription = "뒤로")
-               }
-           }
-       )
-       // 진행바
-       Box(
-           Modifier
-               .padding(horizontal = 16.dp)
-               .height(8.dp)
-               .fillMaxWidth()
-               .clip(RoundedCornerShape(100))
-               .background(MaterialTheme.colorScheme.surfaceVariant)
-       ) {
-           Box(
-               Modifier
-                   .fillMaxHeight()
-                   .fillMaxWidth(progress)
-                   .clip(RoundedCornerShape(100))
-                   .background(MaterialTheme.colorScheme.primary)
-           )
-       }
-       Spacer(Modifier.height(12.dp))
-   }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+    ) {
+        TopAppBar(
+            title = { Text(title) },
+            navigationIcon = {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "뒤로")
+                }
+            }
+        )
+
+        // 박스형 진행바
+        Box(
+            Modifier
+                .padding(horizontal = 16.dp)
+                .height(8.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(100))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            Box(
+                Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(progress)
+                    .clip(RoundedCornerShape(100))
+                    .background(MaterialTheme.colorScheme.primary)
+            )
+        }
+        Spacer(Modifier.height(12.dp))
+    }
 }

@@ -21,34 +21,32 @@ import com.refit.app.ui.viewmodel.auth.SignupViewModel
 private val FIELD_WIDTH = 382.dp
 private val RADIUS = 16.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignupStep1Screen(
     onBack: () -> Unit,
     onNextOrSubmit: () -> Unit,
     onSearchAddress: () -> Unit,
     vm: SignupViewModel = viewModel()
-){
+) {
     Scaffold(
         topBar = {
-            Column {
-                TopAppBar(
-                    title = { Text("회원가입") },
-                    navigationIcon = { TextButton(onClick = onBack) { Text("뒤로") } }
-                )
-                SignupProgressBar(step = 1)
-            }
-        }
-    ){ pad ->
+            SignupTopBar(
+                title = "회원가입",
+                stepIndex = 1,
+                stepCount = 3,
+                onBack = onBack
+            )
+        },
+        containerColor = Color.White
+    ) { pad ->
         val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
-                .verticalScroll(scrollState)
                 .padding(pad)
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(horizontal = 20.dp, vertical = 16.dp)
+                .verticalScroll(scrollState)
         ) {
             Box(
                 modifier = Modifier.fillMaxWidth(),
@@ -59,66 +57,92 @@ fun SignupStep1Screen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
 
-                    ElevatedCard(
+                    Card(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(RADIUS)
+                        shape = RoundedCornerShape(RADIUS),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                     ) {
                         Column(
                             modifier = Modifier.padding(16.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-
+                            // 이메일 + 중복확인
                             LabeledField(
                                 label = "이메일",
                                 value = vm.uiState.email,
                                 onValueChange = vm::onEmail,
-                                placeholder = "example@email.com"
+                                placeholder = "이메일 입력",
+                                trailing = {
+
+                                    Box(Modifier.padding(end = 6.dp)) {
+                                        InlineActionButton(
+                                            text = "중복확인",
+                                            enabled = vm.uiState.email.isNotBlank(),
+                                            onClick = { /* vm.checkEmailDuplicate() */ }
+                                        )
+                                    }
+                                }
                             )
+
+                            // 비밀번호
                             LabeledField(
                                 label = "비밀번호",
                                 value = vm.uiState.password,
                                 onValueChange = vm::onPassword,
-                                placeholder = "영문/숫자/특수문자 2종 이상 8~64자",
-                                visualTransformation = PasswordVisualTransformation(),
-                                trailing = {}
+                                placeholder = "비밀번호 입력",
+                                visualTransformation = PasswordVisualTransformation()
                             )
+
+                            // 비밀번호 확인
                             LabeledField(
                                 label = "비밀번호 확인",
                                 value = vm.uiState.passwordConfirm,
                                 onValueChange = vm::onPasswordConfirm,
-                                placeholder = "비밀번호 재입력",
+                                placeholder = "비밀번호 확인 입력",
                                 visualTransformation = PasswordVisualTransformation()
                             )
+
+                            // 닉네임 + 중복확인
                             LabeledField(
                                 label = "닉네임",
                                 value = vm.uiState.nickname,
                                 onValueChange = vm::onNick,
-                                placeholder = "닉네임"
+                                placeholder = "닉네임 입력",
+                                trailing = {
+                                    Box(Modifier.padding(end = 6.dp)) {
+                                        InlineActionButton(
+                                            text = "중복확인",
+                                            enabled = vm.uiState.email.isNotBlank(),
+                                            onClick = { /* vm.checkEmailDuplicate() */ }
+                                        )
+                                    }
+                                }
                             )
+
+                            // 이름
                             LabeledField(
                                 label = "이름",
                                 value = vm.uiState.memberName,
                                 onValueChange = vm::onMemberName,
-                                placeholder = "실명"
+                                placeholder = "이름 입력"
                             )
+
+                            // 휴대폰
                             LabeledField(
                                 label = "휴대폰 번호",
                                 value = vm.uiState.phoneNumber,
                                 onValueChange = vm::onPhone,
-                                placeholder = "01012345678"
+                                placeholder = "휴대폰 번호 입력"
                             )
 
-                            Text(text = "성별", style = MaterialTheme.typography.labelLarge)
-                            GenderSelector(
-                                selected = vm.uiState.gender,
-                                onSelect = vm::onGender
-                            )
-
+                            // 생년월일
                             BirthdayField(
                                 value = vm.uiState.birthday,
                                 onChange = vm::onBirthday
                             )
 
+                            // 주소
                             AddressRow(
                                 zipcode = vm.uiState.zipcode, onZip = vm::onZipcode,
                                 road = vm.uiState.roadAddress, onRoad = vm::onRoad,
@@ -128,6 +152,7 @@ fun SignupStep1Screen(
                         }
                     }
 
+                    // 하단 버튼
                     Button(
                         onClick = onNextOrSubmit,
                         enabled = vm.isValid,
@@ -137,7 +162,7 @@ fun SignupStep1Screen(
                         shape = RoundedCornerShape(RADIUS),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MainPurple,
-                            contentColor = MainPurple
+                            contentColor = Color.White
                         )
                     ) {
                         Text("다음")
@@ -152,10 +177,6 @@ fun SignupStep1Screen(
 @Composable
 private fun PreviewSignupStep1() {
     MaterialTheme {
-        SignupStep1Screen(
-            onBack = {},
-            onNextOrSubmit = {},
-            onSearchAddress = {}
-        )
+        SignupStep1Screen(onBack = {}, onNextOrSubmit = {}, onSearchAddress = {})
     }
 }
