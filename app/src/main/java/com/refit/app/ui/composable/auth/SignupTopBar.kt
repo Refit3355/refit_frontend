@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.refit.app.R
 import com.refit.app.ui.theme.MainPurple
 
@@ -55,7 +56,12 @@ fun SignupTopBar(
                 ) {
                     Text(
                         text = title,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        style = androidx.compose.material3.MaterialTheme.typography.titleLarge.copy( // ✅ 크기와 굵기
+                            fontSize = 20.sp,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                        ),
+                        color = Color.Black
                     )
                 }
             },
