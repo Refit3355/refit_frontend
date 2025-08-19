@@ -1,5 +1,6 @@
 package com.refit.app.ui.composable.common
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,12 +51,12 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                 onSubmit = { q ->
                     val term = (q.ifBlank { query }).trim()
                     if (term.isNotEmpty()) {
-                        // 필요에 맞게 결과 라우트로 이동 (예: searchResult)
-                        // Uri.encode(term) 쓰면 공백/특수문자 안전
-                        //nav.navigate("searchResult?query=${Uri.encode(term)}")
+                        val encoded = Uri.encode(term)
+                        nav.navigate("search?query=$encoded") {
+                            launchSingleTop = true    // 같은 화면 중복 쌓이지 않게
+                        }
                     }
                 },
-                placeholder = "브랜드, 상품, 태그 검색",
                 showClear = true,
                 onBack = { nav.popBackStack() }
             )

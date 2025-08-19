@@ -20,4 +20,12 @@ interface ProductApi {
     suspend fun getProductDetail(
         @Path("id") id: Int
     ): ProductDetailResponse
+
+    @GET("products/search")
+    suspend fun searchProducts(
+        @Query("q") q: String,
+        @Query("cursor") cursor: String? = null,
+        @Query("limit") limit: Int = 20,
+        @Query("sort") sort: String? = null
+    ): ProductListResponse
 }

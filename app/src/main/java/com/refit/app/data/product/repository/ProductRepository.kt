@@ -29,4 +29,13 @@ class ProductRepository(
             images = res.images.map { ProductImage(it.id, it.url, it.order) }
         )
     }
+
+    suspend fun searchProducts(
+        query: String,
+        cursor: String?,
+        limit: Int,
+        sort: String?
+    ): Result<ProductListResponse> = runCatching {
+        api.searchProducts(q = query, cursor = cursor, limit = limit, sort = sort)
+    }
 }

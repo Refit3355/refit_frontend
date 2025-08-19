@@ -25,6 +25,9 @@ import com.refit.app.R
 import com.refit.app.ui.composable.model.basic.AppBarConfig
 import com.refit.app.ui.composable.common.topbar.TopBarTokens
 import com.refit.app.ui.theme.MainPurple
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -117,6 +120,20 @@ internal fun SearchOnlyTopBar(config: AppBarConfig.SearchOnly) {
                     value = config.query,
                     onValueChange = config.onQueryChange,
                     singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search), // 또는 ImeAction.Done
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            config.onSubmit(config.query.trim())
+                            keyboard?.hide()
+                            editing = false
+                        },
+                        onDone = {
+                            // "완료" 키보드가 뜨는 기종/키보드 대비
+                            config.onSubmit(config.query.trim())
+                            keyboard?.hide()
+                            editing = false
+                        }
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(40.dp)
