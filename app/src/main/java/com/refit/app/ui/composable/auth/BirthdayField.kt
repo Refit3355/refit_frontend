@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -30,7 +31,9 @@ fun BirthdayField(
         Text(text = "생년월일", style = MaterialTheme.typography.labelLarge)
         Spacer(Modifier.height(8.dp))
 
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
                 value = text,
                 onValueChange = {},
@@ -66,7 +69,8 @@ fun BirthdayField(
 
             InlineActionButton(
                 text = "선택",
-                onClick = { open = true }
+                onClick = { open = true },
+                modifier = Modifier.height(36.dp)
             )
         }
     }

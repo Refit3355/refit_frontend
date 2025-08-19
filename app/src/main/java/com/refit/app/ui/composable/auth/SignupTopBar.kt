@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -39,13 +40,6 @@ fun SignupTopBar(
             .background(Color.White)
     ) {
         TopAppBar(
-            title = {
-                Text(
-                    text = title,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )
-            },
             navigationIcon = {
                 IconButton(onClick = onBack) {
                     Icon(
@@ -54,12 +48,30 @@ fun SignupTopBar(
                     )
                 }
             },
+            title = {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = title,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            },
+            actions = {
+                Spacer(modifier = Modifier.height(0.dp).padding(end = 0.dp))
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_icon_back),
+                    contentDescription = null,
+                    tint = Color.Transparent
+                )
+            },
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = Color.White
             )
         )
 
-        // 진행 단계 표시
         LinearProgressIndicator(
             progress = { progress },
             modifier = Modifier

@@ -20,6 +20,7 @@ import com.refit.app.ui.viewmodel.auth.SignupViewModel
 
 private val FIELD_WIDTH = 382.dp
 private val RADIUS = 16.dp
+private val INPUT_HEIGHT = 56.dp
 
 @Composable
 fun SignupStep1Screen(
@@ -74,11 +75,9 @@ fun SignupStep1Screen(
                                 onValueChange = vm::onEmail,
                                 placeholder = "이메일 입력",
                                 trailing = {
-
                                     Box(Modifier.padding(end = 6.dp)) {
                                         InlineActionButton(
                                             text = "중복확인",
-                                            enabled = vm.uiState.email.isNotBlank(),
                                             onClick = { /* vm.checkEmailDuplicate() */ }
                                         )
                                     }
@@ -113,8 +112,7 @@ fun SignupStep1Screen(
                                     Box(Modifier.padding(end = 6.dp)) {
                                         InlineActionButton(
                                             text = "중복확인",
-                                            enabled = vm.uiState.email.isNotBlank(),
-                                            onClick = { /* vm.checkEmailDuplicate() */ }
+                                            onClick = { /* vm.checkNickDuplicate() */ }
                                         )
                                     }
                                 }
@@ -137,10 +135,33 @@ fun SignupStep1Screen(
                             )
 
                             // 생년월일
-                            BirthdayField(
-                                value = vm.uiState.birthday,
-                                onChange = vm::onBirthday
-                            )
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // 생년월일 입력 필드
+                                BirthdayField(
+                                    value = vm.uiState.birthday,
+                                    onChange = vm::onBirthday,
+                                )
+
+                                Spacer(modifier = Modifier.width(8.dp))
+
+                                Button(
+                                    onClick = {
+                                    },
+                                    modifier = Modifier
+                                        .height(INPUT_HEIGHT)
+                                        .width(88.dp),
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MainPurple,
+                                        contentColor = Color.White
+                                    )
+                                ) {
+                                    Text("선택")
+                                }
+                            }
 
                             // 주소
                             AddressRow(

@@ -30,10 +30,13 @@ fun AddressRow(
             onValueChange = onZip,
             placeholder = "우편번호",
             trailing = {
-                InlineActionButton(
-                    text = "주소검색",
-                    onClick = onSearchAddress
-                )
+                Box(Modifier.padding(end = 6.dp)) {
+                    InlineActionButton(
+                        text = "주소검색",
+                        onClick = onSearchAddress,
+                        modifier = Modifier.height(36.dp)
+                    )
+                }
             }
         )
 

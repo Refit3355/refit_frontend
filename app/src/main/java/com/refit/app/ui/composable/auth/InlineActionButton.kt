@@ -15,17 +15,18 @@ import com.refit.app.ui.theme.MainPurple
 @Composable
 fun InlineActionButton(
     text: String,
-    enabled: Boolean = true,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Button(
         onClick = onClick,
-        enabled = enabled,
-        modifier = Modifier.height(35.dp),
+        modifier = modifier,
         shape = RoundedCornerShape(5.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = MainPurple,
             contentColor = Color.White
         )
-    ) { Text(text, style = MaterialTheme.typography.labelMedium) }
+    ) {
+        Text(text, style = MaterialTheme.typography.labelMedium)
+    }
 }
