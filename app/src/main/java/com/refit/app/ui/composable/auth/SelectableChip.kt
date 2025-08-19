@@ -33,7 +33,7 @@ fun SelectableChip(
             text = text,
             modifier = Modifier.padding(horizontal = 25.dp, vertical = 8.dp),
             style = MaterialTheme.typography.labelLarge.copy(
-                fontSize = 20.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
                 lineHeight = 20.sp,
                 fontFamily = Pretendard,
