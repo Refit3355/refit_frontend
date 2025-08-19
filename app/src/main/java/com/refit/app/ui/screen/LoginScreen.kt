@@ -26,6 +26,7 @@ import com.refit.app.ui.composable.auth.KakaoButton
 import com.refit.app.ui.composable.auth.PurpleButton
 import com.refit.app.ui.composable.auth.RefitTextField
 import com.refit.app.ui.theme.MainPurple
+import com.refit.app.ui.theme.Pretendard
 import com.refit.app.ui.viewmodel.auth.AuthViewModel
 
 @Composable
@@ -46,7 +47,7 @@ fun LoginScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
+                    .padding(horizontal = 22.dp)
                     .align(Alignment.Center)
             ) {
                 Column(
@@ -58,7 +59,7 @@ fun LoginScreen(
                         painter = painterResource(id = R.drawable.ic_login_logo),
                         contentDescription = "Mascot",
                         modifier = Modifier
-                            .size(350.dp)
+                            .size(300.dp)
                             .align(Alignment.CenterHorizontally)
                     )
 
@@ -136,7 +137,8 @@ fun LoginScreen(
                         .align(Alignment.CenterHorizontally)
                         .clickable { onSignup() },
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp
+                    fontSize = 18.sp,
+                    fontFamily = Pretendard,
                 )
             }
         }

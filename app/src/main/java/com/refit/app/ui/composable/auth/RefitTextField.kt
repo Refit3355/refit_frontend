@@ -15,6 +15,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun RefitTextField(
@@ -34,7 +35,7 @@ fun RefitTextField(
         modifier = modifier,
         singleLine = singleLine,
         textStyle = textStyle,
-        placeholder = { Text(hint, fontSize = 16.sp, color = Color.Gray) }, // 힌트 글자 크기
+        placeholder = { Text(hint, fontSize = 16.sp, color = Color.Gray, fontFamily = Pretendard) }, // 힌트 글자 크기
         visualTransformation = if (isPassword && !passwordVisible) {
             PasswordVisualTransformation()
         } else {

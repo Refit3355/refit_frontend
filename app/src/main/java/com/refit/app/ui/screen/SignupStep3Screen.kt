@@ -102,7 +102,7 @@ fun SignupStep3Screen(
                         append("회원가입이 완료되었어요.")
                     }
                 },
-                fontSize = 28.sp,
+                fontSize = 25.sp,
                 lineHeight = 36.sp,
                 color = Color.Black,
                 fontWeight = FontWeight.Bold,
@@ -116,14 +116,14 @@ fun SignupStep3Screen(
                     }
                     append("과 함께\n나만의 뷰티·헬스 루틴을 시작해요!")
                 },
-                fontSize = 28.sp,
+                fontSize = 25.sp,
                 lineHeight = 36.sp,
                 color = Color.Black,
                 fontWeight = FontWeight.Bold,
                 fontFamily = Pretendard,
             )
 
-            Spacer(Modifier.height(74.dp))
+
 
             Image(
                 painter = painterResource(id = R.drawable.ic_signup_success),

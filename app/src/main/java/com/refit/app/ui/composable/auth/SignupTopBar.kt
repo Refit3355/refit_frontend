@@ -59,7 +59,7 @@ fun SignupTopBar(
                         text = title,
                         textAlign = TextAlign.Center,
                         style = androidx.compose.material3.MaterialTheme.typography.titleLarge.copy(
-                            fontSize = 24.sp,
+                            fontSize = 20.sp,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                         ),
                         color = Color.Black,

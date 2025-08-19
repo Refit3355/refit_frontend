@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.refit.app.ui.theme.MainPurple
+import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun PurpleButton(
@@ -35,6 +36,7 @@ fun PurpleButton(
         Text(
             text= text,
             fontWeight = FontWeight.Bold,
+            fontFamily = Pretendard,
             fontSize = 18.sp)
     }
 }
