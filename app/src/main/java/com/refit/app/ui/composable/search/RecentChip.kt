@@ -13,9 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.refit.app.R
 import com.refit.app.ui.theme.MainPurple
+import com.refit.app.ui.theme.Pretendard
 
 
 @Composable
@@ -38,7 +41,11 @@ fun RecentChip(
         ) {
             Text(
                 text = text,
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontFamily = Pretendard,
+                    fontWeight = FontWeight(500),
+                    fontSize = 14.sp
+                ),
                 color = MainPurple,
                 modifier = Modifier.clickable { onClick() } // 텍스트 클릭
             )
