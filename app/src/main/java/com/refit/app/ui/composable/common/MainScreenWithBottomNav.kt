@@ -29,6 +29,7 @@ import com.refit.app.ui.screen.MyfitScreen
 import com.refit.app.ui.screen.NotificationScreen
 import com.refit.app.ui.screen.ProductDetailScreen
 import com.refit.app.ui.screen.SearchScreen
+import com.refit.app.ui.screen.WishScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -79,8 +80,15 @@ fun MainScreenWithBottomNav(
                 // 검색/알림/장바구니
                 composable("notifications") { NotificationScreen(navController) }
                 composable("cart") { CartScreen(navController) }
-                composable("search") { SearchScreen(navController) }
-
+                composable(
+                    route = "search?query={query}",
+                    arguments = listOf(navArgument("query") {
+                        nullable = true
+                        defaultValue = null
+                    })
+                ) {
+                    SearchScreen(navController)
+                }
                 // 개발중 : 삼성헬스 데이터 확인용 스크린
                 composable("health_dev") { com.refit.app.ui.screen.HealthScreen() }
 
@@ -92,6 +100,9 @@ fun MainScreenWithBottomNav(
                     val id = backStackEntry.arguments!!.getInt("id")
                     ProductDetailScreen(productId = id, navController = navController)
                 }
+
+                // 찜 목록
+                composable("wish") { WishScreen(navController) }
             }
         }
     }

@@ -8,7 +8,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.refit.app.data.local.wish.WishViewModel
 import com.refit.app.data.product.model.Product
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -25,6 +28,10 @@ fun ProductGrid(
     modifier: Modifier = Modifier
 ) {
     val gridState = rememberLazyGridState()
+
+    // 찜 WishViewModel 연결
+    val wishVM: WishViewModel = viewModel()
+    val wished by wishVM.wishedIds.collectAsStateWithLifecycle(initialValue = emptySet())
 
     // 무한 스크롤 트리거 내부 캡슐화
     LaunchedEffect(gridState, isLoading, hasMore) {
@@ -50,6 +57,8 @@ fun ProductGrid(
                 ProductCard(
                     item = items[i],
                     modifier = Modifier.fillMaxWidth(),
+                    wished = p.id in wished,
+                    onToggleWish = { wishVM.toggle(p.id) },
                     onClick = { navController.navigate("product/${p.id}") }
                 )
             }

@@ -29,6 +29,7 @@ import com.refit.app.R
 import com.refit.app.data.product.modelAndView.ProductListViewModel
 import com.refit.app.ui.composable.product.ProductGrid
 import com.refit.app.ui.composable.product.SortBottomSheet
+import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 
 @Composable
@@ -81,11 +82,6 @@ fun CategoryScreen(
         if (selectedGroup == Group.BEAUTY) beautyCats else healthCats
     }
 
-    // 그룹 전환 시 카테고리 초기화
-    LaunchedEffect(selectedGroup) {
-        selectedCategoryIndex = 0
-    }
-
     // 데이터 로딩
     LaunchedEffect(selectedGroup, selectedCategoryIndex, selectedSortIndex) {
         val groupParam = selectedGroup.param
@@ -100,7 +96,12 @@ fun CategoryScreen(
         // 1) 뷰티/헬스
         GroupSegmented(
             selected = selectedGroup,
-            onSelected = { selectedGroup = it },
+            onSelected = {
+                if (selectedGroup != it) {
+                    selectedGroup = it
+                    selectedCategoryIndex = 0
+                }
+            },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(horizontal = 16.dp)
@@ -131,7 +132,7 @@ fun CategoryScreen(
                 append("총 ")
                 withStyle(
                     SpanStyle(
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MainPurple,
                         fontWeight = FontWeight.SemiBold
                     )
                 ) {
