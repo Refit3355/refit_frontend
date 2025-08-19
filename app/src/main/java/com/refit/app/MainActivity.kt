@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
                 // 항상 홈으로 시작
                 MainScreenWithBottomNav(
                     navController = navController,
-                    startDestination = "home"
+                    startDestination = "splash"
                 )
 
                 // 알림 클릭 시, NavHost 초기화 후 알림화면으로 이동

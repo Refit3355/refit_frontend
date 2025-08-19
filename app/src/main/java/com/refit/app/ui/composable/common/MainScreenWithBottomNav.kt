@@ -24,38 +24,47 @@ import com.refit.app.ui.screen.CartScreen
 import com.refit.app.ui.screen.CategoryScreen
 import com.refit.app.ui.screen.CommunityScreen
 import com.refit.app.ui.screen.HomeScreen
+import com.refit.app.ui.screen.LoginScreen
 import com.refit.app.ui.screen.MyScreen
 import com.refit.app.ui.screen.MyfitScreen
 import com.refit.app.ui.screen.NotificationScreen
 import com.refit.app.ui.screen.ProductDetailScreen
 import com.refit.app.ui.screen.SearchScreen
+import com.refit.app.ui.screen.SignupStep1Screen
+import com.refit.app.ui.screen.SignupStep2Screen
+import com.refit.app.ui.screen.SignupStep3Screen
+import com.refit.app.ui.screen.SplashScreen
 import com.refit.app.ui.screen.WishScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreenWithBottomNav(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = "home"
+    startDestination: String = "splash"
 )
 {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route ?: "home"
+    val currentRoute = navBackStackEntry?.destination?.route ?: startDestination
 
     val bottomTabs = listOf("home", "category", "myfit", "community", "my")
 
+    // 스플래시/인증 경로에서는 상단 및 하단 바 숨김 처리
+    val hideBars = currentRoute == "splash" || currentRoute.startsWith("auth/")
     Scaffold(
         topBar = {
-            Box(Modifier.padding(vertical = 8.dp)) {
-                RefitTopBar(
-                    config = appBarFor(
-                        route = currentRoute,
-                        nav = navController
+            if (!hideBars) {
+                Box(Modifier.padding(vertical = 8.dp)) {
+                    RefitTopBar(
+                        config = appBarFor(
+                            route = currentRoute,
+                            nav = navController
+                        )
                     )
-                )
+                }
             }
         },
         bottomBar = {
-            if (bottomTabs.any { currentRoute.startsWith(it) }) {
+            if (!hideBars && bottomTabs.any { currentRoute.startsWith(it) }) {
                 BottomBar(navController = navController)
             }
         }
@@ -70,6 +79,65 @@ fun MainScreenWithBottomNav(
                 startDestination = startDestination,
                 modifier = Modifier.padding(innerPadding)
             ) {
+                // Splash
+                composable("splash") {
+                    SplashScreen(
+                        onDecide = { loggedIn ->
+                            if (loggedIn) {
+                                navController.navigate("home") {
+                                    popUpTo("splash") { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            } else {
+                                navController.navigate("auth/login") {
+                                    popUpTo("splash") { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            }
+                        }
+                    )
+                }
+                // Auth
+                composable("auth/login") {
+                    LoginScreen(
+                        onClose = { /* 필요시 */ },
+                        onSignup = { navController.navigate("auth/signup1") }
+                    )
+                }
+                composable("auth/signup1") {
+                    SignupStep1Screen(
+                        onBack = { navController.popBackStack() },
+                        onNextOrSubmit = { navController.navigate("auth/signup2") },
+                        onSearchAddress = { /* 주소 검색 */ }
+                    )
+                }
+                composable("auth/signup2") {
+                    SignupStep2Screen(
+                        selectedSkinType = null,
+                        selectedSkinConcerns = emptySet(),
+                        selectedScalpConcerns = emptySet(),
+                        selectedHealthConcerns = emptySet(),
+                        onSkinTypeChange = { /* vm에 전달 */ },
+                        onToggleSkinConcern = { /* vm에 전달 */ },
+                        onToggleScalpConcern = { /* vm에 전달 */ },
+                        onToggleHealthConcern = { /* vm에 전달 */ },
+                        onBack = { navController.popBackStack() },
+                        onNextOrSubmit = { navController.navigate("auth/signup3") },
+                        submitEnabled = true
+                    )
+                }
+                composable("auth/signup3") {
+                    SignupStep3Screen(
+                        nickname = null, // SharedPreferences에서 닉네임 꺼내서 넘기면 됨
+                        onBack = { navController.popBackStack() },
+                        onLogin = {
+                            navController.navigate("home") {
+                                popUpTo("auth/login") { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        }
+                    )
+                }
                 // 기본 탭
                 composable("home") { HomeScreen(navController) }
                 composable("category") { CategoryScreen(navController) }
