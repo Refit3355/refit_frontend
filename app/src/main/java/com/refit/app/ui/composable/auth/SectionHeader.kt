@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.refit.app.ui.composable.common.topbar.TopBarTokens.Icon
 import com.refit.app.ui.theme.MainPurple
+import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun SectionHeader(
@@ -52,7 +53,8 @@ fun SectionHeader(
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp
             ),
-            color = color
+            color = color,
+            fontFamily = Pretendard,
         )
     }
 }

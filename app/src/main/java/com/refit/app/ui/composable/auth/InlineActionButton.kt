@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.refit.app.ui.theme.MainPurple
+import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun InlineActionButton(
@@ -34,7 +35,8 @@ fun InlineActionButton(
             text = text,
             style = MaterialTheme.typography.labelMedium,
             fontSize = 15.sp,
-            maxLines = 1
+            maxLines = 1,
+            fontFamily = Pretendard,
         )
     }
 }

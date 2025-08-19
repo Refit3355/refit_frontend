@@ -10,6 +10,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.refit.app.ui.theme.MainPurple
+import com.refit.app.ui.theme.Pretendard
+
 @Composable
 fun LabeledField(
     label: String,
@@ -25,7 +27,7 @@ fun LabeledField(
     textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
 ) {
     Column(modifier = modifier) {
-        Text(text = label, style = labelTextStyle)
+        Text(text = label, style = labelTextStyle, fontFamily = Pretendard)
         Spacer(Modifier.height(8.dp))
 
         OutlinedTextField(
@@ -40,7 +42,8 @@ fun LabeledField(
             placeholder = {
                 Text(
                     text = placeholder,
-                    style = placeholderTextStyle
+                    style = placeholderTextStyle,
+                    fontFamily = Pretendard,
                 )
             },
             colors = TextFieldDefaults.colors(

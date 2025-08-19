@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.refit.app.R
 import com.refit.app.ui.theme.MainPurple
+import com.refit.app.ui.theme.Pretendard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,11 +58,12 @@ fun SignupTopBar(
                     Text(
                         text = title,
                         textAlign = TextAlign.Center,
-                        style = androidx.compose.material3.MaterialTheme.typography.titleLarge.copy( // ✅ 크기와 굵기
-                            fontSize = 20.sp,
+                        style = androidx.compose.material3.MaterialTheme.typography.titleLarge.copy(
+                            fontSize = 24.sp,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                         ),
-                        color = Color.Black
+                        color = Color.Black,
+                        fontFamily = Pretendard
                     )
                 }
             },

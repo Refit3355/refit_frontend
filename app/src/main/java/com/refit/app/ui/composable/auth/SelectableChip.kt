@@ -11,6 +11,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.refit.app.ui.theme.MainPurple
+import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun SelectableChip(
@@ -34,7 +35,8 @@ fun SelectableChip(
             style = MaterialTheme.typography.labelLarge.copy(
                 fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
-                lineHeight = 20.sp
+                lineHeight = 20.sp,
+                fontFamily = Pretendard,
             ),
             color = fg
         )

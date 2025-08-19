@@ -29,6 +29,7 @@ import com.refit.app.ui.composable.auth.ChipGroupSingle
 import com.refit.app.ui.composable.auth.SectionHeader
 import com.refit.app.ui.composable.auth.SignupTopBar
 import com.refit.app.ui.theme.MainPurple
+import com.refit.app.ui.theme.Pretendard
 
 object SignupOptions {
     val skinTypes = listOf("건성", "중성", "지성", "복합성", "수부지")
@@ -82,7 +83,8 @@ fun SignupStep2Screen(
                 text = "가입하기",
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Pretendard,
                 )
             ) }
         },
@@ -116,7 +118,8 @@ fun SignupStep2Screen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = autoIconSize),
-                textAlign = TextAlign.Start
+                textAlign = TextAlign.Start,
+                fontFamily = Pretendard
             )
 
             // 본문 카드
