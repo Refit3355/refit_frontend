@@ -5,8 +5,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,25 +21,35 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.refit.app.R
+import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
     onDecide: (loggedIn: Boolean) -> Unit,
-    preview: Boolean = false
+    preview: Boolean = false,
+    minDurationMs: Long = 1000L  // 최소 노출 시간
 ) {
     val context = LocalContext.current
 
-    // 프리뷰가 아니면 실제 분기 수행
-    if (!preview) {
-        LaunchedEffect(Unit) {
-            val prefs = context.getSharedPreferences("refit_prefs", Context.MODE_PRIVATE)
-            val token = prefs.getString("auth_token", null)
-            val isLoggedIn = !token.isNullOrBlank()
-            onDecide(isLoggedIn)
+    LaunchedEffect(preview) {
+        if (preview) return@LaunchedEffect
+
+        val start = System.currentTimeMillis()
+
+        // 로그인 여부 판단 (현재 사용중인 SharedPreferences 로직 유지)
+        val prefs = context.getSharedPreferences("refit_prefs", Context.MODE_PRIVATE)
+        val token = prefs.getString("auth_token", null)
+        val isLoggedIn = !token.isNullOrBlank()
+
+        // 최소 노출 시간 보장
+        val elapsed = System.currentTimeMillis() - start
+        if (elapsed < minDurationMs) {
+            delay(minDurationMs - elapsed)
         }
+
+        onDecide(isLoggedIn)
     }
 
-    // UI
     Box(
         modifier = Modifier
             .fillMaxSize()

@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
                 // 알림 클릭 여부 판단
                 val navigateTo = intent?.getStringExtra("navigateTo")
 
-                // 항상 홈으로 시작
+                // 항상 스플래시로 시작
                 MainScreenWithBottomNav(
                     navController = navController,
                     startDestination = "splash"

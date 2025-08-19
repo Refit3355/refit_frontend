@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -35,6 +36,7 @@ import com.refit.app.ui.screen.SignupStep2Screen
 import com.refit.app.ui.screen.SignupStep3Screen
 import com.refit.app.ui.screen.SplashScreen
 import com.refit.app.ui.screen.WishScreen
+import com.refit.app.ui.viewmodel.auth.SignupViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -112,20 +114,22 @@ fun MainScreenWithBottomNav(
                     )
                 }
                 composable("auth/signup2") {
+                    val vm: SignupViewModel = viewModel()
                     SignupStep2Screen(
-                        selectedSkinType = null,
-                        selectedSkinConcerns = emptySet(),
-                        selectedScalpConcerns = emptySet(),
-                        selectedHealthConcerns = emptySet(),
-                        onSkinTypeChange = { /* vm에 전달 */ },
-                        onToggleSkinConcern = { /* vm에 전달 */ },
-                        onToggleScalpConcern = { /* vm에 전달 */ },
-                        onToggleHealthConcern = { /* vm에 전달 */ },
+                        selectedSkinType = vm.uiState.skinType,
+                        selectedSkinConcerns = vm.uiState.skinConcerns,
+                        selectedScalpConcerns = vm.uiState.scalpConcerns,
+                        selectedHealthConcerns = vm.uiState.healthConcerns,
+                        onSkinTypeChange = vm::setSkinType,
+                        onToggleSkinConcern = vm::toggleSkinConcern,
+                        onToggleScalpConcern = vm::toggleScalpConcern,
+                        onToggleHealthConcern = vm::toggleHealthConcern,
                         onBack = { navController.popBackStack() },
                         onNextOrSubmit = { navController.navigate("auth/signup3") },
-                        submitEnabled = true
+                        submitEnabled = vm.isStep2Valid
                     )
                 }
+
                 composable("auth/signup3") {
                     SignupStep3Screen(
                         nickname = null, // SharedPreferences에서 닉네임 꺼내서 넘기면 됨
