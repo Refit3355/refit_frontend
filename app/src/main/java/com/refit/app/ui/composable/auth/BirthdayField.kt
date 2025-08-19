@@ -1,17 +1,21 @@
 package com.refit.app.ui.composable.auth
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.refit.app.ui.theme.MainPurple
 import java.time.LocalDate
 
@@ -28,7 +32,7 @@ fun BirthdayField(
     val text = value?.format(formatter) ?: ""
 
     Column(modifier = modifier) {
-        Text(text = "생년월일", style = MaterialTheme.typography.labelLarge)
+        Text(text = "생년월일", fontSize = 18.sp, style = MaterialTheme.typography.labelMedium,)
         Spacer(Modifier.height(8.dp))
 
         Row(
@@ -66,12 +70,12 @@ fun BirthdayField(
                     errorPlaceholderColor = Color.Red
                 )
             )
-
-            InlineActionButton(
-                text = "선택",
-                onClick = { open = true },
-                modifier = Modifier.height(36.dp)
-            )
+            Box(Modifier.padding(end = 6.dp)) {
+                InlineActionButton(
+                    text = "선택",
+                    onClick = { open = true },
+                )
+            }
         }
     }
 

@@ -2,11 +2,14 @@ package com.refit.app.ui.composable.auth
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlin.math.sin
 import kotlin.math.truncate
 
@@ -22,42 +25,44 @@ fun AddressRow(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-
+        val labelStyle = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
         // 우편번호 + 주소검색
         LabeledField(
             label = "우편번호",
             value = zipcode,
             onValueChange = onZip,
             placeholder = "우편번호",
+            labelTextStyle = labelStyle,
             trailing = {
                 Box(Modifier.padding(end = 6.dp)) {
                     InlineActionButton(
                         text = "주소검색",
                         onClick = onSearchAddress,
-                        modifier = Modifier.height(36.dp)
                     )
                 }
             }
         )
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(10.dp))
 
         // 도로명 주소
         LabeledField(
             label = "도로명 주소",
             value = road,
             onValueChange = onRoad,
-            placeholder = "도로명 주소"
+            placeholder = "도로명 주소",
+            labelTextStyle = labelStyle,
         )
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(10.dp))
 
         // 상세 주소
         LabeledField(
             label = "상세 주소",
             value = detail,
             onValueChange = onDetail,
-            placeholder = "상세 주소"
+            placeholder = "상세 주소",
+            labelTextStyle = labelStyle,
         )
     }
 }

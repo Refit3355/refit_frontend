@@ -16,10 +16,10 @@ import com.refit.app.ui.composable.auth.*
 import com.refit.app.ui.theme.MainPurple
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import com.refit.app.ui.viewmodel.auth.SignupViewModel
 
-private val FIELD_WIDTH = 382.dp
-private val RADIUS = 16.dp
 private val INPUT_HEIGHT = 56.dp
 
 @Composable
@@ -54,26 +54,30 @@ fun SignupStep1Screen(
                 contentAlignment = Alignment.Center
             ) {
                 Column(
-                    modifier = Modifier.width(FIELD_WIDTH),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
 
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(RADIUS),
+                        shape = RoundedCornerShape(10),
                         colors = CardDefaults.cardColors(containerColor = Color.White),
                         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                     ) {
                         Column(
                             modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                            verticalArrangement = Arrangement.spacedBy(20.dp)
                         ) {
+                            val labelStyle = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
+
                             // 이메일 + 중복확인
                             LabeledField(
                                 label = "이메일",
                                 value = vm.uiState.email,
                                 onValueChange = vm::onEmail,
                                 placeholder = "이메일 입력",
+                                modifier = Modifier.fillMaxWidth(),
+                                labelTextStyle = labelStyle,
                                 trailing = {
                                     Box(Modifier.padding(end = 6.dp)) {
                                         InlineActionButton(
@@ -90,6 +94,7 @@ fun SignupStep1Screen(
                                 value = vm.uiState.password,
                                 onValueChange = vm::onPassword,
                                 placeholder = "비밀번호 입력",
+                                labelTextStyle = labelStyle,
                                 visualTransformation = PasswordVisualTransformation()
                             )
 
@@ -99,6 +104,7 @@ fun SignupStep1Screen(
                                 value = vm.uiState.passwordConfirm,
                                 onValueChange = vm::onPasswordConfirm,
                                 placeholder = "비밀번호 확인 입력",
+                                labelTextStyle = labelStyle,
                                 visualTransformation = PasswordVisualTransformation()
                             )
 
@@ -108,6 +114,7 @@ fun SignupStep1Screen(
                                 value = vm.uiState.nickname,
                                 onValueChange = vm::onNick,
                                 placeholder = "닉네임 입력",
+                                labelTextStyle = labelStyle,
                                 trailing = {
                                     Box(Modifier.padding(end = 6.dp)) {
                                         InlineActionButton(
@@ -123,7 +130,8 @@ fun SignupStep1Screen(
                                 label = "이름",
                                 value = vm.uiState.memberName,
                                 onValueChange = vm::onMemberName,
-                                placeholder = "이름 입력"
+                                placeholder = "이름 입력",
+                                labelTextStyle = labelStyle,
                             )
 
                             // 휴대폰
@@ -131,7 +139,8 @@ fun SignupStep1Screen(
                                 label = "휴대폰 번호",
                                 value = vm.uiState.phoneNumber,
                                 onValueChange = vm::onPhone,
-                                placeholder = "휴대폰 번호 입력"
+                                placeholder = "휴대폰 번호 입력",
+                                labelTextStyle = labelStyle,
                             )
 
                             // 생년월일
@@ -147,20 +156,6 @@ fun SignupStep1Screen(
 
                                 Spacer(modifier = Modifier.width(8.dp))
 
-                                Button(
-                                    onClick = {
-                                    },
-                                    modifier = Modifier
-                                        .height(INPUT_HEIGHT)
-                                        .width(88.dp),
-                                    shape = RoundedCornerShape(8.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MainPurple,
-                                        contentColor = Color.White
-                                    )
-                                ) {
-                                    Text("선택")
-                                }
                             }
 
                             // 주소
@@ -180,7 +175,7 @@ fun SignupStep1Screen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
-                        shape = RoundedCornerShape(RADIUS),
+                        shape = RoundedCornerShape(10),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MainPurple,
                             contentColor = Color.White
