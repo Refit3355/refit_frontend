@@ -159,7 +159,11 @@ internal fun SearchOnlyTopBar(config: AppBarConfig.SearchOnly) {
                                     tint = Color.Unspecified,
                                     modifier = Modifier
                                         .size(20.dp)
-                                        .clickable { config.onQueryChange("") }
+                                        .clickable {
+                                            config.onQueryChange("")
+                                            config.onClear?.invoke()
+                                            editing = false
+                                        }
                                 )
                             }
                         }

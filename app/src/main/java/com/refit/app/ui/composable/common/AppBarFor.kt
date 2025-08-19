@@ -2,16 +2,24 @@ package com.refit.app.ui.composable.common
 
 import android.net.Uri
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.refit.app.ui.composable.model.basic.AppBarConfig
 
 @Composable
 fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
     var query by rememberSaveable { mutableStateOf("") }
+
+    val backStackEntry by nav.currentBackStackEntryAsState()
+    val argQuery = backStackEntry?.arguments?.getString("query")
+    LaunchedEffect(argQuery) {
+        query = argQuery.orEmpty()      // ← 라우트 쿼리와 동기화
+    }
 
     return when {
         route.startsWith("home") || route.startsWith("category") ->
@@ -55,6 +63,12 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                         nav.navigate("search?query=$encoded") {
                             launchSingleTop = true    // 같은 화면 중복 쌓이지 않게
                         }
+                    }
+                },
+                onClear = {
+                    query = ""                // 로컬 상태도 비워주고
+                    nav.navigate("search") {  // 쿼리 파라미터 없이 진입 → SearchScreen이 Suggest로 전환
+                        launchSingleTop = true
                     }
                 },
                 showClear = true,

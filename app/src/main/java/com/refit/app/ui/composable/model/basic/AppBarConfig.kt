@@ -42,6 +42,7 @@ sealed class AppBarConfig {
     data class SearchOnly(
         val query: String,
         val onQueryChange: (String) -> Unit,
+        val onClear: (() -> Unit)? = null,
         val onSubmit: (String) -> Unit = {},
         val placeholder: String = "검색어를 입력하세요",
         val showClear: Boolean = true,

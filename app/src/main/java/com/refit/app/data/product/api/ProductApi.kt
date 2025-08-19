@@ -1,6 +1,7 @@
 package com.refit.app.data.product.api
 
 import com.refit.app.data.product.model.ProductDetailResponse
+import com.refit.app.data.product.model.ProductDto
 import com.refit.app.data.product.model.ProductListResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -28,4 +29,9 @@ interface ProductApi {
         @Query("limit") limit: Int = 20,
         @Query("sort") sort: String? = null
     ): ProductListResponse
+
+    @GET("products/popular")
+    suspend fun getPopularProducts(
+        @Query("limit") limit: Int = 10
+    ): List<ProductDto>
 }

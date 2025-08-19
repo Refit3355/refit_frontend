@@ -71,4 +71,6 @@ dependencies {
 
     // 찜 저장
     implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
 }

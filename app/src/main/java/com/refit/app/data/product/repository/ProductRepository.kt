@@ -3,6 +3,7 @@ package com.refit.app.data.product.repository
 import com.refit.app.network.RetrofitInstance
 import com.refit.app.data.product.api.ProductApi
 import com.refit.app.data.product.model.ProductDetail
+import com.refit.app.data.product.model.ProductDto
 import com.refit.app.data.product.model.ProductImage
 import com.refit.app.data.product.model.ProductListResponse
 
@@ -37,5 +38,9 @@ class ProductRepository(
         sort: String?
     ): Result<ProductListResponse> = runCatching {
         api.searchProducts(q = query, cursor = cursor, limit = limit, sort = sort)
+    }
+
+    suspend fun fetchPopularProducts(limit: Int): Result<List<ProductDto>> = runCatching {
+        api.getPopularProducts(limit)
     }
 }
