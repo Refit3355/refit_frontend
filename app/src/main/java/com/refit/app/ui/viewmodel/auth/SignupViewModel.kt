@@ -14,12 +14,10 @@ class SignupViewModel : ViewModel() {
     fun onNick(v: String)             { uiState = uiState.copy(nickname = v) }
     fun onMemberName(v: String)       { uiState = uiState.copy(memberName = v) }
     fun onPhone(v: String)            { uiState = uiState.copy(phoneNumber = v.filter { it.isDigit() }.take(11)) }
-    fun onGender(g: Gender)           { uiState = uiState.copy(gender = g) }
     fun onBirthday(d: LocalDate?)     { uiState = uiState.copy(birthday = d) }
     fun onZipcode(v: String)          { uiState = uiState.copy(zipcode = v.take(5)) }
     fun onRoad(v: String)             { uiState = uiState.copy(roadAddress = v) }
     fun onDetail(v: String)           { uiState = uiState.copy(detailAddress = v) }
-    fun onProfile(uri: String)        { uiState = uiState.copy(profileUrl = uri) }
 
     private val pwRegex = Regex("^(?=.{8,64}$)(?:(?=.*[A-Za-z])(?=.*\\d)|(?=.*[A-Za-z])(?=.*[^\\w\\s])|(?=.*\\d)(?=.*[^\\w\\s])).*$")
 
@@ -30,7 +28,6 @@ class SignupViewModel : ViewModel() {
                 uiState.password.matches(pwRegex) &&
                 uiState.passwordConfirm == uiState.password &&
                 uiState.phoneNumber.matches(Regex("^010\\d{8}$")) &&
-                uiState.gender != null &&
                 uiState.birthday != null &&
                 uiState.zipcode.isNotBlank() &&
                 uiState.roadAddress.isNotBlank() &&
