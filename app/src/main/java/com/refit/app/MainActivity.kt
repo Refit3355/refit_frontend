@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
         RetrofitInstance.init(this)
 
         // 개발시 토큰 넣기
-        //TokenManager.saveToken("1년짜리 토큰")
+        //TokenManager.saveToken("")
 
         enableEdgeToEdge()
 
@@ -59,7 +59,8 @@ class MainActivity : ComponentActivity() {
                 CompositionLocalProvider(LocalCartCount provides count) {
                     MainScreenWithBottomNav(
                         navController = navController,
-                        startDestination = "home"
+                        startDestination = "home",
+                        onCartChanged = { vm.refreshCount() }
                     )
                 }
 

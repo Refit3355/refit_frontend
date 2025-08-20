@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -35,7 +34,8 @@ import com.refit.app.ui.screen.WishScreen
 @Composable
 fun MainScreenWithBottomNav(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = "home"
+    startDestination: String = "home",
+    onCartChanged: () -> Unit
 )
 {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -79,7 +79,12 @@ fun MainScreenWithBottomNav(
 
                 // 검색/알림/장바구니
                 composable("notifications") { NotificationScreen(navController) }
-                composable("cart") { CartScreen(navController) }
+                composable("cart") {
+                    CartScreen(
+                        navController = navController,
+                        onCartChanged = onCartChanged
+                    )
+                }
                 composable(
                     route = "search?query={query}",
                     arguments = listOf(navArgument("query") {
