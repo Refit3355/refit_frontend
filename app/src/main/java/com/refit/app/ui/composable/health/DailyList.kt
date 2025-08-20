@@ -33,7 +33,7 @@ fun DailyList(rows: List<DailyRow>) {
                     Spacer(Modifier.height(6.dp))
 
                     InfoLine("걸음수(steps)", row.steps?.toString())
-                    InfoLine("운동칼로리(active kcal)", row.activeKcal?.round1())
+                    InfoLine("총 소모 칼로리(total kcal)", row.totalKcal?.round1())
 
                     val bp = when {
                         row.systolicMmhg != null && row.diastolicMmhg != null ->

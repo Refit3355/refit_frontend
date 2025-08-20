@@ -28,6 +28,18 @@ data class ProductDto(
     val sales: Int
 )
 
+fun ProductDto.toDomain(): Product {
+    return Product(
+        id = this.id,
+        image = this.thumbnailUrl,
+        brand = this.brandName,
+        name = this.productName,
+        discountRate = this.discountRate,
+        price = this.price,
+        discountedPrice = this.discountedPrice
+    )
+}
+
 data class ProductsPage(
     val items: List<Product>,
     val totalCount: Int,
