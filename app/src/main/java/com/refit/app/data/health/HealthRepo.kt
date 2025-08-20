@@ -22,7 +22,7 @@ object HealthRepo {
     // 필요한 권한 정의
     val readPerms = setOf(
         HealthPermission.getReadPermission(StepsRecord::class),
-        HealthPermission.getReadPermission(ActiveCaloriesBurnedRecord::class),
+        HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
         HealthPermission.getReadPermission(SleepSessionRecord::class),
         HealthPermission.getReadPermission(BloodGlucoseRecord::class),
         HealthPermission.getReadPermission(BloodPressureRecord::class),
@@ -47,7 +47,7 @@ object HealthRepo {
 
         // 날짜 범위 계산
         val endDate = LocalDate.now(zone)
-        val startDate = endDate.minusDays(days - 1)
+        val startDate = endDate.minusDays(days)
         val dates = generateSequence(startDate) { it.plusDays(1) }
             .take(days.toInt())
             .toList()
@@ -58,7 +58,7 @@ object HealthRepo {
         val endI: Instant = endDate.plusDays(1).atStartOfDay(zone).toInstant()
 
         // 개별 리더 호출
-        val (dailySteps, dailyActive) = readStepsAndActive(c, startLdt, endLdt)
+        val (dailySteps, dailyTotalKcal) = readStepsAndTotalCalories(c, startLdt, endLdt)
         val dailyGlucose = readGlucose(c, startI, endI, zone)
         val (dailySys, dailyDia) = readPressure(c, startI, endI, zone)
         val dailyIntake = readNutrition(c, startI, endI, zone)
@@ -66,7 +66,7 @@ object HealthRepo {
 
         // 날짜 합치기
         val allDates = (dates.toSet()
-                + dailySteps.keys + dailyActive.keys + dailyGlucose.keys
+                + dailySteps.keys + dailyTotalKcal.keys + dailyGlucose.keys
                 + dailySys.keys + dailyIntake.keys + dailySleep.keys)
             .toSortedSet()
 
@@ -74,7 +74,7 @@ object HealthRepo {
             DailyRow(
                 date = d,
                 steps = dailySteps[d],
-                activeKcal = dailyActive[d],
+                totalKcal = dailyTotalKcal[d],
                 bloodGlucoseMgdl = dailyGlucose[d],
                 systolicMmhg = dailySys[d],
                 diastolicMmhg = dailyDia[d],
@@ -86,4 +86,5 @@ object HealthRepo {
         HealthCache.cache = Cache(System.currentTimeMillis(), days, rows)
         return rows
     }
+
 }
