@@ -114,7 +114,7 @@ fun SignupStep2Screen(
                 },
                 style = headerTextStyle,
                 color = Color(0xFF4A4A4A),
-                fontSize = 25.sp,
+                fontSize = 18.sp,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = autoIconSize),
@@ -131,7 +131,7 @@ fun SignupStep2Screen(
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                    verticalArrangement = Arrangement.spacedBy(18.dp)
                 ) {
                     SectionHeader(
                         title = "피부 타입",

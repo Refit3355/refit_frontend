@@ -78,4 +78,11 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
+    // 암호화 SharedPrefences
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+
+    // viewModelScope / viewModel() 컴포즈에서 쓰니 함께 권장
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
+
 }

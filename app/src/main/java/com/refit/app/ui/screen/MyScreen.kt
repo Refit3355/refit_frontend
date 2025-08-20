@@ -9,13 +9,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.refit.app.R
+import com.refit.app.network.TokenManager
+import com.refit.app.network.UserPrefs
 
 @Composable
 fun MyScreen(navController: NavController) {
@@ -40,5 +45,33 @@ fun MyScreen(navController: NavController) {
             Spacer(Modifier.width(8.dp))
             Text("찜 목록 보기")
         }
+        Spacer(Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                // 토큰/유저정보 모두 삭제
+                TokenManager.clearAll()
+                UserPrefs.clear()
+
+                // 로그인 화면으로 이동 (뒤로가기 시 홈 안 뜨도록 스택 정리)
+                navController.navigate("auth/login") {
+                    popUpTo("home") { inclusive = true } // 필요 시 시작 지점 route로 조정
+                    launchSingleTop = true
+                }
+            },
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text("로그아웃(임시)")
+        }
+
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 800)
+@Composable
+private fun PreviewMyScreen() {
+    MaterialTheme {
+        val nav = rememberNavController()
+        MyScreen(navController = nav)
     }
 }

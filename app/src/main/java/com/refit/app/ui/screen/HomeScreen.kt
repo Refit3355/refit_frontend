@@ -1,5 +1,6 @@
 package com.refit.app.ui.screen
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -14,6 +15,9 @@ import androidx.navigation.NavController
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.runtime.LaunchedEffect
+import com.refit.app.network.TokenManager
+import com.refit.app.network.UserPrefs
 
 @Composable
 fun HomeScreen(navController: NavController) {

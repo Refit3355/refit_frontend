@@ -21,8 +21,6 @@ import androidx.compose.ui.unit.sp
 import com.refit.app.ui.theme.Pretendard
 import com.refit.app.ui.viewmodel.auth.SignupViewModel
 
-private val INPUT_HEIGHT = 56.dp
-
 @Composable
 fun SignupStep1Screen(
     onBack: () -> Unit,
