@@ -16,7 +16,7 @@ class HealthViewModel : ViewModel() {
 
     // UI 상태 데이터 클래스
     data class UiState(
-        val days: Int = 30,
+        val days: Int = 7,
         val rows: List<DailyRow> = emptyList(),
         val loading: Boolean = false,
         val error: String? = null,
