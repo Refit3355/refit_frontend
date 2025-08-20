@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -19,6 +20,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.refit.app.ui.screen.CartScreen
@@ -37,6 +39,8 @@ import com.refit.app.ui.screen.SignupStep3Screen
 import com.refit.app.ui.screen.SplashScreen
 import com.refit.app.ui.screen.WishScreen
 import com.refit.app.ui.viewmodel.auth.SignupViewModel
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -103,44 +107,81 @@ fun MainScreenWithBottomNav(
                 composable("auth/login") {
                     LoginScreen(
                         onClose = { /* 필요시 */ },
-                        onSignup = { navController.navigate("auth/signup1") }
-                    )
-                }
-                composable("auth/signup1") {
-                    SignupStep1Screen(
-                        onBack = { navController.popBackStack() },
-                        onNextOrSubmit = { navController.navigate("auth/signup2") },
-                        onSearchAddress = { /* 주소 검색 */ }
-                    )
-                }
-                composable("auth/signup2") {
-                    val vm: SignupViewModel = viewModel()
-                    SignupStep2Screen(
-                        selectedSkinType = vm.uiState.skinType,
-                        selectedSkinConcerns = vm.uiState.skinConcerns,
-                        selectedScalpConcerns = vm.uiState.scalpConcerns,
-                        selectedHealthConcerns = vm.uiState.healthConcerns,
-                        onSkinTypeChange = vm::setSkinType,
-                        onToggleSkinConcern = vm::toggleSkinConcern,
-                        onToggleScalpConcern = vm::toggleScalpConcern,
-                        onToggleHealthConcern = vm::toggleHealthConcern,
-                        onBack = { navController.popBackStack() },
-                        onNextOrSubmit = { navController.navigate("auth/signup3") },
-                        submitEnabled = vm.isStep2Valid
-                    )
-                }
+                        onSignup = { navController.navigate("auth/signup") }
 
-                composable("auth/signup3") {
-                    SignupStep3Screen(
-                        nickname = null, // SharedPreferences에서 닉네임 꺼내서 넘기면 됨
-                        onBack = { navController.popBackStack() },
-                        onLogin = {
-                            navController.navigate("home") {
-                                popUpTo("auth/login") { inclusive = true }
-                                launchSingleTop = true
-                            }
-                        }
                     )
+                }
+                // 회원가입 네비 그래프
+                navigation(
+                    startDestination = "auth/signup1",
+                    route = "auth/signup"
+                ) {
+                    composable("auth/signup1") { backStackEntry ->
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry("auth/signup")
+                        }
+                        val vm: SignupViewModel = viewModel(parentEntry)
+
+                        SignupStep1Screen(
+                            onBack = { navController.popBackStack() },
+                            onNextOrSubmit = { navController.navigate("auth/signup2") },
+                            onSearchAddress = { /* 주소 검색 */ },
+                            vm = vm
+                        )
+                    }
+
+                    composable("auth/signup2") { backStackEntry ->
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry("auth/signup")
+                        }
+                        val vm: SignupViewModel = viewModel(parentEntry)
+
+                        SignupStep2Screen(
+                            selectedSkinType = vm.uiState.skinType,
+                            selectedSkinConcerns = vm.uiState.skinConcerns,
+                            selectedScalpConcerns = vm.uiState.scalpConcerns,
+                            selectedHealthConcerns = vm.uiState.healthConcerns,
+                            onSkinTypeChange = vm::setSkinType,
+                            onToggleSkinConcern = vm::toggleSkinConcern,
+                            onToggleScalpConcern = vm::toggleScalpConcern,
+                            onToggleHealthConcern = vm::toggleHealthConcern,
+                            onBack = { navController.popBackStack() },
+                            onNextOrSubmit = {
+                                // 가입 API 호출
+                                vm.submitSignup(
+                                    onSuccess = { _ ->
+                                        val nick = vm.uiState.nickname
+                                        val encoded = URLEncoder.encode(nick, StandardCharsets.UTF_8.name())
+                                        navController.navigate("auth/signup3?nickname=$encoded") {
+                                        }
+                                    },
+                                    onError = { msg ->
+                                        // TODO: 스낵바/토스트 등으로 msg 표시
+                                    }
+                                )
+                            },
+                            // 입력 전체(valid) + step2 선택(skinType) 둘 다 만족해야 버튼 활성화
+                            submitEnabled = vm.isStep2Valid && vm.isValid
+                        )
+                    }
+
+                    composable(
+                        route = "auth/signup3?nickname={nickname}",
+                        arguments = listOf(navArgument("nickname") { defaultValue = "" })
+                    ) { backStackEntry ->
+                        val nickname = backStackEntry.arguments?.getString("nickname").orEmpty()
+
+                        SignupStep3Screen(
+                            nickname = nickname,
+                            onBack = { navController.popBackStack() },
+                            onLogin = {
+                                navController.navigate("auth/login") {
+                                    popUpTo("auth/signup") { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            }
+                        )
+                    }
                 }
                 // 기본 탭
                 composable("home") { HomeScreen(navController) }
