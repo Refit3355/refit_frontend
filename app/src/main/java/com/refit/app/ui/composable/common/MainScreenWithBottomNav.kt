@@ -107,10 +107,16 @@ fun MainScreenWithBottomNav(
                 composable("auth/login") {
                     LoginScreen(
                         onClose = { /* 필요시 */ },
-                        onSignup = { navController.navigate("auth/signup") }
-
+                        onSignup = { navController.navigate("auth/signup") },
+                        onLoggedIn = {
+                            navController.navigate("home") {
+                                popUpTo("auth/login") { inclusive = true } // 뒤로가기로 로그인 안 돌아오게
+                                launchSingleTop = true
+                            }
+                        }
                     )
                 }
+
                 // 회원가입 네비 그래프
                 navigation(
                     startDestination = "auth/signup1",

@@ -17,6 +17,7 @@ import androidx.health.connect.client.PermissionController
 import com.refit.app.data.health.HealthRepo
 import com.refit.app.network.RetrofitInstance
 import com.refit.app.network.TokenManager
+import com.refit.app.network.UserPrefs
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -24,6 +25,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         TokenManager.init(this)
         RetrofitInstance.init(this)
+        UserPrefs.init(this) // 사용자 정보 prefs
 
         enableEdgeToEdge()
 

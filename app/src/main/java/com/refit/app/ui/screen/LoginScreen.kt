@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,8 +34,12 @@ import com.refit.app.ui.viewmodel.auth.AuthViewModel
 fun LoginScreen(
     onClose: () -> Unit,
     onSignup: () -> Unit,
+    onLoggedIn: () -> Unit,
     vm: AuthViewModel = viewModel()
 ) {
+    LaunchedEffect(vm.loggedIn) {
+        if (vm.loggedIn) onLoggedIn()
+    }
    // 배경
     Scaffold { padding ->
         Box (
@@ -151,7 +156,8 @@ private fun LoginScreenPreview() {
     MaterialTheme {
         LoginScreen(
             onClose = {},
-            onSignup = {}
+            onSignup = {},
+            onLoggedIn = {}
         )
     }
 }

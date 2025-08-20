@@ -1,6 +1,7 @@
 package com.refit.app.ui.screen
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -21,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.refit.app.R
+import com.refit.app.network.TokenManager
 import kotlinx.coroutines.delay
 
 @Composable
@@ -29,7 +31,7 @@ fun SplashScreen(
     preview: Boolean = false,
     minDurationMs: Long = 1000L  // 최소 노출 시간
 ) {
-    val context = LocalContext.current
+    // val context = LocalContext.current
 
     LaunchedEffect(preview) {
         if (preview) return@LaunchedEffect
@@ -37,9 +39,8 @@ fun SplashScreen(
         val start = System.currentTimeMillis()
 
         // 로그인 여부 판단 (현재 사용중인 SharedPreferences 로직 유지)
-        val prefs = context.getSharedPreferences("refit_prefs", Context.MODE_PRIVATE)
-        val token = prefs.getString("auth_token", null)
-        val isLoggedIn = !token.isNullOrBlank()
+        val access = TokenManager.getAccessToken()
+        val isLoggedIn = !access.isNullOrBlank()
 
         // 최소 노출 시간 보장
         val elapsed = System.currentTimeMillis() - start
