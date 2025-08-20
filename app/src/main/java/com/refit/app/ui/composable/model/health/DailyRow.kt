@@ -8,7 +8,7 @@ import java.time.LocalDate
 data class DailyRow(
     val date: LocalDate,          // 날짜
     val steps: Long? = null,      // 걸음 수
-    val activeKcal: Double? = null, // 활동 칼로리
+    val totalKcal: Double? = null,     // 총 소모 칼로리 (운동 + 기초대사 포함)
     val bloodGlucoseMgdl: Double? = null, // 혈당 (mg/dL)
     val systolicMmhg: Double? = null,     // 수축기 혈압
     val diastolicMmhg: Double? = null,    // 이완기 혈압
