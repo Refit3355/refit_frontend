@@ -12,9 +12,17 @@ import com.refit.app.ui.composable.common.MainScreenWithBottomNav
 import com.refit.app.ui.theme.RefitTheme
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.health.connect.client.PermissionController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.refit.app.data.cart.api.CartApi
+import com.refit.app.data.cart.modelAndView.CartBadgeViewModel
+import com.refit.app.data.cart.repository.CartRepository
 import com.refit.app.data.health.HealthRepo
+import com.refit.app.data.local.cart.LocalCartCount
 import com.refit.app.network.RetrofitInstance
 import com.refit.app.network.TokenManager
 
@@ -25,6 +33,9 @@ class MainActivity : ComponentActivity() {
         TokenManager.init(this)
         RetrofitInstance.init(this)
 
+        // 개발시 토큰 넣기
+        //TokenManager.saveToken("1년짜리 토큰")
+
         enableEdgeToEdge()
 
         setContent {
@@ -34,17 +45,29 @@ class MainActivity : ComponentActivity() {
                 // 앱 시작 시 Health Connect 권한 자동 요청
 //                RequestHealthPermissionsOnStart()
 
+                // 전역 제공용 Local
+                val cartApi = remember { RetrofitInstance.create(CartApi::class.java) }
+                val repo    = remember { CartRepository(cartApi) }
+                val vm      = remember { CartBadgeViewModel(repo) }
+
+                val count by vm.badgeCount.collectAsStateWithLifecycle(0)
+
                 // 알림 클릭 여부 판단
                 val navigateTo = intent?.getStringExtra("navigateTo")
 
                 // 항상 홈으로 시작
-                MainScreenWithBottomNav(
-                    navController = navController,
-                    startDestination = "home"
-                )
+                CompositionLocalProvider(LocalCartCount provides count) {
+                    MainScreenWithBottomNav(
+                        navController = navController,
+                        startDestination = "home"
+                    )
+                }
 
                 // 알림 클릭 시, NavHost 초기화 후 알림화면으로 이동
                 LaunchedEffect(Unit) {
+                    if (!TokenManager.getToken().isNullOrBlank()) {
+                        vm.refreshCount()
+                    }
                     if (navigateTo == "notifications") {
                         navController.navigate("notifications")
                     }
