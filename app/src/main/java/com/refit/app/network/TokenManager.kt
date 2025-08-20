@@ -4,12 +4,23 @@ import android.content.Context
 import android.content.SharedPreferences
 
 object TokenManager {
-    private const val PREFS_NAME = "refit_prefs"
-    private const val TOKEN_KEY = "auth_token"
-    private lateinit var prefs: SharedPreferences
+    private const val SECURE_PREFS_NAME = "refit_secure_prefs"
+    private const val KEY_ACCESS = "access_token"
+    private const val KEY_REFRESH = "refresh_token"
+    private lateinit var securePrefs: SharedPreferences
 
     fun init(context: Context) {
-        prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        securePrefs = EncryptedSharedPreferences.create(
+            context,
+            SECURE_PREFS_NAME,
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
     }
     fun getToken(): String? {
         if (!::prefs.isInitialized) return null
