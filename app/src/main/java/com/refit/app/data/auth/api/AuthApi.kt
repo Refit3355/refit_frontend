@@ -7,6 +7,7 @@ import com.refit.app.data.auth.model.SignupResponse
 import com.refit.app.data.auth.model.UtilResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.Headers
 import retrofit2.http.POST
 
 interface AuthApi {
