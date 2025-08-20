@@ -60,6 +60,33 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                 onBack = { nav.popBackStack() }
             )
 
+        route.startsWith("stepsDetail") ->
+            AppBarConfig.BackWithActions(
+                title = "걸음 수 리포트",
+                onBack = { nav.popBackStack() },
+                onAlarmClick = { nav.navigate("notifications") },
+                onCartClick  = { nav.navigate("cart") },
+                showActions = true
+            )
+
+        route.startsWith("sleepDetail") ->
+            AppBarConfig.BackWithActions(
+                title = "수면 리포트",
+                onBack = { nav.popBackStack() },
+                onAlarmClick = { nav.navigate("notifications") },
+                onCartClick  = { nav.navigate("cart") },
+                showActions = true
+            )
+
+        route.startsWith("weatherDetail") ->
+            AppBarConfig.BackWithActions(
+                title = "날씨 리포트",
+                onBack = { nav.popBackStack() },
+                onAlarmClick = { nav.navigate("notifications") },
+                onCartClick  = { nav.navigate("cart") },
+                showActions = true
+            )
+
         else ->
             AppBarConfig.BackWithActions(
                 title = when {
