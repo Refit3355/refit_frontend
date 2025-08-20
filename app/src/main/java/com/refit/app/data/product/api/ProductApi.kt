@@ -20,4 +20,5 @@ interface ProductApi {
     suspend fun getProductDetail(
         @Path("id") id: Int
     ): ProductDetailResponse
+
 }
