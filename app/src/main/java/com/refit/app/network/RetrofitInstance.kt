@@ -23,7 +23,10 @@ object RetrofitInstance {
         if (initialized) return
 
         val debug = isDebuggable(context)
+
+        // 로깅 인터셉터 - Authorization 헤더 마스킹
         val logging = HttpLoggingInterceptor().apply {
+            redactHeader("Authorization")
             level = if (debug) HttpLoggingInterceptor.Level.BODY
             else HttpLoggingInterceptor.Level.BASIC
         }
@@ -39,6 +42,7 @@ object RetrofitInstance {
             .connectTimeout(60, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
             .writeTimeout(60, TimeUnit.SECONDS)
+            .addInterceptor(logging)
             .addInterceptor(TokenInterceptor())
             .addInterceptor(logging)
             .build()

@@ -20,6 +20,7 @@ import androidx.health.connect.client.PermissionController
 import com.refit.app.data.health.HealthRepo
 import com.refit.app.network.RetrofitInstance
 import com.refit.app.network.TokenManager
+import com.refit.app.network.UserPrefs
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -27,6 +28,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         TokenManager.init(this)
         RetrofitInstance.init(this)
+        UserPrefs.init(this) // 사용자 정보 prefs
 
         enableEdgeToEdge()
 
@@ -43,10 +45,10 @@ class MainActivity : ComponentActivity() {
                 // 알림 클릭 여부 판단
                 val navigateTo = intent?.getStringExtra("navigateTo")
 
-                // 항상 홈으로 시작
+                // 항상 스플래시로 시작
                 MainScreenWithBottomNav(
                     navController = navController,
-                    startDestination = "home"
+                    startDestination = "splash"
                 )
 
                 // 알림 클릭 시, NavHost 초기화 후 알림화면으로 이동

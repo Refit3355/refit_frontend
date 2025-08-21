@@ -1,6 +1,8 @@
 package com.refit.app.ui.screen
 
 import androidx.compose.foundation.background
+import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -13,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+
 import androidx.navigation.NavHostController
 import com.refit.app.R
 import com.refit.app.ui.composable.home.GreetingCard
@@ -25,6 +28,15 @@ import com.refit.app.ui.fake.ProductDummy
 import com.refit.app.ui.viewmodel.home.HomeViewModel
 import com.refit.app.util.home.getWeatherIcon
 import com.refit.app.util.home.highlightText
+
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.runtime.LaunchedEffect
+import com.refit.app.network.TokenManager
+import com.refit.app.network.UserPrefs
 
 @Composable
 fun HomeScreen(
