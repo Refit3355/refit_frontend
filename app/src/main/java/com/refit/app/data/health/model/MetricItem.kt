@@ -1,4 +1,4 @@
-package com.refit.app.ui.composable.model.health
+package com.refit.app.data.health.model
 
 import androidx.annotation.DrawableRes
 

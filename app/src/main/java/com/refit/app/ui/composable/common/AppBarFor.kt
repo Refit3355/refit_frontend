@@ -9,7 +9,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.refit.app.ui.composable.model.basic.AppBarConfig
+import com.refit.app.data.basic.model.AppBarConfig
 
 @Composable
 fun appBarFor(route: String, nav: NavHostController): AppBarConfig {

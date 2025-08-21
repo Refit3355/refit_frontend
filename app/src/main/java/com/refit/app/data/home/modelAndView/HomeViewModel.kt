@@ -1,4 +1,4 @@
-package com.refit.app.ui.viewmodel.home
+package com.refit.app.data.home.modelAndView
 
 import android.annotation.SuppressLint
 import android.content.Context

@@ -1,8 +1,6 @@
 package com.refit.app.ui.screen
 
 import androidx.compose.foundation.background
-import android.util.Log
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -22,21 +20,11 @@ import com.refit.app.ui.composable.home.GreetingCard
 import com.refit.app.ui.composable.home.HomeProductRow
 import com.refit.app.ui.composable.home.MetricRow
 import com.refit.app.ui.composable.home.SectionHeader
-import com.refit.app.ui.composable.model.health.MetricItem
+import com.refit.app.data.health.model.MetricItem
 import com.refit.app.ui.fake.MemberDummy
-import com.refit.app.ui.fake.ProductDummy
-import com.refit.app.ui.viewmodel.home.HomeViewModel
+import com.refit.app.data.home.modelAndView.HomeViewModel
 import com.refit.app.util.home.getWeatherIcon
 import com.refit.app.util.home.highlightText
-
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.LaunchedEffect
-import com.refit.app.network.TokenManager
-import com.refit.app.network.UserPrefs
 
 @Composable
 fun HomeScreen(

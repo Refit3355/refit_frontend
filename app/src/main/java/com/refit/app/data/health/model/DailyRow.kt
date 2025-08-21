@@ -1,4 +1,4 @@
-package com.refit.app.model.health
+package com.refit.app.data.health.model
 
 import java.time.LocalDate
 

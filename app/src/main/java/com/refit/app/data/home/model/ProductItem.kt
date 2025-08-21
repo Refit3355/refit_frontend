@@ -1,4 +1,4 @@
-package com.refit.app.ui.composable.model.home
+package com.refit.app.data.home.model
 
 data class ProductItem(
     val id: Long,

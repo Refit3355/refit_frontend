@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.*
-import com.refit.app.model.health.DailyRow
+import com.refit.app.data.health.model.DailyRow
 import com.refit.app.util.health.Cache
 import com.refit.app.util.health.HealthCache
 import com.refit.app.data.health.reader.*

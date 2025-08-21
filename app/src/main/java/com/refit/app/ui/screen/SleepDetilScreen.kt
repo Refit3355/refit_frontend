@@ -24,7 +24,7 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.refit.app.R
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
-import com.refit.app.ui.viewmodel.health.HealthViewModel
+import com.refit.app.data.health.modelAndView.HealthViewModel
 import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle

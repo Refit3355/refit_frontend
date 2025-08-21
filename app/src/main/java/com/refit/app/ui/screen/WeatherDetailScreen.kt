@@ -29,7 +29,7 @@ import com.google.android.gms.location.LocationServices
 import com.refit.app.R
 import com.refit.app.ui.theme.Pretendard
 import com.refit.app.ui.theme.MainPurple
-import com.refit.app.ui.viewmodel.weather.WeatherViewModel
+import com.refit.app.data.weather.modelAndView.WeatherViewModel
 
 @OptIn(ExperimentalPermissionsApi::class)
 @SuppressLint("MissingPermission")

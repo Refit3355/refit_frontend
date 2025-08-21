@@ -25,7 +25,7 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.refit.app.R
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
-import com.refit.app.ui.viewmodel.health.HealthViewModel
+import com.refit.app.data.health.modelAndView.HealthViewModel
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.HealthConnectClient
 import com.refit.app.data.health.HealthRepo

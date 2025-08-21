@@ -1,4 +1,4 @@
-package com.refit.app.ui.viewmodel.weather
+package com.refit.app.data.weather.modelAndView
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

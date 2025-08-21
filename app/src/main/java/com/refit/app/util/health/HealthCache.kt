@@ -1,6 +1,6 @@
 package com.refit.app.util.health
 
-import com.refit.app.model.health.DailyRow
+import com.refit.app.data.health.model.DailyRow
 
 /**
  * - 동일한 days 파라미터로 요청 시 30초 이내에는 캐시 사용

@@ -19,7 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.refit.app.ui.composable.model.health.MetricItem
+import com.refit.app.data.health.model.MetricItem
 import com.refit.app.ui.theme.MainPurple
 
 @Composable
