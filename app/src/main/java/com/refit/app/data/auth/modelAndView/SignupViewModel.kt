@@ -1,4 +1,4 @@
-package com.refit.app.ui.viewmodel.auth
+package com.refit.app.data.auth.modelAndView
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

@@ -1,4 +1,4 @@
-package com.refit.app.ui.viewmodel.auth
+package com.refit.app.data.auth.modelAndView
 
 import java.time.LocalDate
 

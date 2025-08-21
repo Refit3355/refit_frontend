@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -42,7 +41,7 @@ import com.refit.app.ui.screen.SignupStep2Screen
 import com.refit.app.ui.screen.SignupStep3Screen
 import com.refit.app.ui.screen.SplashScreen
 import com.refit.app.ui.screen.WishScreen
-import com.refit.app.ui.viewmodel.auth.SignupViewModel
+import com.refit.app.data.auth.modelAndView.SignupViewModel
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
