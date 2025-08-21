@@ -30,7 +30,7 @@ class ProductRepository(
             images = res.images.map { ProductImage(it.id, it.url, it.order) }
         )
     }
-
+    
     suspend fun searchProducts(
         query: String,
         cursor: String?,

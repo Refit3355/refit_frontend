@@ -1,6 +1,4 @@
-package com.refit.app.ui.composable.model.basic
-
-import androidx.compose.runtime.Composable
+package com.refit.app.data.basic.model
 
 sealed class AppBarConfig {
 

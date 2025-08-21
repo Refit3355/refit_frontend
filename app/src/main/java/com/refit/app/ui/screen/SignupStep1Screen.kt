@@ -19,7 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.refit.app.ui.theme.Pretendard
-import com.refit.app.ui.viewmodel.auth.SignupViewModel
+import com.refit.app.data.auth.modelAndView.SignupViewModel
 
 @Composable
 fun SignupStep1Screen(

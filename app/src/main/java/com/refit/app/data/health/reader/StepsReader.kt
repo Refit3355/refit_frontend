@@ -1,8 +1,8 @@
 package com.refit.app.data.health.reader
 
 import androidx.health.connect.client.HealthConnectClient
-import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import com.refit.app.util.health.retryBackoff
@@ -10,24 +10,25 @@ import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.Period
 import java.time.LocalDateTime
+import java.time.ZoneId
 
 /**
- * 걸음 수, 활동 칼로리 데이터 리더
+ * 걸음 수, 총 칼로리 데이터 리더
  */
-suspend fun readStepsAndActive(
+suspend fun readStepsAndTotalCalories(
     client: HealthConnectClient,
     start: LocalDateTime,
     end: LocalDateTime
 ): Pair<Map<LocalDate, Long>, Map<LocalDate, Double>> {
     val dailySteps = mutableMapOf<LocalDate, Long>()
-    val dailyActive = mutableMapOf<LocalDate, Double>()
+    val dailyCalories = mutableMapOf<LocalDate, Double>()
 
     val grouped = retryBackoff {
         client.aggregateGroupByPeriod(
             AggregateGroupByPeriodRequest(
                 metrics = setOf(
                     StepsRecord.COUNT_TOTAL,
-                    ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL
+                    TotalCaloriesBurnedRecord.ENERGY_TOTAL
                 ),
                 timeRangeFilter = TimeRangeFilter.between(start, end),
                 timeRangeSlicer = Period.ofDays(1)
@@ -36,12 +37,13 @@ suspend fun readStepsAndActive(
     }
 
     grouped.forEach { bucket ->
-        val d = bucket.startTime.toLocalDate()
+        val zone = ZoneId.systemDefault()
+        val d = bucket.startTime.atZone(zone).toLocalDate()
         dailySteps[d] = bucket.result[StepsRecord.COUNT_TOTAL] ?: 0L
-        dailyActive[d] =
-            bucket.result[ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL]?.inKilocalories ?: 0.0
+        dailyCalories[d] =
+            bucket.result[TotalCaloriesBurnedRecord.ENERGY_TOTAL]?.inKilocalories ?: 0.0  // ✅ 수정
     }
 
     delay(100)
-    return dailySteps to dailyActive
+    return dailySteps to dailyCalories
 }

@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.runtime.android)
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.i18n)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -78,6 +79,20 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
+    // 날씨
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+
+    // 아이콘
+    implementation("androidx.compose.material3:material3:1.2.1")
+    implementation("androidx.compose.material:material-icons-extended:1.6.8")
+
+    // 차트
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+    // 권한 요청
+    implementation("com.google.accompanist:accompanist-permissions:0.35.0-alpha")
+    
     // 암호화 SharedPrefences
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
 

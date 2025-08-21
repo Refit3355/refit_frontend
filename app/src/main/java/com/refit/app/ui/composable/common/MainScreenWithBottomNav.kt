@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -32,13 +31,17 @@ import com.refit.app.ui.screen.MyScreen
 import com.refit.app.ui.screen.MyfitScreen
 import com.refit.app.ui.screen.NotificationScreen
 import com.refit.app.ui.screen.ProductDetailScreen
+import com.refit.app.ui.screen.RecommendationScreen
 import com.refit.app.ui.screen.SearchScreen
+import com.refit.app.ui.screen.SleepDetailScreen
+import com.refit.app.ui.screen.StepsDetailScreen
+import com.refit.app.ui.screen.WeatherDetailScreen
 import com.refit.app.ui.screen.SignupStep1Screen
 import com.refit.app.ui.screen.SignupStep2Screen
 import com.refit.app.ui.screen.SignupStep3Screen
 import com.refit.app.ui.screen.SplashScreen
 import com.refit.app.ui.screen.WishScreen
-import com.refit.app.ui.viewmodel.auth.SignupViewModel
+import com.refit.app.data.auth.modelAndView.SignupViewModel
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -52,7 +55,7 @@ fun MainScreenWithBottomNav(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: startDestination
 
-    val bottomTabs = listOf("home", "category", "myfit", "community", "my")
+    val bottomTabs = listOf("home", "category", "myfit", "community", "my", "sleepDetail", "stepsDetail", "weatherDetail")
 
     // 스플래시/인증 경로에서는 상단 및 하단 바 숨김 처리
     val hideBars = currentRoute == "splash" || currentRoute.startsWith("auth/")
@@ -208,8 +211,6 @@ fun MainScreenWithBottomNav(
                 ) {
                     SearchScreen(navController)
                 }
-                // 개발중 : 삼성헬스 데이터 확인용 스크린
-                composable("health_dev") { com.refit.app.ui.screen.HealthScreen() }
 
                 // 상품 상세 페이지
                 composable(
@@ -222,6 +223,20 @@ fun MainScreenWithBottomNav(
 
                 // 찜 목록
                 composable("wish") { WishScreen(navController) }
+
+                // home에서의 걸음/수면/날씨 버튼 눌렀을 경우 상세
+                composable("stepsDetail") { StepsDetailScreen(navController) }
+                composable("sleepDetail") { SleepDetailScreen(navController) }
+                composable("weatherDetail") { WeatherDetailScreen(navController) }
+
+                // 맞춤형 추천 상품 목록
+                composable(
+                    "recommendation/{type}",
+                    arguments = listOf(navArgument("type") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val type = backStackEntry.arguments?.getInt("type") ?: 0
+                    RecommendationScreen(navController, type)
+                }
             }
         }
     }

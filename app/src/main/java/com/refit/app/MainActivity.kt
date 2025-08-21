@@ -1,5 +1,6 @@
 package com.refit.app
 
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,8 +12,10 @@ import androidx.navigation.compose.rememberNavController
 import com.refit.app.ui.composable.common.MainScreenWithBottomNav
 import com.refit.app.ui.theme.RefitTheme
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.health.connect.client.PermissionController
 import com.refit.app.data.health.HealthRepo
 import com.refit.app.network.RetrofitInstance
@@ -33,8 +36,11 @@ class MainActivity : ComponentActivity() {
             RefitTheme {
                 val navController = rememberNavController()
 
-                // 앱 시작 시 Health Connect 권한 자동 요청
-//                RequestHealthPermissionsOnStart()
+                // Health Connect 권한 자동 요청
+                RequestHealthPermissionsOnStart()
+
+                // 위치 권한 자동 요청
+                RequestLocationPermissionsOnStart()
 
                 // 알림 클릭 여부 판단
                 val navigateTo = intent?.getStringExtra("navigateTo")
@@ -72,6 +78,39 @@ private fun RequestHealthPermissionsOnStart() {
         val granted = client.permissionController.getGrantedPermissions()
         if (!granted.containsAll(HealthRepo.readPerms)) {
             launcher.launch(HealthRepo.readPerms)
+        }
+    }
+}
+
+@Composable
+fun RequestLocationPermissionsOnStart() {
+    val ctx = LocalContext.current
+
+    // 위치 권한 런처
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { perms ->
+        val fineGranted = perms[android.Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+        val coarseGranted = perms[android.Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+        if (fineGranted || coarseGranted) {
+            // 권한 승인 → 위치 가져오기 가능
+        } else {
+            // 거부시
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (ContextCompat.checkSelfPermission(
+                ctx,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            launcher.launch(
+                arrayOf(
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
         }
     }
 }
