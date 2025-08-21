@@ -1,77 +1,33 @@
 package com.refit.app.ui.screen
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.refit.app.R
-import com.refit.app.network.TokenManager
-import com.refit.app.network.UserPrefs
+import com.refit.app.ui.composable.mypage.*
+import com.refit.app.ui.fake.sampleRecentOrder
 
 @Composable
-fun MyScreen(navController: NavController) {
+fun MypageScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
-        Text(text = "마이페이지 화면입니다")
+        MypageProfileCard(
+            nickname = "외식고기",
+            tags = listOf("#민감성", "#수부지", "#홍조")
+        )
 
         Spacer(Modifier.height(12.dp))
 
-        // 찜 목록으로 이동 버튼
-        Button(
-            onClick = { navController.navigate("wish") },
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_heart_red),
-                contentDescription = "찜 목록"
-            )
-            Spacer(Modifier.width(8.dp))
-            Text("찜 목록 보기")
-        }
-        Spacer(Modifier.height(16.dp))
+        RecentOrderSection(order = sampleRecentOrder)
 
-        Button(
-            onClick = {
-                // 토큰/유저정보 모두 삭제
-                TokenManager.clearAll()
-                UserPrefs.clear()
+        Spacer(Modifier.height(12.dp))
 
-                // 로그인 화면으로 이동 (뒤로가기 시 홈 안 뜨도록 스택 정리)
-                navController.navigate("auth/login") {
-                    popUpTo("home") { inclusive = true } // 필요 시 시작 지점 route로 조정
-                    launchSingleTop = true
-                }
-            },
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text("로그아웃(임시)")
-        }
-
-    }
-}
-
-@Preview(showBackground = true, widthDp = 360, heightDp = 800)
-@Composable
-private fun PreviewMyScreen() {
-    MaterialTheme {
-        val nav = rememberNavController()
-        MyScreen(navController = nav)
+        MypageMenuSection(navController = navController)
     }
 }
