@@ -1,14 +1,20 @@
 package com.refit.app.ui.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
@@ -24,6 +30,7 @@ import com.refit.app.ui.composable.cart.CartItemRow
 import com.refit.app.ui.composable.cart.CartSummarySection
 import com.refit.app.ui.composable.cart.OrderBottomBar
 import com.refit.app.ui.theme.LightPurple
+import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun CartScreen(
@@ -101,7 +108,9 @@ fun CartScreen(
             // 상단 선택/삭제 UI
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().padding(8.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp)
             ) {
                 val allSelected = selected.size == allIds.size && allIds.isNotEmpty()
                 Checkbox(
@@ -110,18 +119,38 @@ fun CartScreen(
                         selected = if (checked) allIds.toSet() else emptySet()
                     }
                 )
-                Spacer(Modifier.width(8.dp))
-                Text("전체 선택")
+                Text("전체선택",
+                    fontFamily = Pretendard,
+                    fontWeight = FontWeight(500),
+                    fontSize = 16.sp
+                )
 
                 Spacer(Modifier.weight(1f))
 
-                Button(
-                    enabled = selected.isNotEmpty(),
-                    onClick = {
-                        editVm.deleteBulk(selected.toList())
-                        selected = emptySet()
-                    }
-                ) { Text("선택삭제") }
+                Box(
+                    modifier = Modifier
+                        .border(
+                            width = 1.dp,
+                            color = if (selected.isNotEmpty()) Color(0xFFB4B4B4) else Color.LightGray,
+                            shape = RoundedCornerShape(5.dp)
+                        )
+                        .background(Color.White, shape = RoundedCornerShape(10.dp))
+                        .padding(horizontal = 8.dp, vertical = 4.dp) // 텍스트 주변 원하는 만큼만 패딩
+                        .clickable(enabled = selected.isNotEmpty()) {
+                            editVm.deleteBulk(selected.toList())
+                            selected = emptySet()
+                        }
+                ) {
+                    Text(
+                        "선택삭제",
+                        fontFamily = Pretendard,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp,
+                        color = if (selected.isNotEmpty()) Color(0xFFB4B4B4) else Color.LightGray
+                    )
+                }
+
+
             }
 
             // 리스트 + 요약을 리스트의 마지막 item으로 배치
@@ -140,8 +169,11 @@ fun CartScreen(
                     else -> {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
-                            // 하단 주문 버튼에 가리지 않도록 패딩 추가
-                            contentPadding = PaddingValues(bottom = 40.dp)
+                            contentPadding = PaddingValues(
+                                top = 20.dp,
+                                bottom = 20.dp
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             items(items, key = { it.cartId }) { item ->
                                 CartItemRow(
