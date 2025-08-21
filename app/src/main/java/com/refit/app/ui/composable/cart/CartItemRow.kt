@@ -45,7 +45,7 @@ fun CartItemRow(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F4FA))
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Checkbox(checked = checked, onCheckedChange = { onCheckChanged() })
