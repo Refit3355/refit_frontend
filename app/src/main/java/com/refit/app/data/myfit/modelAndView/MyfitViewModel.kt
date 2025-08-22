@@ -8,10 +8,10 @@ import androidx.lifecycle.viewModelScope
 import com.refit.app.data.myfit.model.MemberProductItem
 import com.refit.app.data.myfit.repository.MyfitRepository
 import com.refit.app.network.TokenManager
-import com.refit.app.network.TokenManager.parseNicknameFromJwt
 import kotlinx.coroutines.launch
 import android.util.Log
 import com.refit.app.data.myfit.model.PurchasedProductDto
+import com.refit.app.network.UserPrefs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.json.JSONObject
@@ -53,14 +53,16 @@ class MyfitViewModel(
     val error: StateFlow<String?> = _error
 
     init {
-        setNicknameFromToken()
+        refreshNickname()
         refresh()
     }
 
-    private fun setNicknameFromToken() {
-        val token = TokenManager.getToken()
-        val nickname = token?.let { parseNicknameFromJwt(it) } ?: "회원"
-        ui = ui.copy(nickname = nickname)
+    fun refreshNickname() {
+        val nick = UserPrefs.getNickname()
+            ?: TokenManager.getAccessToken()
+                ?.let(TokenManager::parseNicknameFromJwt)
+            ?: "회원"
+        ui = ui.copy(nickname = nick)
     }
 
     private fun Throwable.toErrorUi(): ErrorUi = when (this) {
