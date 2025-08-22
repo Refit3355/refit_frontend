@@ -258,6 +258,39 @@ fun MainScreenWithBottomNav(
                     val type = backStackEntry.arguments?.getInt("type") ?: 0
                     RecommendationScreen(navController, type)
                 }
+
+                // 마이핏 - 제품 등록/수정
+                composable("myfit/register") { MyfitRegisterScreen(navController) }
+                composable(
+                    route = "myfit/edit/{memberProductId}",
+                    arguments = listOf(navArgument("memberProductId") { type = NavType.LongType })
+                ) { backStackEntry ->
+                    val id = backStackEntry.arguments!!.getLong("memberProductId")
+
+                    // "myfit" 화면과 같은 스코프의 VM을 가져와 목록을 재사용
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry("myfit")
+                    }
+                    val myfitVm: MyfitViewModel = viewModel(parentEntry)
+                    val ui = myfitVm.ui
+
+                    // 목록에서 편집 대상 찾기 (using/completed 중 현재 보이는 리스트)
+                    val item = remember(ui.items, id) {
+                        ui.items.firstOrNull { it.memberProductId == id }
+                    }
+
+                    if (item != null) {
+                        MyfitEditScreen(
+                            item = item,
+                            navController = navController
+                        )
+                    } else {
+                        // 목록에 대상이 없을 때의 처리 (간단한 플레이스홀더)
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text("편집할 항목을 찾을 수 없습니다.")
+                        }
+                    }
+                }
             }
         }
     }
