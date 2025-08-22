@@ -7,8 +7,10 @@ import com.refit.app.data.auth.model.SignupResponse
 import com.refit.app.data.auth.model.UtilResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface AuthApi {
     @POST("/auth/join")
@@ -18,4 +20,10 @@ interface AuthApi {
     suspend fun login(
         @Body req: LoginRequest
     ): Response<UtilResponse<LoginResponse>>
+
+    @GET("/auth/check/email")
+    suspend fun checkEmail(@Query("email") email: String): UtilResponse<Boolean>
+
+    @GET("/auth/check/nickname")
+    suspend fun checkNickname(@Query("nickname") nickname: String): UtilResponse<Boolean>
 }
