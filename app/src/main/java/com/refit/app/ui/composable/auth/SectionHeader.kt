@@ -51,7 +51,7 @@ fun SectionHeader(
             text = title,
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 24.sp
+                fontSize = 18.sp
             ),
             color = color,
             fontFamily = Pretendard,

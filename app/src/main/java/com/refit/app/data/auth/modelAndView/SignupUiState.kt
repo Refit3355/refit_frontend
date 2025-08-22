@@ -1,4 +1,4 @@
-package com.refit.app.ui.viewmodel.auth
+package com.refit.app.data.auth.modelAndView
 
 import java.time.LocalDate
 
@@ -12,5 +12,10 @@ data class SignupUiState (
     val birthday: LocalDate? = null,
     val zipcode: String = "",
     val roadAddress: String = "",
-    val detailAddress: String = ""
+    val detailAddress: String = "",
+
+    val skinType: String? = null,
+    val skinConcerns: Set<String> = emptySet(),
+    val scalpConcerns: Set<String> = emptySet(),
+    val healthConcerns: Set<String> = emptySet()
     )

@@ -9,7 +9,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.refit.app.ui.composable.model.basic.AppBarConfig
+import com.refit.app.data.basic.model.AppBarConfig
 
 @Composable
 fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
@@ -73,6 +73,33 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                 },
                 showClear = true,
                 onBack = { nav.popBackStack() }
+            )
+
+        route.startsWith("stepsDetail") ->
+            AppBarConfig.BackWithActions(
+                title = "걸음 수 리포트",
+                onBack = { nav.popBackStack() },
+                onAlarmClick = { nav.navigate("notifications") },
+                onCartClick  = { nav.navigate("cart") },
+                showActions = true
+            )
+
+        route.startsWith("sleepDetail") ->
+            AppBarConfig.BackWithActions(
+                title = "수면 리포트",
+                onBack = { nav.popBackStack() },
+                onAlarmClick = { nav.navigate("notifications") },
+                onCartClick  = { nav.navigate("cart") },
+                showActions = true
+            )
+
+        route.startsWith("weatherDetail") ->
+            AppBarConfig.BackWithActions(
+                title = "날씨 리포트",
+                onBack = { nav.popBackStack() },
+                onAlarmClick = { nav.navigate("notifications") },
+                onCartClick  = { nav.navigate("cart") },
+                showActions = true
             )
 
         else ->

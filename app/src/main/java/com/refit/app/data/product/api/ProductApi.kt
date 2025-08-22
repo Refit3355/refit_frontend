@@ -34,4 +34,5 @@ interface ProductApi {
     suspend fun getPopularProducts(
         @Query("limit") limit: Int = 10
     ): List<ProductDto>
+
 }

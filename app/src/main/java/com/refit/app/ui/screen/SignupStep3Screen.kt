@@ -102,7 +102,7 @@ fun SignupStep3Screen(
                         append("회원가입이 완료되었어요.")
                     }
                 },
-                fontSize = 25.sp,
+                fontSize = 20.sp,
                 lineHeight = 36.sp,
                 color = Color.Black,
                 fontWeight = FontWeight.Bold,
@@ -116,7 +116,7 @@ fun SignupStep3Screen(
                     }
                     append("과 함께\n나만의 뷰티·헬스 루틴을 시작해요!")
                 },
-                fontSize = 25.sp,
+                fontSize = 20.sp,
                 lineHeight = 36.sp,
                 color = Color.Black,
                 fontWeight = FontWeight.Bold,
@@ -153,4 +153,3 @@ private fun PreviewSignupComplete() {
         )
     }
 }
-
