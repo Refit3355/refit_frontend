@@ -159,5 +159,5 @@ fun ProductCard(
     }
 }
 
-private fun formatWon(value: Int) =
+fun formatWon(value: Int) =
     NumberFormat.getNumberInstance(Locale.KOREA).format(value) + "원"

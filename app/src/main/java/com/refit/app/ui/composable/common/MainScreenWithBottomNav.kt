@@ -55,18 +55,20 @@ import java.nio.charset.StandardCharsets
 @Composable
 fun MainScreenWithBottomNav(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = "splash"
+    startDestination: String = "splash",
+    onCartChanged: () -> Unit,
+    onLoggedIn: () -> Unit = {},
+    onLoggedOut: () -> Unit = {}
 )
 {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route ?: startDestination
+    val currentRoute = navBackStackEntry?.destination?.route ?: "home"
 
     val bottomTabs = listOf("home", "category", "myfit", "community", "my", "sleepDetail", "stepsDetail", "weatherDetail")
     val noBottomTabs = listOf("myfit/register", "myfit/edit")
 
     // 스플래시/인증 경로에서는 상단 및 하단 바 숨김 처리
     val hideBars = currentRoute == "splash" || currentRoute.startsWith("auth/")
-
     Scaffold(
         topBar = {
             if (!hideBars) {
@@ -104,11 +106,13 @@ fun MainScreenWithBottomNav(
                     SplashScreen(
                         onDecide = { loggedIn ->
                             if (loggedIn) {
+                                onLoggedIn()
                                 navController.navigate("home") {
                                     popUpTo("splash") { inclusive = true }
                                     launchSingleTop = true
                                 }
                             } else {
+                                onLoggedOut()
                                 navController.navigate("auth/login") {
                                     popUpTo("splash") { inclusive = true }
                                     launchSingleTop = true
@@ -123,6 +127,7 @@ fun MainScreenWithBottomNav(
                         onClose = { /* 필요시 */ },
                         onSignup = { navController.navigate("auth/signup") },
                         onLoggedIn = {
+                            onLoggedIn()
                             navController.navigate("home") {
                                 popUpTo("auth/login") { inclusive = true } // 뒤로가기로 로그인 안 돌아오게
                                 launchSingleTop = true
@@ -212,8 +217,12 @@ fun MainScreenWithBottomNav(
 
                 // 검색/알림/장바구니
                 composable("notifications") { NotificationScreen(navController) }
-                composable("cart") { CartScreen(navController) }
-                composable("search") { SearchScreen(navController) }
+                composable("cart") {
+                    CartScreen(
+                        navController = navController,
+                        onCartChanged = onCartChanged
+                    )
+                }
                 composable(
                     route = "search?query={query}",
                     arguments = listOf(navArgument("query") {
@@ -224,16 +233,17 @@ fun MainScreenWithBottomNav(
                     SearchScreen(navController)
                 }
 
-                // 개발중 : 삼성헬스 데이터 확인용 스크린
-                composable("health_dev") { HealthScreen() }
-
                 // 상품 상세 페이지
                 composable(
                     route = "product/{id}",
                     arguments = listOf(navArgument("id") { type = NavType.IntType })
                 ) { backStackEntry ->
                     val id = backStackEntry.arguments!!.getInt("id")
-                    ProductDetailScreen(productId = id, navController = navController)
+                    ProductDetailScreen(
+                        productId = id,
+                        navController = navController,
+                        onCartChanged = onCartChanged
+                    )
                 }
 
                 // 찜 목록
@@ -285,7 +295,6 @@ fun MainScreenWithBottomNav(
                         }
                     }
                 }
-
             }
         }
     }

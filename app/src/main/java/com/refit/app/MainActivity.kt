@@ -14,10 +14,18 @@ import com.refit.app.ui.theme.RefitTheme
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.health.connect.client.PermissionController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.refit.app.data.cart.api.CartApi
+import com.refit.app.data.cart.modelAndView.CartBadgeViewModel
+import com.refit.app.data.cart.repository.CartRepository
 import com.refit.app.data.health.HealthRepo
+import com.refit.app.data.local.cart.LocalCartCount
 import com.refit.app.network.RetrofitInstance
 import com.refit.app.network.TokenManager
 import com.refit.app.network.UserPrefs
@@ -42,17 +50,32 @@ class MainActivity : ComponentActivity() {
                 // 위치 권한 자동 요청
                 RequestLocationPermissionsOnStart()
 
+                // 전역 제공용 Local
+                val cartApi = remember { RetrofitInstance.create(CartApi::class.java) }
+                val repo    = remember { CartRepository(cartApi) }
+                val vm      = remember { CartBadgeViewModel(repo) }
+
+                val count by vm.badgeCount.collectAsStateWithLifecycle(0)
+
                 // 알림 클릭 여부 판단
                 val navigateTo = intent?.getStringExtra("navigateTo")
 
                 // 항상 스플래시로 시작
-                MainScreenWithBottomNav(
-                    navController = navController,
-                    startDestination = "splash"
-                )
+                CompositionLocalProvider(LocalCartCount provides count) {
+                    MainScreenWithBottomNav(
+                        navController = navController,
+                        startDestination = "splash",
+                        onCartChanged = { vm.refreshCount() },      // 어디서든 수량 변경 시 갱신
+                        onLoggedIn    = { vm.refreshCount() },      // 로그인 직후 안전 재갱신
+                        onLoggedOut   = { vm.clearCount() }         // 로그아웃 시 0으로 초기화
+                    )
+                }
 
                 // 알림 클릭 시, NavHost 초기화 후 알림화면으로 이동
                 LaunchedEffect(Unit) {
+                    if (!TokenManager.getToken().isNullOrBlank()) {
+                        vm.refreshCount()
+                    }
                     if (navigateTo == "notifications") {
                         navController.navigate("notifications")
                     }
