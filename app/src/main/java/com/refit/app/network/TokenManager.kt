@@ -11,6 +11,7 @@ object TokenManager {
     private const val KEY_REFRESH = "refresh_token"
     private lateinit var securePrefs: SharedPreferences
 
+
     fun init(context: Context) {
         val masterKey = MasterKey.Builder(context)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
@@ -56,4 +57,18 @@ object TokenManager {
     fun getToken(): String? = getAccessToken()
     fun saveToken(token: String?) = saveAccess(token)
     fun clearToken() = saveAccess(null)
+    fun parseNicknameFromJwt(token: String): String? {
+        return try {
+            val payload = token.split(".").getOrNull(1) ?: return null
+            val json = String(
+                android.util.Base64.decode(
+                    payload,
+                    android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP
+                )
+            )
+            org.json.JSONObject(json).optString("nickname", null)
+        } catch (e: Exception) {
+            null
+        }
+    }
 }

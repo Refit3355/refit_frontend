@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="160dp" android:height="120dp"
+    android:viewportWidth="160" android:viewportHeight="120">
+    <path android:fillColor="#F5F2F9" android:pathData="M0,0h160v120h-160z"/>
+    <!-- 서버 박스 -->
+    <path android:fillColor="#E5E7EB" android:pathData="M32,36h96v56h-96z" />
+    <path android:fillColor="#9CA3AF" android:pathData="M40,48h80v8h-80z" />
+    <path android:fillColor="#9CA3AF" android:pathData="M40,62h56v8h-56z" />
+    <!-- 경고 아이콘 -->
+    <path android:fillColor="#672091"
+        android:pathData="M80,26 l14,24c2,3.5 -0.5,8 -4.5,8h-19c-4,0 -6.5,-4.5 -4.5,-8l14,-24z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M80,40a3,3 0 1,0 0.001,0z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M78.5,50h3v10h-3z"/>
+</vector>
