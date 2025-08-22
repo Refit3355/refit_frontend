@@ -12,7 +12,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -20,6 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
+import com.refit.app.R
 import com.refit.app.data.cart.api.CartApi
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
 import com.refit.app.data.cart.modelAndView.CartListViewModel
@@ -30,6 +33,7 @@ import com.refit.app.ui.composable.cart.CartItemRow
 import com.refit.app.ui.composable.cart.CartSummarySection
 import com.refit.app.ui.composable.cart.OrderBottomBar
 import com.refit.app.ui.theme.LightPurple
+import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 
 @Composable
@@ -103,22 +107,39 @@ fun CartScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(
+                    start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
+                    end   = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
+                    bottom= innerPadding.calculateBottomPadding()
+                )
+                .background(Color.White)
         ) {
             // 상단 선택/삭제 UI
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                    .padding(horizontal = 24.dp, vertical = 8.dp)
             ) {
                 val allSelected = selected.size == allIds.size && allIds.isNotEmpty()
-                Checkbox(
-                    checked = allSelected,
-                    onCheckedChange = { checked ->
-                        selected = if (checked) allIds.toSet() else emptySet()
-                    }
-                )
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clickable {
+                            selected = if (allSelected) emptySet() else allIds.toSet()
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(
+                            if (allSelected) R.drawable.ic_icon_checked else R.drawable.ic_icon_unchecked
+                        ),
+                        contentDescription = "전체선택",
+                        tint = MainPurple,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                Spacer(Modifier.width(8.dp))
                 Text("전체선택",
                     fontFamily = Pretendard,
                     fontWeight = FontWeight(500),
@@ -130,12 +151,12 @@ fun CartScreen(
                 Box(
                     modifier = Modifier
                         .border(
-                            width = 1.dp,
-                            color = if (selected.isNotEmpty()) Color(0xFFB4B4B4) else Color.LightGray,
+                            width = 1.3.dp,
+                            color = if (selected.isNotEmpty()) MainPurple else Color(0xFFB4B4B4),
                             shape = RoundedCornerShape(5.dp)
                         )
                         .background(Color.White, shape = RoundedCornerShape(10.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp) // 텍스트 주변 원하는 만큼만 패딩
+                        .padding(horizontal = 8.dp, vertical = 2.dp) // 텍스트 주변 원하는 만큼만 패딩
                         .clickable(enabled = selected.isNotEmpty()) {
                             editVm.deleteBulk(selected.toList())
                             selected = emptySet()
@@ -144,9 +165,9 @@ fun CartScreen(
                     Text(
                         "선택삭제",
                         fontFamily = Pretendard,
-                        fontWeight = FontWeight.Medium,
+                        fontWeight = FontWeight(500),
                         fontSize = 14.sp,
-                        color = if (selected.isNotEmpty()) Color(0xFFB4B4B4) else Color.LightGray
+                        color = if (selected.isNotEmpty()) MainPurple else Color(0xFFB4B4B4)
                     )
                 }
 
@@ -170,10 +191,9 @@ fun CartScreen(
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(
-                                top = 20.dp,
-                                bottom = 20.dp
+                                top = 10.dp
                             ),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(0.dp)
                         ) {
                             items(items, key = { it.cartId }) { item ->
                                 CartItemRow(
@@ -192,6 +212,11 @@ fun CartScreen(
                                     onRemove = { editVm.deleteOne(item.cartId) }
                                 )
                             }
+
+                            item(key = "summary-spacer") {
+                                Spacer(modifier = Modifier.height(12.dp))
+                            }
+
                             // 스크롤 맨 아래에 요약 노출
                             item {
                                 CartSummarySection(

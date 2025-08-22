@@ -12,8 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.refit.app.ui.theme.MainPurple
+import com.refit.app.ui.theme.Pretendard
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -25,18 +28,24 @@ fun OrderBottomBar(
 ) {
     val nf = remember { NumberFormat.getNumberInstance(Locale.KOREA) }
 
-    Surface(shadowElevation = 8.dp) {
+    Surface(shadowElevation = 8.dp,
+        color = Color.White) {
         Button(
             onClick = onClick,
             enabled = enabled,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(80.dp)
-                .padding(16.dp),
+                .padding(14.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MainPurple),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("${nf.format(total)}원 주문하기", color = Color.White)
+            Text(
+                "${nf.format(total)}원 주문하기",
+                fontSize = 17.sp,
+                fontFamily = Pretendard,
+                fontWeight = FontWeight(500),
+                color = Color.White)
         }
     }
 }
