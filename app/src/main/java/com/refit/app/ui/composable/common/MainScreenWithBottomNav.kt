@@ -55,18 +55,20 @@ import java.nio.charset.StandardCharsets
 @Composable
 fun MainScreenWithBottomNav(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = "splash"
+    startDestination: String = "splash",
+    onCartChanged: () -> Unit,
+    onLoggedIn: () -> Unit = {},
+    onLoggedOut: () -> Unit = {}
 )
 {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route ?: startDestination
+    val currentRoute = navBackStackEntry?.destination?.route ?: "home"
 
     val bottomTabs = listOf("home", "category", "myfit", "community", "my", "sleepDetail", "stepsDetail", "weatherDetail")
     val noBottomTabs = listOf("myfit/register", "myfit/edit")
 
     // 스플래시/인증 경로에서는 상단 및 하단 바 숨김 처리
     val hideBars = currentRoute == "splash" || currentRoute.startsWith("auth/")
-
     Scaffold(
         topBar = {
             if (!hideBars) {
@@ -104,11 +106,13 @@ fun MainScreenWithBottomNav(
                     SplashScreen(
                         onDecide = { loggedIn ->
                             if (loggedIn) {
+                                onLoggedIn()
                                 navController.navigate("home") {
                                     popUpTo("splash") { inclusive = true }
                                     launchSingleTop = true
                                 }
                             } else {
+                                onLoggedOut()
                                 navController.navigate("auth/login") {
                                     popUpTo("splash") { inclusive = true }
                                     launchSingleTop = true
@@ -123,6 +127,7 @@ fun MainScreenWithBottomNav(
                         onClose = { /* 필요시 */ },
                         onSignup = { navController.navigate("auth/signup") },
                         onLoggedIn = {
+                            onLoggedIn()
                             navController.navigate("home") {
                                 popUpTo("auth/login") { inclusive = true } // 뒤로가기로 로그인 안 돌아오게
                                 launchSingleTop = true
@@ -212,8 +217,12 @@ fun MainScreenWithBottomNav(
 
                 // 검색/알림/장바구니
                 composable("notifications") { NotificationScreen(navController) }
-                composable("cart") { CartScreen(navController) }
-                composable("search") { SearchScreen(navController) }
+                composable("cart") {
+                    CartScreen(
+                        navController = navController,
+                        onCartChanged = onCartChanged
+                    )
+                }
                 composable(
                     route = "search?query={query}",
                     arguments = listOf(navArgument("query") {
@@ -223,9 +232,6 @@ fun MainScreenWithBottomNav(
                 ) {
                     SearchScreen(navController)
                 }
-
-                // 개발중 : 삼성헬스 데이터 확인용 스크린
-                composable("health_dev") { HealthScreen() }
 
                 // 상품 상세 페이지
                 composable(
@@ -252,40 +258,6 @@ fun MainScreenWithBottomNav(
                     val type = backStackEntry.arguments?.getInt("type") ?: 0
                     RecommendationScreen(navController, type)
                 }
-
-                // 마이핏 - 제품 등록/수정
-                composable("myfit/register") { MyfitRegisterScreen(navController) }
-                composable(
-                    route = "myfit/edit/{memberProductId}",
-                    arguments = listOf(navArgument("memberProductId") { type = NavType.LongType })
-                ) { backStackEntry ->
-                    val id = backStackEntry.arguments!!.getLong("memberProductId")
-
-                    // "myfit" 화면과 같은 스코프의 VM을 가져와 목록을 재사용
-                    val parentEntry = remember(backStackEntry) {
-                        navController.getBackStackEntry("myfit")
-                    }
-                    val myfitVm: MyfitViewModel = viewModel(parentEntry)
-                    val ui = myfitVm.ui
-
-                    // 목록에서 편집 대상 찾기 (using/completed 중 현재 보이는 리스트)
-                    val item = remember(ui.items, id) {
-                        ui.items.firstOrNull { it.memberProductId == id }
-                    }
-
-                    if (item != null) {
-                        MyfitEditScreen(
-                            item = item,
-                            navController = navController
-                        )
-                    } else {
-                        // 목록에 대상이 없을 때의 처리 (간단한 플레이스홀더)
-                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("편집할 항목을 찾을 수 없습니다.")
-                        }
-                    }
-                }
-
             }
         }
     }
