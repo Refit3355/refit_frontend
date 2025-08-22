@@ -1,5 +1,8 @@
 package com.refit.app.data.auth.api
 
+import com.refit.app.data.auth.model.KakaoSignupRequest
+import com.refit.app.data.auth.model.KakaoVerifyRequest
+import com.refit.app.data.auth.model.KakaoVerifyResponse
 import com.refit.app.data.auth.model.LoginRequest
 import com.refit.app.data.auth.model.LoginResponse
 import com.refit.app.data.auth.model.SignupAllRequest
@@ -26,4 +29,14 @@ interface AuthApi {
 
     @GET("/auth/check/nickname")
     suspend fun checkNickname(@Query("nickname") nickname: String): UtilResponse<Boolean>
+
+    @POST("/auth/oauth/kakao/verify")
+    suspend fun kakaoVerify(
+        @Body req: KakaoVerifyRequest
+    ): Response<UtilResponse<KakaoVerifyResponse>>
+
+    @POST("/auth/oauth/kakao/signup")
+    suspend fun kakaoSignup(
+        @Body req: KakaoSignupRequest
+    ): Response<UtilResponse<LoginResponse>>
 }
