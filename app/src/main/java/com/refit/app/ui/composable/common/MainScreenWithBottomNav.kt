@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -25,9 +26,12 @@ import androidx.navigation.navArgument
 import com.refit.app.ui.screen.CartScreen
 import com.refit.app.ui.screen.CategoryScreen
 import com.refit.app.ui.screen.CommunityScreen
+import com.refit.app.ui.screen.HealthScreen
 import com.refit.app.ui.screen.HomeScreen
 import com.refit.app.ui.screen.LoginScreen
 import com.refit.app.ui.screen.MyScreen
+import com.refit.app.ui.screen.MyfitEditScreen
+import com.refit.app.ui.screen.MyfitRegisterScreen
 import com.refit.app.ui.screen.MyfitScreen
 import com.refit.app.ui.screen.NotificationScreen
 import com.refit.app.ui.screen.ProductDetailScreen
@@ -41,6 +45,8 @@ import com.refit.app.ui.screen.SignupStep2Screen
 import com.refit.app.ui.screen.SignupStep3Screen
 import com.refit.app.ui.screen.SplashScreen
 import com.refit.app.ui.screen.WishScreen
+import androidx.compose.ui.Alignment
+import com.refit.app.data.myfit.viewmodel.MyfitViewModel
 import com.refit.app.data.auth.modelAndView.SignupViewModel
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -58,7 +64,8 @@ fun MainScreenWithBottomNav(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: "home"
 
-    val bottomTabs = listOf("home", "category", "myfit", "community", "my")
+    val bottomTabs = listOf("home", "category", "myfit", "community", "my", "sleepDetail", "stepsDetail", "weatherDetail")
+    val noBottomTabs = listOf("myfit/register", "myfit/edit")
 
     // 스플래시/인증 경로에서는 상단 및 하단 바 숨김 처리
     val hideBars = currentRoute == "splash" || currentRoute.startsWith("auth/")
@@ -76,7 +83,10 @@ fun MainScreenWithBottomNav(
             }
         },
         bottomBar = {
-            if (!hideBars && bottomTabs.any { currentRoute.startsWith(it) }) {
+            if (!hideBars &&
+                noBottomTabs.none { currentRoute.startsWith(it) } &&
+                bottomTabs.any { currentRoute.startsWith(it) }
+            ) {
                 BottomBar(navController = navController)
             }
         }
@@ -201,7 +211,7 @@ fun MainScreenWithBottomNav(
                 // 기본 탭
                 composable("home") { HomeScreen(navController) }
                 composable("category") { CategoryScreen(navController) }
-                composable("myfit") { MyfitScreen(navController) }
+                composable("myfit") { MyfitScreen(navController = navController) }
                 composable("community") { CommunityScreen(navController) }
                 composable("my") { MyScreen(navController) }
 
@@ -222,8 +232,6 @@ fun MainScreenWithBottomNav(
                 ) {
                     SearchScreen(navController)
                 }
-                // 개발중 : 삼성헬스 데이터 확인용 스크린
-                //composable("health_dev") { com.refit.app.ui.screen.HealthScreen() }
 
                 // 상품 상세 페이지
                 composable(
