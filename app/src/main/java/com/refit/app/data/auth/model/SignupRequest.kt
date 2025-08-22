@@ -1,6 +1,6 @@
 package com.refit.app.data.auth.model
 
-data class UtilResponse<T>(val code: String, val message: String, val data: T?)
+data class UtilResponse<T>(val status: String, val message: String, val data: T?)
 
 data class SignupResponse(val id: Long)
 

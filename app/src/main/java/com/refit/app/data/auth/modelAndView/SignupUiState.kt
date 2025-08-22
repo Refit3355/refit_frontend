@@ -17,5 +17,16 @@ data class SignupUiState (
     val skinType: String? = null,
     val skinConcerns: Set<String> = emptySet(),
     val scalpConcerns: Set<String> = emptySet(),
-    val healthConcerns: Set<String> = emptySet()
+    val healthConcerns: Set<String> = emptySet(),
+
+    // 중복검사 상태
+    val emailCheckLoading: Boolean = false,
+    val emailChecked: Boolean = false,
+    val emailAvailable: Boolean = false,
+    val emailMsg: String? = null,
+
+    val nickCheckLoading: Boolean = false,
+    val nickChecked: Boolean = false,
+    val nickAvailable: Boolean = false,
+    val nickMsg: String? = null
     )
