@@ -270,4 +270,119 @@ class SignupViewModel : ViewModel() {
         }
     }
 
+    fun canProceed(mode: FormMode): Boolean = when (mode) {
+        FormMode.SIGNUP -> isStep1Ready
+        FormMode.EDIT   -> {
+            // 수정 모드에선 중복검사 flag 강제하지 않고 기본/비번검증 완화 버전 사용
+            uiState.nickname.isNotBlank() &&
+                    uiState.memberName.isNotBlank() &&
+                    uiState.phoneNumber.matches(Regex("^010\\d{8}$")) &&
+                    uiState.birthday != null &&
+                    uiState.zipcode.isNotBlank() &&
+                    uiState.roadAddress.isNotBlank() &&
+                    uiState.detailAddress.isNotBlank() &&
+                    isPasswordRuleOkOrEmpty &&
+                    isPasswordConfirmMatchOrEmpty
+        }
+    }
+
+
+    private var originalNickname: String? = null
+    val isPasswordRuleOkOrEmpty: Boolean
+        get() = uiState.password.isBlank() || isPasswordRuleOk
+
+    val isPasswordConfirmMatchOrEmpty: Boolean
+        get() = uiState.password.isBlank() && uiState.passwordConfirm.isBlank() ||
+                (uiState.password.isNotBlank() && uiState.passwordConfirm == uiState.password)
+
+    fun prefillFromMe() {
+        viewModelScope.launch {
+            try {
+                val api = RetrofitInstance.create(AuthApi::class.java)
+                val res = api.getMyBasic()               // UtilResponse<BasicInfoResponse>
+                val d = requireNotNull(res.data)
+
+                originalNickname = d.nickname
+
+                uiState = uiState.copy(
+                    email = d.email,                     // 이메일은 readOnly로 표시
+                    nickname = d.nickname,
+                    memberName = d.memberName,
+                    zipcode = d.zipcode.orEmpty(),
+                    roadAddress = d.roadAddress.orEmpty(),
+                    detailAddress = d.detailAddress.orEmpty(),
+                    birthday = runCatching { java.time.LocalDate.parse(d.birthday) }.getOrNull(),
+                    phoneNumber = d.phoneNumber.orEmpty(),
+                    // 수정 진입 시 중복검사 초기화 상태
+                    emailChecked = true, emailAvailable = true,
+                    nickChecked = true,  nickAvailable  = true,
+                    emailMsg = null, nickMsg = null
+                )
+            } catch (t: Throwable) {
+                errorMsg = t.message ?: "내 정보 불러오기 실패"
+            }
+        }
+    }
+    fun checkNickDuplicateForEdit() {
+        val nick = uiState.nickname
+        if (originalNickname != null && originalNickname == nick) {
+            uiState = uiState.copy(
+                nickChecked = true,
+                nickAvailable = true,
+                nickMsg = "현재 사용 중인 닉네임입니다."
+            )
+            return
+        }
+        // 기존 검사 재사용
+        checkNickDuplicate()
+    }
+
+    // ====== 추가: 내 정보 업데이트 ======
+//    fun updateMyInfo(
+//        onSaved: () -> Unit,
+//        onError: (String) -> Unit
+//    ) {
+//        // 이메일은 서버에서 토큰 기준이므로 보내지 않음
+//        val req = com.refit.app.data.auth.model.UpdateBasicRequest(
+//            meail = uiState.email.takeIf { it.isNotBlank()}
+//            nickname = uiState.nickname.takeIf { it.isNotBlank() },
+//            memberName = uiState.memberName.takeIf { it.isNotBlank() },
+//            password = uiState.password.takeIf { it.isNotBlank() }, // 비어있으면 null → 미변경
+//            zipcode = uiState.zipcode.takeIf { it.isNotBlank() },
+//            roadAddress = uiState.roadAddress.takeIf { it.isNotBlank() },
+//            detailAddress = uiState.detailAddress.takeIf { it.isNotBlank() },
+//            birthday = uiState.birthday?.format(java.time.format.DateTimeFormatter.ISO_DATE),
+//            phoneNumber = uiState.phoneNumber.takeIf { it.isNotBlank() }
+//        )
+//
+//        // 기본 유효성: 수정 모드에서는 비번/확인 빈값 허용
+//        val basicOk =
+//            uiState.nickname.isNotBlank() &&
+//                    uiState.memberName.isNotBlank() &&
+//                    uiState.phoneNumber.matches(Regex("^010\\d{8}$")) &&
+//                    uiState.birthday != null &&
+//                    uiState.zipcode.isNotBlank() &&
+//                    uiState.roadAddress.isNotBlank() &&
+//                    uiState.detailAddress.isNotBlank() &&
+//                    isPasswordRuleOkOrEmpty &&
+//                    isPasswordConfirmMatchOrEmpty
+//
+//        if (!basicOk) {
+//            onError("입력값을 확인해 주세요.")
+//            return
+//        }
+//
+//        viewModelScope.launch {
+//            try {
+//                val api = RetrofitInstance.create(AuthApi::class.java)
+//                val res = api.updateMyBasic(req)        // UtilResponse<Boolean>
+//                val ok = res.status.equals("SUCCESS", true) && (res.data == true)
+//                if (ok) onSaved() else onError(res.message.ifBlank { "수정에 실패했어요." })
+//            } catch (t: Throwable) {
+//                onError(t.message ?: "네트워크 오류")
+//            }
+//        }
+//
+//
+//    }
 }

@@ -1,5 +1,6 @@
 package com.refit.app.data.auth.api
 
+import com.refit.app.data.auth.model.BasicInfoResponse
 import com.refit.app.data.auth.model.KakaoSignupRequest
 import com.refit.app.data.auth.model.KakaoVerifyRequest
 import com.refit.app.data.auth.model.KakaoVerifyResponse
@@ -39,4 +40,9 @@ interface AuthApi {
     suspend fun kakaoSignup(
         @Body req: KakaoSignupRequest
     ): Response<UtilResponse<LoginResponse>>
+
+    @GET("/auth/basic/me")
+    @Headers("Requires-Auth: true")
+    suspend fun getMyBasic(
+    ): UtilResponse<BasicInfoResponse>
 }

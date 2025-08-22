@@ -64,6 +64,13 @@ fun MyScreen(navController: NavController) {
             Text("로그아웃(임시)")
         }
 
+        Button(
+            onClick = { navController.navigate("account/edit") },
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text("내 정보 수정(임시)")
+        }
+
     }
 }
 

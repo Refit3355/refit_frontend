@@ -20,6 +20,8 @@ fun LabeledField(
     placeholder: String = "",
     modifier: Modifier = Modifier,
     singleLine: Boolean = true,
+    readOnly: Boolean = false,
+    enabled: Boolean = true,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     trailing: @Composable (() -> Unit)? = null,
     labelTextStyle: TextStyle = MaterialTheme.typography.labelLarge,
@@ -41,6 +43,8 @@ fun LabeledField(
             trailingIcon = trailing,
             supportingText = supportingText,
             textStyle = textStyle,
+            readOnly = readOnly,
+            enabled = enabled,
             placeholder = {
                 Text(
                     text = placeholder,
