@@ -239,7 +239,11 @@ fun MainScreenWithBottomNav(
                     arguments = listOf(navArgument("id") { type = NavType.IntType })
                 ) { backStackEntry ->
                     val id = backStackEntry.arguments!!.getInt("id")
-                    ProductDetailScreen(productId = id, navController = navController)
+                    ProductDetailScreen(
+                        productId = id,
+                        navController = navController,
+                        onCartChanged = onCartChanged
+                    )
                 }
 
                 // 찜 목록

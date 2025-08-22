@@ -43,7 +43,8 @@ fun CartItemRow(
     onCheckChanged: () -> Unit,
     onMinus: () -> Unit,
     onPlus: () -> Unit,
-    onRemove: () -> Unit
+    onRemove: () -> Unit,
+    onOpenDetail: () -> Unit
 ) {
     val Stroke = Color(0xFFE5E5EA)
     val SubGray = Color(0xFF9E9EA7)
@@ -103,6 +104,7 @@ fun CartItemRow(
                             .size(90.dp)
                             .clip(RoundedCornerShape(10.dp))
                             .border(1.dp, Stroke, RoundedCornerShape(10.dp))
+                            .clickable { onOpenDetail() }
                     ) {
                         AsyncImage(
                             model = item.thumbnailUrl,
@@ -120,7 +122,11 @@ fun CartItemRow(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.Top
                         ) {
-                            Column(modifier = Modifier.weight(1f)) {
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable { onOpenDetail() }
+                            ) {
                                 Text(
                                     item.brandName,
                                     color = SubGray,

@@ -209,7 +209,10 @@ fun CartScreen(
                                             editVm.updateQuantity(item.cartId, item.cartCnt - 1)
                                     },
                                     onPlus = { editVm.updateQuantity(item.cartId, item.cartCnt + 1) },
-                                    onRemove = { editVm.deleteOne(item.cartId) }
+                                    onRemove = { editVm.deleteOne(item.cartId) },
+                                    onOpenDetail = {
+                                        navController.navigate("product/${item.id}")
+                                    }
                                 )
                             }
 
