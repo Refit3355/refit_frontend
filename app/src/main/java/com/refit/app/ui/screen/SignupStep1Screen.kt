@@ -28,6 +28,11 @@ fun SignupStep1Screen(
     onSearchAddress: () -> Unit,
     vm: SignupViewModel = viewModel()
 ) {
+    // 다이얼로그 on/off
+    val showAddressDialog = androidx.compose.runtime.remember {
+        androidx.compose.runtime.mutableStateOf(false)
+    }
+
     Scaffold(
         topBar = {
             SignupTopBar(
@@ -211,7 +216,7 @@ fun SignupStep1Screen(
                                                 color = Color(0xFFD32F2F)
                                             )
                                             else -> Text(
-                                                "형식이 올바릅니다.",
+                                                "번호 형식이 올바릅니다.",
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MainPurple
                                             )
@@ -240,8 +245,19 @@ fun SignupStep1Screen(
                                 zipcode = vm.uiState.zipcode, onZip = vm::onZipcode,
                                 road = vm.uiState.roadAddress, onRoad = vm::onRoad,
                                 detail = vm.uiState.detailAddress, onDetail = vm::onDetail,
-                                onSearchAddress = onSearchAddress
+                                onSearchAddress = { showAddressDialog.value = true }
                             )
+                            if (showAddressDialog.value) {
+                                AddressSearchDialog(
+                                    onDismiss = { showAddressDialog.value = false },
+                                    onSelected = { zonecode, roadAddress ->
+                                        vm.onZipcode(zonecode)
+                                        vm.onRoad(roadAddress)
+                                        // 상세주소는 사용자가 직접 입력
+                                        showAddressDialog.value = false
+                                    }
+                                )
+                            }
                         }
                     }
 
