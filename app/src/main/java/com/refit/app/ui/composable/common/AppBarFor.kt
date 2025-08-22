@@ -23,12 +23,12 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                 showActions = true
             )
 
-        route.startsWith("community") || route.startsWith("myfit") || route.startsWith("my") ->
+        route.startsWith("community") || route == "myfit" || route == "my" ->
             AppBarConfig.HomeTitle(
                 title = when {
                     route.startsWith("community") -> "커뮤니티"
-                    route.startsWith("myfit") -> "마이핏"
-                    route.startsWith("my") -> "마이페이지"
+                    route == "myfit" -> "마이핏"
+                    route == "my" -> "마이페이지"
                     else -> "Re:fit"
                 },
                 onLogoClick  = { nav.navigate("home") },
@@ -37,9 +37,12 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                 showActions = true
             )
 
-        route in listOf("notifications", "cart") ->
+        route in listOf("notifications", "cart", "myfit/register") || route.startsWith("myfit/edit") ->
             AppBarConfig.BackOnly(
-                title = if (route == "notifications") "알림함" else "장바구니",
+                title = if (route == "notifications") "알림함"
+                else if (route == "cart") "장바구니"
+                else if (route == "myfit/register") "상품 등록"
+                else "상품 수정",
                 onBack = { nav.popBackStack() }
             )
 

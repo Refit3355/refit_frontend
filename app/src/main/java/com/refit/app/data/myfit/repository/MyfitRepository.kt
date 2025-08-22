@@ -38,4 +38,10 @@ class MyfitRepository(
     suspend fun getPurchasedProducts(type: String): PurchasedProductResponse =
         api.getPurchasedProducts(type)
 
+    suspend fun createFromOrderItem(orderItemId: Long) {
+        val res = api.createFromOrderItem(orderItemId)
+        if (!res.isSuccessful) {
+            throw HttpException(res)
+        }
+    }
 }

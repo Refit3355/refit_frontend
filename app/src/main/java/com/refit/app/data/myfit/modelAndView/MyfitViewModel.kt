@@ -12,6 +12,8 @@ import com.refit.app.network.TokenManager.parseNicknameFromJwt
 import kotlinx.coroutines.launch
 import android.util.Log
 import com.refit.app.data.myfit.model.PurchasedProductDto
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import org.json.JSONObject
 import retrofit2.HttpException
 import java.net.SocketTimeoutException
@@ -31,6 +33,7 @@ data class MyfitUiState(
     val error: ErrorUi? = null,
     val confirmCompleteId: Long? = null,
     val confirmDeleteId: Long? = null,
+    val confirmUsingOrderItemId: Long? = null,
     val nickname: String = "회원",
 )
 
@@ -42,6 +45,12 @@ class MyfitViewModel(
 
     var ui by mutableStateOf(MyfitUiState())
         private set
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error
 
     init {
         setNicknameFromToken()
@@ -110,6 +119,16 @@ class MyfitViewModel(
 
     fun askComplete(id: Long?) { ui = ui.copy(confirmCompleteId = id) }
     fun askDelete(id: Long?) { ui = ui.copy(confirmDeleteId = id) }
+    fun askUsing(id: Long?) { ui = ui.copy(confirmUsingOrderItemId = id) }
+
+    fun confirmUsing() = viewModelScope.launch {
+        val id = ui.confirmUsingOrderItemId ?: return@launch
+        ui = ui.copy(confirmUsingOrderItemId = null, isLoading = true)
+        runCatching { repo.createFromOrderItem(id) }
+            .onSuccess { refresh() }
+            .onFailure { e -> ui = ui.copy(isLoading = false, error = e.toErrorUi()) }
+    }
+
 
     fun confirmComplete() = viewModelScope.launch {
         val id = ui.confirmCompleteId ?: return@launch
@@ -129,5 +148,17 @@ class MyfitViewModel(
             .onFailure { e ->
                 ui = ui.copy(isLoading = false, error = e.toErrorUi())
             }
+    }
+
+    fun startUsing(orderItemId: Long) = viewModelScope.launch {
+        _isLoading.value = true; _error.value = null
+        runCatching { repo.createFromOrderItem(orderItemId) }
+            .onSuccess {
+                refresh()
+            }
+            .onFailure { e ->
+                _error.value = e.message ?: "사용 등록 실패"
+            }
+        _isLoading.value = false
     }
 }

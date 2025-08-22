@@ -18,4 +18,12 @@ object TokenManager {
     }
     fun saveToken(token: String?) { if (::prefs.isInitialized) prefs.edit().putString(TOKEN_KEY, token).apply() }
     fun clearToken() { if (::prefs.isInitialized) prefs.edit().remove(TOKEN_KEY).apply() }
+    fun parseNicknameFromJwt(token: String): String? {
+        return try {
+            val payload = token.split(".").getOrNull(1) ?: return null
+            val json = String(android.util.Base64.decode(payload, android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP))
+            org.json.JSONObject(json).optString("nickname", null)
+        } catch (e: Exception) { null }
+    }
+
 }

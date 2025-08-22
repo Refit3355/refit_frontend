@@ -38,4 +38,9 @@ interface MyfitApi {
 
     @GET("/orders/unregistered-products")
     suspend fun getPurchasedProducts(@Query("type") type: String): PurchasedProductResponse
+
+    @POST("member-products/order-item/{orderItemId}")
+    suspend fun createFromOrderItem(
+        @Path("orderItemId") id: Long
+    ): Response<Unit>
 }
