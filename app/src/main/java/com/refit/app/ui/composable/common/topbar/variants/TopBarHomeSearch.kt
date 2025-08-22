@@ -17,7 +17,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.refit.app.R
-import com.refit.app.ui.composable.model.basic.AppBarConfig
+import com.refit.app.data.basic.model.AppBarConfig
 import com.refit.app.ui.composable.common.topbar.TopBarTokens
 import com.refit.app.ui.composable.common.topbar.ActionsRowCompact
 

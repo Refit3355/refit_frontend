@@ -1,4 +1,4 @@
-package com.refit.app.ui.composable.model.basic
+package com.refit.app.data.basic.model
 
 import androidx.annotation.DrawableRes
 

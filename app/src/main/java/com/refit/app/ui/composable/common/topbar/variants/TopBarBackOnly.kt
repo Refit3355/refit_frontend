@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.refit.app.ui.composable.model.basic.AppBarConfig
+import com.refit.app.data.basic.model.AppBarConfig
 import com.refit.app.ui.composable.common.topbar.BackButton
 
 @OptIn(ExperimentalMaterial3Api::class)

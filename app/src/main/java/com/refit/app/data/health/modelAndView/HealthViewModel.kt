@@ -1,10 +1,10 @@
-package com.refit.app.ui.viewmodel.health
+package com.refit.app.data.health.modelAndView
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.refit.app.data.health.HealthRepo
-import com.refit.app.model.health.DailyRow
+import com.refit.app.data.health.model.DailyRow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -16,7 +16,7 @@ class HealthViewModel : ViewModel() {
 
     // UI 상태 데이터 클래스
     data class UiState(
-        val days: Int = 30,
+        val days: Int = 7,
         val rows: List<DailyRow> = emptyList(),
         val loading: Boolean = false,
         val error: String? = null,

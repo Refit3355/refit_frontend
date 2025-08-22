@@ -13,10 +13,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.refit.app.data.health.HealthRepo
 import com.refit.app.ui.composable.health.DailyList
 import com.refit.app.ui.composable.health.LoadingState
-import com.refit.app.ui.viewmodel.health.HealthViewModel
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import com.refit.app.data.health.modelAndView.HealthViewModel
 
 /**
  * Health Connect 데이터를 보여주는 Screen

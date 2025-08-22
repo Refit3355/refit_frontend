@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.refit.app.R
-import com.refit.app.ui.composable.model.basic.BottomNavItem
+import com.refit.app.data.basic.model.BottomNavItem
 import com.refit.app.ui.theme.DarkBlack
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
@@ -30,6 +30,7 @@ val bottomNavItems = listOf(
     BottomNavItem("myfit", "마이핏", R.drawable.ic_closet_selected, R.drawable.ic_closet_unselected),
     BottomNavItem("community", "커뮤니티", R.drawable.ic_community_selected, R.drawable.ic_community_unselected),
     BottomNavItem("my", "MY", R.drawable.ic_my_selected, R.drawable.ic_my_unselected),
+
 )
 
 @Composable

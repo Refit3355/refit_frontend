@@ -228,7 +228,7 @@ private fun EffectSectionedSelector(
         sections.forEach { (title, list) ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Top 
+                verticalAlignment = Alignment.Top
             ) {
                 Column() {
                     Spacer(Modifier.height(13.dp))

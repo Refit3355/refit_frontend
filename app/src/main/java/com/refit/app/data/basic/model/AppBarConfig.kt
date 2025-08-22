@@ -1,6 +1,4 @@
-package com.refit.app.ui.composable.model.basic
-
-import androidx.compose.runtime.Composable
+package com.refit.app.data.basic.model
 
 sealed class AppBarConfig {
 
@@ -42,6 +40,7 @@ sealed class AppBarConfig {
     data class SearchOnly(
         val query: String,
         val onQueryChange: (String) -> Unit,
+        val onClear: (() -> Unit)? = null,
         val onSubmit: (String) -> Unit = {},
         val placeholder: String = "검색어를 입력하세요",
         val showClear: Boolean = true,
