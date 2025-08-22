@@ -61,10 +61,15 @@ class MainActivity : ComponentActivity() {
                 val navigateTo = intent?.getStringExtra("navigateTo")
 
                 // 항상 스플래시로 시작
-                MainScreenWithBottomNav(
-                    navController = navController,
-                    startDestination = "splash"
-                )
+                CompositionLocalProvider(LocalCartCount provides count) {
+                    MainScreenWithBottomNav(
+                        navController = navController,
+                        startDestination = "splash",
+                        onCartChanged = { vm.refreshCount() },      // 어디서든 수량 변경 시 갱신
+                        onLoggedIn    = { vm.refreshCount() },      // 로그인 직후 안전 재갱신
+                        onLoggedOut   = { vm.clearCount() }         // 로그아웃 시 0으로 초기화
+                    )
+                }
 
                 // 알림 클릭 시, NavHost 초기화 후 알림화면으로 이동
                 LaunchedEffect(Unit) {

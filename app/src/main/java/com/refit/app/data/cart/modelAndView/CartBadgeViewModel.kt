@@ -34,4 +34,8 @@ class CartBadgeViewModel(
 
     /** 초기 표시용으로 바로 값 주입 */
     fun setCountDirect(count: Int) { _badgeCount.value = count }
+
+    fun clearCount() {
+        _badgeCount.value = 0
+    }
 }

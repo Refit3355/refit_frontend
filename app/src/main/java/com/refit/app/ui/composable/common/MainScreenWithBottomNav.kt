@@ -49,9 +49,10 @@ import java.nio.charset.StandardCharsets
 @Composable
 fun MainScreenWithBottomNav(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = "home",
-    onCartChanged: () -> Unit
-    startDestination: String = "splash"
+    startDestination: String = "splash",
+    onCartChanged: () -> Unit,
+    onLoggedIn: () -> Unit = {},
+    onLoggedOut: () -> Unit = {}
 )
 {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -95,11 +96,13 @@ fun MainScreenWithBottomNav(
                     SplashScreen(
                         onDecide = { loggedIn ->
                             if (loggedIn) {
+                                onLoggedIn()
                                 navController.navigate("home") {
                                     popUpTo("splash") { inclusive = true }
                                     launchSingleTop = true
                                 }
                             } else {
+                                onLoggedOut()
                                 navController.navigate("auth/login") {
                                     popUpTo("splash") { inclusive = true }
                                     launchSingleTop = true
@@ -114,6 +117,7 @@ fun MainScreenWithBottomNav(
                         onClose = { /* 필요시 */ },
                         onSignup = { navController.navigate("auth/signup") },
                         onLoggedIn = {
+                            onLoggedIn()
                             navController.navigate("home") {
                                 popUpTo("auth/login") { inclusive = true } // 뒤로가기로 로그인 안 돌아오게
                                 launchSingleTop = true
@@ -219,7 +223,7 @@ fun MainScreenWithBottomNav(
                     SearchScreen(navController)
                 }
                 // 개발중 : 삼성헬스 데이터 확인용 스크린
-                composable("health_dev") { com.refit.app.ui.screen.HealthScreen() }
+                //composable("health_dev") { com.refit.app.ui.screen.HealthScreen() }
 
                 // 상품 상세 페이지
                 composable(
