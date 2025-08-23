@@ -14,7 +14,7 @@ import com.refit.app.data.me.modelAndView.MyCombinationViewModel
 import com.refit.app.ui.composable.combination.CombinationCard
 
 @Composable
-fun MyCombinationListScreen(vm: MyCombinationViewModel = viewModel()) {
+fun CreatedCombinationListScreen(vm: MyCombinationViewModel = viewModel()) {
     val state by vm.state.collectAsState()
 
     LaunchedEffect(Unit) {
