@@ -1,4 +1,4 @@
-package com.refit.app.data.me.model
+package com.refit.app.data.local.combination.model
 
 data class CombinationsResponse(
     val combinations: List<CombinationDto>
