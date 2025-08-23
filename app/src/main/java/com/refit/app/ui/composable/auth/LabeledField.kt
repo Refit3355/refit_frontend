@@ -35,7 +35,7 @@ fun LabeledField(
 
         OutlinedTextField(
             value = value,
-            onValueChange = onValueChange,
+            onValueChange = { if (!readOnly) onValueChange(it) },
             singleLine = singleLine,
             visualTransformation = visualTransformation,
             modifier = Modifier.fillMaxWidth(),
@@ -72,7 +72,7 @@ fun LabeledField(
 
                 focusedPlaceholderColor = Color(0xFF9E9E9E),
                 unfocusedPlaceholderColor = Color(0xFF9E9E9E),
-                disabledPlaceholderColor = Color.Gray,
+                disabledPlaceholderColor = Color(0xFFBDBDBD),
                 errorPlaceholderColor = Color.Red
             )
         )

@@ -57,6 +57,8 @@ fun BasicInfoForm(
     isPasswordConfirmMatch: Boolean,
     isPhoneStartsWith010: Boolean,
     isPhoneFormatOk: Boolean,
+
+    emailReadOnly: Boolean = (mode == FormMode.EDIT),
 ) {
     val okColor = MainPurple
     val errColor = Color(0xFFD32F2F)
@@ -88,7 +90,9 @@ fun BasicInfoForm(
                         onClick = onCheckEmail
                     )
                 }
-            } else null
+            } else null,
+            readOnly = (mode == FormMode.EDIT),
+            enabled = (mode != FormMode.EDIT)
         )
 
         // 비밀번호
@@ -145,11 +149,13 @@ fun BasicInfoForm(
                 }
             },
             trailing = {
-                InlineActionButton(
-                    text = if (nickCheckLoading) "확인중..." else "중복확인",
-                    enabled = !nickCheckLoading && nickname.isNotBlank(),
-                    onClick = onCheckNick
-                )
+                Box(Modifier.padding(end = 6.dp)) {
+                    InlineActionButton(
+                        text = if (nickCheckLoading) "확인중..." else "중복확인",
+                        enabled = !nickCheckLoading && nickname.isNotBlank(),
+                        onClick = onCheckNick
+                    )
+                }
             }
         )
 

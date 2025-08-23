@@ -1,16 +1,21 @@
 package com.refit.app.ui.screen
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.refit.app.data.auth.modelAndView.FormMode
 import com.refit.app.data.auth.modelAndView.SignupViewModel
 import com.refit.app.ui.composable.auth.*
 import com.refit.app.ui.theme.MainPurple
+import com.refit.app.ui.theme.Pretendard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,13 +30,31 @@ fun EditBasicInfoScreen(
     LaunchedEffect(Unit) { vm.prefillFromMe() }
 
     Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("내 정보 수정") }, navigationIcon = {
-                TextButton(onClick = onBack) { Text("뒤로") }
-            })
+        containerColor = Color.White,
+        bottomBar = {
+            Button(
+                onClick = onSaved,
+                enabled = vm.canProceed(FormMode.EDIT),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .padding(horizontal = 16.dp, vertical = 0.dp)
+                    .imePadding(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MainPurple,
+                    contentColor = Color.White
+                )
+            ) {
+                Text("완료",
+                    style = MaterialTheme.typography.labelLarge.copy(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Pretendard,
+                ))
+            }
         }
     ) { pad ->
-        Column(Modifier.padding(pad).padding(16.dp).verticalScroll(rememberScrollState())) {
+        Column(Modifier.padding(pad).padding(16.dp).background(Color.White).verticalScroll(rememberScrollState())) {
             BasicInfoForm(
                 mode = FormMode.EDIT,
                 // 상태
@@ -71,10 +94,11 @@ fun EditBasicInfoScreen(
                 isPasswordRuleOk = vm.isPasswordRuleOkOrEmpty,   // 빈값 허용
                 isPasswordConfirmMatch = vm.isPasswordConfirmMatchOrEmpty,
                 isPhoneStartsWith010 = vm.isPhoneStartsWith010,
-                isPhoneFormatOk = vm.isPhoneFormatOk
+                isPhoneFormatOk = vm.isPhoneFormatOk,
+                emailReadOnly = true
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(60.dp))
 
 //            Button(
 //                onClick = { vm.updateMyInfo(onSaved, onError = {}) },
