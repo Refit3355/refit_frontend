@@ -19,64 +19,77 @@ import java.time.format.DateTimeFormatter
 
 class SignupViewModel : ViewModel() {
 
-    // 화면 상태 (프로젝트 내 정의된 타입 사용)
     var uiState by mutableStateOf(SignupUiState())
         private set
 
-    // 네트워크 진행/에러 상태
     var loading by mutableStateOf(false)
         private set
     var errorMsg by mutableStateOf<String?>(null)
         private set
 
-    // ---- step1 바인딩 ----
-    fun onEmail(v: String)            { uiState = uiState.copy(email = v.trim()) }
-    fun onPassword(v: String)         { uiState = uiState.copy(password = v) }
-    fun onPasswordConfirm(v: String)  { uiState = uiState.copy(passwordConfirm = v) }
-    fun onNick(v: String)             { uiState = uiState.copy(nickname = v) }
-    fun onMemberName(v: String)       { uiState = uiState.copy(memberName = v) }
-    fun onPhone(v: String)            { uiState = uiState.copy(phoneNumber = v.filter { it.isDigit() }.take(11)) }
-    fun onBirthday(d: LocalDate?)     { uiState = uiState.copy(birthday = d) }
-    fun onZipcode(v: String)          { uiState = uiState.copy(zipcode = v.take(5)) } // 프로젝트 정책 유지
-    fun onRoad(v: String)             { uiState = uiState.copy(roadAddress = v) }
-    fun onDetail(v: String)           { uiState = uiState.copy(detailAddress = v) }
-
-    // ---- step2 전용 핸들러들 ----
-    private val EXCLUSIVE = "해당없음"
-
-    fun setSkinType(v: String?) {
-        uiState = uiState.copy(skinType = v)
+    //  Step1 바인딩 (입력 시 중복검사 결과 초기화 포함)
+    fun onEmail(v: String) {
+        uiState = uiState.copy(
+            email = v.trim(),
+            emailChecked = false,
+            emailAvailable = false,
+            emailMsg = null
+        )
     }
+    fun onPassword(v: String)        { uiState = uiState.copy(password = v) }
+    fun onPasswordConfirm(v: String) { uiState = uiState.copy(passwordConfirm = v) }
+    fun onNick(v: String) {
+        uiState = uiState.copy(
+            nickname = v.trim(),
+            nickChecked = false,
+            nickAvailable = false,
+            nickMsg = null
+        )
+    }
+    fun onMemberName(v: String)      { uiState = uiState.copy(memberName = v) }
+    fun onPhone(v: String)           { uiState = uiState.copy(phoneNumber = v.filter { it.isDigit() }.take(11)) }
+    fun onBirthday(d: LocalDate?)    { uiState = uiState.copy(birthday = d) }
+    fun onZipcode(v: String)         { uiState = uiState.copy(zipcode = v.take(5)) }
+    fun onRoad(v: String)            { uiState = uiState.copy(roadAddress = v) }
+    fun onDetail(v: String)          { uiState = uiState.copy(detailAddress = v) }
 
-    private fun toggleWithExclusive(current: Set<String>, item: String): Set<String> {
-        return if (item == EXCLUSIVE) {
-            setOf(EXCLUSIVE)                     // '해당없음' 단독 선택
-        } else {
-            val base = current - EXCLUSIVE       // '해당없음'이 켜져있으면 해제
+    // Step2 전용
+    private val EXCLUSIVE = "해당없음"
+    fun setSkinType(v: String?)      { uiState = uiState.copy(skinType = v) }
+
+    private fun toggleWithExclusive(current: Set<String>, item: String): Set<String> =
+        if (item == EXCLUSIVE) setOf(EXCLUSIVE)
+        else {
+            val base = current - EXCLUSIVE
             if (item in base) base - item else base + item
         }
-    }
 
-    fun toggleSkinConcern(item: String) {
-        uiState = uiState.copy(
-            skinConcerns = toggleWithExclusive(uiState.skinConcerns, item)
-        )
-    }
+    fun toggleSkinConcern(item: String)  { uiState = uiState.copy(skinConcerns = toggleWithExclusive(uiState.skinConcerns, item)) }
+    fun toggleScalpConcern(item: String) { uiState = uiState.copy(scalpConcerns = toggleWithExclusive(uiState.scalpConcerns, item)) }
+    fun toggleHealthConcern(item: String){ uiState = uiState.copy(healthConcerns = toggleWithExclusive(uiState.healthConcerns, item)) }
 
-    fun toggleScalpConcern(item: String) {
-        uiState = uiState.copy(
-            scalpConcerns = toggleWithExclusive(uiState.scalpConcerns, item)
-        )
-    }
+    // 유효성
+    private val pwRegex =
+        Regex("^(?=.{8,64}$)(?:(?=.*[A-Za-z])(?=.*\\d)|(?=.*[A-Za-z])(?=.*[^\\w\\s])|(?=.*\\d)(?=.*[^\\w\\s])).*$")
 
-    fun toggleHealthConcern(item: String) {
-        uiState = uiState.copy(
-            healthConcerns = toggleWithExclusive(uiState.healthConcerns, item)
-        )
-    }
+    val isPasswordRuleOk: Boolean
+        get() = pwRegex.matches(uiState.password)
 
-    // ---- 유효성 ----
-    private val pwRegex = Regex("^(?=.{8,64}$)(?:(?=.*[A-Za-z])(?=.*\\d)|(?=.*[A-Za-z])(?=.*[^\\w\\s])|(?=.*\\d)(?=.*[^\\w\\s])).*$")
+    val isPasswordConfirmMatch: Boolean
+        get() = uiState.password.isNotEmpty() &&
+                uiState.passwordConfirm.isNotEmpty() &&
+                uiState.passwordConfirm == uiState.password
+
+    val isPhoneStartsWith010: Boolean
+        get() = uiState.phoneNumber.startsWith("010")
+
+    val isPhoneFormatOk: Boolean
+        get() = uiState.phoneNumber.matches(Regex("^010\\d{8}$"))
+    private fun isEmailFormatValid(): Boolean {
+        val r = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")
+        return uiState.email.isNotBlank() && r.matches(uiState.email)
+    }
+    private fun isNicknameValid(): Boolean = uiState.nickname.length in 2..20
 
     val isValid: Boolean
         get() = uiState.email.isNotBlank() &&
@@ -90,25 +103,29 @@ class SignupViewModel : ViewModel() {
                 uiState.roadAddress.isNotBlank() &&
                 uiState.detailAddress.isNotBlank()
 
+    // “다음” 활성 조건: 기본 유효성 + 중복검사 통과
+    val isStep1Ready: Boolean
+        get() = isValid &&
+                uiState.emailChecked && uiState.emailAvailable &&
+                uiState.nickChecked && uiState.nickAvailable
+
     val isStep2Valid: Boolean
         get() = uiState.skinType != null
 
-    // ---- 서버 DTO 매핑 ----
+    // 서버 DTO 매핑
     private fun toSignupAllRequest(): SignupAllRequest {
         val bday = uiState.birthday?.format(DateTimeFormatter.ISO_DATE) // yyyy-MM-dd
-
         val signup = SignupRequest(
             email = uiState.email,
-            nickName = uiState.nickname,          // 서버 DTO 필드명: nickName (N 대문자)
+            nickName = uiState.nickname,
             memberName = uiState.memberName,
             password = uiState.password,
             zipcode = uiState.zipcode,
             roadAddress = uiState.roadAddress,
             detailAddress = uiState.detailAddress,
-            birthday = bday ?: "",                // @NotNull이므로 null이면 서버에서 400
+            birthday = bday ?: "",
             phoneNumber = uiState.phoneNumber
         )
-
         val health = HealthInfoDto(
             eyeHealth = if ("눈건강" in uiState.healthConcerns) 1 else 0,
             fatigue = if ("만성피로" in uiState.healthConcerns) 1 else 0,
@@ -118,14 +135,12 @@ class SignupViewModel : ViewModel() {
             gutHealth = if ("장건강" in uiState.healthConcerns) 1 else 0,
             bloodCirculation = if ("혈액순환" in uiState.healthConcerns) 1 else 0
         )
-
         val hair = HairInfoDto(
             hairLoss = if ("탈모" in uiState.scalpConcerns) 1 else 0,
             damagedHair = if ("손상모" in uiState.scalpConcerns) 1 else 0,
             scalpTrouble = if ("두피트러블" in uiState.scalpConcerns) 1 else 0,
             dandruff = if ("비듬/각질" in uiState.scalpConcerns) 1 else 0
         )
-
         val skin = SkinInfoDto(
             atopic = if ("아토피" in uiState.skinConcerns) 1 else 0,
             acne = if ("여드름/민감성" in uiState.skinConcerns) 1 else 0,
@@ -137,26 +152,19 @@ class SignupViewModel : ViewModel() {
             redness = if ("홍조" in uiState.skinConcerns) 1 else 0,
             keratin = if ("각질" in uiState.skinConcerns) 1 else 0
         )
-
         return SignupAllRequest(
             signup = signup,
             concerns = ConcernRequest(health = health, hair = hair, skin = skin)
         )
     }
 
-    // ---- 가입 호출 (Step2의 "가입하기") ----
+    // 가입 호출
     fun submitSignup(
         onSuccess: (Long) -> Unit,
         onError: (String) -> Unit
     ) {
-        if (!isValid) {
-            onError("입력값을 확인해 주세요.")
-            return
-        }
-        if (!isStep2Valid) {
-            onError("피부 타입을 선택해 주세요.")
-            return
-        }
+        if (!isValid) { onError("입력값을 확인해 주세요."); return }
+        if (!isStep2Valid) { onError("피부 타입을 선택해 주세요."); return }
 
         val api = RetrofitInstance.create(AuthApi::class.java)
         val req = toSignupAllRequest()
@@ -165,8 +173,8 @@ class SignupViewModel : ViewModel() {
             loading = true
             errorMsg = null
             try {
-                val res = api.join(req) // UtilResponse<SignupResponse>
-                val id = res.data?.id ?: error("가입 ID 없음")
+                val res = api.join(req)
+                val id = requireNotNull(res.data?.id) { "가입 ID 없음" }
                 onSuccess(id)
             } catch (t: Throwable) {
                 val msg = t.message ?: "네트워크 오류"
@@ -177,4 +185,89 @@ class SignupViewModel : ViewModel() {
             }
         }
     }
+
+    // 중복검사
+    fun checkEmailDuplicate() {
+        val email = uiState.email
+        if (!isEmailFormatValid()) {
+            uiState = uiState.copy(
+                emailChecked = false,
+                emailAvailable = false,
+                emailMsg = "이메일 형식이 올바르지 않아요. 예) example@domain.com"
+            )
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val api = RetrofitInstance.create(AuthApi::class.java)
+                val res = api.checkEmail(email) // UtilResponse<Boolean>
+                val ok = res.status.equals("SUCCESS", true)
+                val available = res.data == true
+
+                val message = when {
+                    !ok -> res.message.orEmpty().ifBlank { "서버 응답이 올바르지 않아요. 잠시 후 다시 시도해 주세요." }
+                    available -> "사용 가능한 이메일입니다."
+                    else -> "이미 사용 중인 이메일이에요."
+                }
+
+                uiState = uiState.copy(
+                    emailChecked = ok,
+                    emailAvailable = ok && available,
+                    emailMsg = message
+                )
+            } catch (t: Throwable) {
+                uiState = uiState.copy(
+                    emailChecked = false,
+                    emailAvailable = false,
+                    emailMsg = "네트워크 오류로 확인에 실패했어요. 연결을 확인하고 다시 시도해 주세요."
+                )
+            } finally {
+                uiState = uiState.copy(emailCheckLoading = false)
+            }
+        }
+    }
+
+    fun checkNickDuplicate() {
+        val nick = uiState.nickname
+        if (!isNicknameValid()) {
+            uiState = uiState.copy(
+                nickChecked = false,
+                nickAvailable = false,
+                nickMsg = "닉네임은 2~20자여야 해요."
+            )
+            return
+        }
+
+        viewModelScope.launch {
+
+            try {
+                val api = RetrofitInstance.create(AuthApi::class.java)
+                val res = api.checkNickname(nick)
+                val ok = res.status.equals("SUCCESS", true)
+                val available = res.data == true
+
+                val message = when {
+                    !ok -> res.message.orEmpty().ifBlank { "서버 응답이 올바르지 않아요. 잠시 후 다시 시도해 주세요." }
+                    available -> "사용 가능한 닉네임입니다."
+                    else -> "이미 사용 중인 닉네임이에요."
+                }
+
+                uiState = uiState.copy(
+                    nickChecked = ok,
+                    nickAvailable = ok && available,
+                    nickMsg = message
+                )
+            } catch (t: Throwable) {
+                uiState = uiState.copy(
+                    nickChecked = false,
+                    nickAvailable = false,
+                    nickMsg = "네트워크 오류로 확인에 실패했어요. 연결을 확인하고 다시 시도해 주세요."
+                )
+            } finally {
+                uiState = uiState.copy(nickCheckLoading = false)
+            }
+        }
+    }
+
 }

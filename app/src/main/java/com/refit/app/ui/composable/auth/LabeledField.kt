@@ -25,6 +25,7 @@ fun LabeledField(
     labelTextStyle: TextStyle = MaterialTheme.typography.labelLarge,
     placeholderTextStyle: TextStyle = MaterialTheme.typography.bodyMedium,
     textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
+    supportingText: @Composable (() -> Unit)? = null,
 ) {
     Column(modifier = modifier) {
         Text(text = label, style = labelTextStyle, fontFamily = Pretendard)
@@ -38,6 +39,7 @@ fun LabeledField(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             trailingIcon = trailing,
+            supportingText = supportingText,
             textStyle = textStyle,
             placeholder = {
                 Text(

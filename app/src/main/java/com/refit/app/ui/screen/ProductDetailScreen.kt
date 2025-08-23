@@ -9,7 +9,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
+import com.refit.app.data.cart.api.CartApi
+import com.refit.app.data.cart.modelAndView.CartEditViewModel
+import com.refit.app.data.cart.modelAndView.CartOpType
+import com.refit.app.data.cart.repository.CartRepository
 import com.refit.app.data.product.modelAndView.ProductDetailViewModel
 import com.refit.app.ui.composable.productDetail.DetailBottomBar
 import com.refit.app.ui.composable.productDetail.OrderBottomSheet
@@ -18,6 +24,7 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 import com.refit.app.data.local.wish.WishViewModel
+import com.refit.app.network.RetrofitInstance
 
 
 enum class SheetMode { CART, BUY }
@@ -26,9 +33,16 @@ enum class SheetMode { CART, BUY }
 fun ProductDetailScreen(
     productId: Int,
     navController: NavController,
-    vm: ProductDetailViewModel = viewModel()
+    vm: ProductDetailViewModel = viewModel(),
+    onCartChanged: () -> Unit = {}
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
+
+    val api  = remember { RetrofitInstance.create(CartApi::class.java) }
+    val repo = remember { CartRepository(api) }
+    val editVm: CartEditViewModel = viewModel(
+        factory = viewModelFactory { initializer { CartEditViewModel(repo, badgeVm = null) } }
+    )
 
     val wishVm: WishViewModel = viewModel()
     val wishedIds by wishVm.wishedIds.collectAsStateWithLifecycle()
@@ -43,6 +57,43 @@ fun ProductDetailScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+
+    // 장바구니 추가/실패 이벤트 처리
+    LaunchedEffect(Unit) {
+        editVm.opEvents.collect { ev ->
+            when (ev.type) {
+                CartOpType.ADD_ONE -> {
+                    if (ev.success) {
+                        scope.launch {
+                            // 이미 떠 있는 스낵바가 있으면 닫기
+                            snackbarHostState.currentSnackbarData?.dismiss()
+
+                            val result = snackbarHostState.showSnackbar(
+                                message = "장바구니에 담았어요.",
+                                actionLabel = "바로가기",          // 우측 액션 버튼 라벨
+                                withDismissAction = true,          // 닫기 액션 표시
+                                duration = SnackbarDuration.Short
+                            )
+                            if (result == SnackbarResult.ActionPerformed) {
+                                navController.navigate("cart")
+                            }
+                        }
+                        onCartChanged()          // 전역 배지 갱신
+                        showSheet = false
+                    } else {
+                        val msg = ev.message ?: "추가 실패"
+                        scope.launch { snackbarHostState.showSnackbar(msg) }
+                        // 필요 시: 비로그인 → 로그인 화면 이동
+                        if (msg.contains("로그인")) {
+                            navController.navigate("auth/login")
+                        }
+                    }
+                }
+                else -> Unit
+            }
+        }
+    }
 
     Scaffold(
         containerColor = Color.White,
@@ -86,12 +137,13 @@ fun ProductDetailScreen(
                 onQtyChange = { qty = it.coerceIn(1, 99) },
                 primaryLabel = if (sheetMode == SheetMode.CART) "장바구니 담기" else "바로 구매",
                 onPrimary = {
-                    // TODO: 실제 API 연결
-                    scope.launch {
-                        val msg = if (sheetMode == SheetMode.CART) "장바구니에 담았어요." else "구매 플로우로 이동합니다."
-                        snackbarHostState.showSnackbar(msg)
+                    if (sheetMode == SheetMode.CART) {
+                        editVm.addOne(productId.toLong(), qty)
+                    } else {
+                        // 바로구매 플로우(주문 화면 이동 등)
+//                        navController.navigate("order/confirm?productId=$productId&qty=$qty")
+//                        showSheet = false
                     }
-                    showSheet = false
                 },
                 onDismiss = { showSheet = false }
             )
