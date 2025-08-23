@@ -104,6 +104,17 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                 onCartClick  = { nav.navigate("cart") },
                 showActions = true
             )
+        route == "account/edit" ->
+            AppBarConfig.BackOnly(
+                title = "기본 정보 수정",
+                onBack = { nav.popBackStack() }
+            )
+
+        route == "account/health/edit" ->
+            AppBarConfig.BackOnly(
+                title = "건강 정보 수정",
+                onBack = { nav.popBackStack() }
+            )
 
         else ->
             AppBarConfig.BackWithActions(

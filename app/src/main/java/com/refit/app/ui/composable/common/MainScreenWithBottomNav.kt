@@ -46,8 +46,11 @@ import com.refit.app.ui.screen.SignupStep3Screen
 import com.refit.app.ui.screen.SplashScreen
 import com.refit.app.ui.screen.WishScreen
 import androidx.compose.ui.Alignment
+import com.refit.app.data.auth.modelAndView.FormMode
 import com.refit.app.data.myfit.viewmodel.MyfitViewModel
 import com.refit.app.data.auth.modelAndView.SignupViewModel
+import com.refit.app.ui.screen.EditBasicInfoScreen
+import com.refit.app.ui.screen.HealthEditScreen
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -148,9 +151,10 @@ fun MainScreenWithBottomNav(
                         val vm: SignupViewModel = viewModel(parentEntry)
 
                         SignupStep1Screen(
+                            mode = FormMode.SIGNUP,                 // ★ 추가
                             onBack = { navController.popBackStack() },
                             onNextOrSubmit = { navController.navigate("auth/signup2") },
-                            onSearchAddress = { /* 주소 검색 */ },
+                            onSearchAddress = { /* 주소검색 다이얼로그 열기 */ },
                             vm = vm
                         )
                     }
@@ -189,6 +193,30 @@ fun MainScreenWithBottomNav(
                             submitEnabled = vm.isStep2Valid && vm.isValid
                         )
                     }
+
+                    composable("account/edit") {
+                        EditBasicInfoScreen(
+                            onBack = { navController.popBackStack() },
+                            onSaved = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable("account/health/edit") {
+                        HealthEditScreen(
+                            onBack = { navController.popBackStack() },
+                            onSaved = {
+                                // 저장 성공 알림(임시) → 마이페이지로
+                                navController.navigate("my") {
+                                    popUpTo("account/health/edit") { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            }
+                        )
+                    }
+
+
 
                     composable(
                         route = "auth/signup3?nickname={nickname}",

@@ -3,13 +3,17 @@ package com.refit.app.network
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
+import com.refit.app.data.auth.model.HairInfoDto
 import com.refit.app.data.auth.model.HealthInfoDto
+import com.refit.app.data.auth.model.SkinInfoDto
 
 object UserPrefs {
     private const val PREFS_NAME = "refit_user_prefs"
     private const val KEY_MEMBER_ID = "member_id"
     private const val KEY_NICKNAME  = "nickname"
     private const val KEY_HEALTH    = "health_json"
+    private const val KEY_HAIR      = "hair_json"
+    private const val KEY_SKIN      = "skin_json"
 
     private lateinit var prefs: SharedPreferences
     private val gson by lazy { Gson() }
@@ -18,11 +22,19 @@ object UserPrefs {
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
-    fun saveUser(memberId: Long?, nickname: String?, health: HealthInfoDto?) {
+    fun saveUser(
+        memberId: Long?,
+        nickname: String?,
+        health: HealthInfoDto?,
+        hair: HairInfoDto?,
+        skin: SkinInfoDto?
+    ) {
         prefs.edit().apply {
             if (memberId != null) putLong(KEY_MEMBER_ID, memberId) else remove(KEY_MEMBER_ID)
             putString(KEY_NICKNAME, nickname ?: "")
             putString(KEY_HEALTH, health?.let { gson.toJson(it) } ?: "")
+            putString(KEY_HAIR,   hair?.let { gson.toJson(it) }   ?: "")
+            putString(KEY_SKIN,   skin?.let { gson.toJson(it) }   ?: "")
         }.apply()
     }
 
@@ -41,9 +53,38 @@ object UserPrefs {
             ?.takeIf { it.isNotBlank() }
             ?.let { gson.fromJson(it, HealthInfoDto::class.java) }
 
+    fun getHair(): HairInfoDto? =
+        if (!::prefs.isInitialized) null
+        else prefs.getString(KEY_HAIR, null)
+            ?.takeIf { it.isNotBlank() }
+            ?.let { gson.fromJson(it, HairInfoDto::class.java) }
+
+    fun getSkin(): SkinInfoDto? =
+        if (!::prefs.isInitialized) null
+        else prefs.getString(KEY_SKIN, null)
+            ?.takeIf { it.isNotBlank() }
+            ?.let { gson.fromJson(it, SkinInfoDto::class.java) }
+
     fun clear() {
         if (!::prefs.isInitialized) return
         prefs.edit().clear().apply()
+    }
+
+    fun setNickname(nickname: String?) {
+        if (!::prefs.isInitialized) return
+        prefs.edit().putString(KEY_NICKNAME, nickname ?: "").apply()
+    }
+
+    fun setHealth(health: HealthInfoDto?) {
+        prefs.edit().putString(KEY_HEALTH, health?.let { gson.toJson(it) } ?: "").apply()
+    }
+
+    fun setHair(hair: HairInfoDto?) {
+        prefs.edit().putString(KEY_HAIR, hair?.let { gson.toJson(it) } ?: "").apply()
+    }
+
+    fun setSkin(skin: SkinInfoDto?) {
+        prefs.edit().putString(KEY_SKIN, skin?.let { gson.toJson(it) } ?: "").apply()
     }
 
 }
