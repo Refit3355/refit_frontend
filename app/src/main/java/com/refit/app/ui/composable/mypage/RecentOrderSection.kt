@@ -19,7 +19,10 @@ import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 
 @Composable
-fun RecentOrderSection(order: RecentOrderDummy) {
+fun RecentOrderSection(
+    order: RecentOrderDummy,
+    onClickAll: () -> Unit
+) {
     Column(Modifier.padding(horizontal = 16.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -32,7 +35,7 @@ fun RecentOrderSection(order: RecentOrderDummy) {
                 fontWeight = FontWeight.Bold,
                 fontFamily = Pretendard
             )
-            TextButton(onClick = { /* 전체보기 */ }) {
+            TextButton(onClick = { onClickAll() }) {
                 Text("전체보기", fontFamily = Pretendard, color = MainPurple)
             }
         }
@@ -129,11 +132,36 @@ fun RecentOrderSection(order: RecentOrderDummy) {
 
                                 if (item.status != "취소완료") {
                                     Row {
-                                        TextButton(onClick = { }) {
-                                            Text("주문취소", fontSize = 12.sp, fontFamily = Pretendard)
+                                        Button(
+                                            onClick = { },
+                                            colors = ButtonDefaults.buttonColors(containerColor = MainPurple),
+                                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                                            shape = RoundedCornerShape(6.dp),
+                                            modifier = Modifier.height(25.dp)
+                                        ) {
+                                            Text(
+                                                "주문취소",
+                                                fontSize = 11.sp,
+                                                fontFamily = Pretendard,
+                                                color = Color.White
+                                            )
                                         }
-                                        TextButton(onClick = { }) {
-                                            Text("교환/반품 신청", fontSize = 12.sp, fontFamily = Pretendard)
+
+                                        Spacer(Modifier.width(8.dp))
+
+                                        Button(
+                                            onClick = { },
+                                            colors = ButtonDefaults.buttonColors(containerColor = MainPurple),
+                                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                                            shape = RoundedCornerShape(6.dp),
+                                            modifier = Modifier.height(25.dp)
+                                        ) {
+                                            Text(
+                                                "교환/반품 신청",
+                                                fontSize = 11.sp,
+                                                fontFamily = Pretendard,
+                                                color = Color.White
+                                            )
                                         }
                                     }
                                 }

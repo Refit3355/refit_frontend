@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,7 +29,8 @@ import com.refit.app.ui.theme.Pretendard
 fun MypageProfileCard(
     nickname: String,
     tags: List<String>,
-    onEditClick: () -> Unit = {}
+    onEditClick: () -> Unit = {},
+    onArrowClick: () -> Unit = {}
 ) {
     Surface(
         modifier = Modifier
@@ -53,11 +56,11 @@ fun MypageProfileCard(
                     .background(Color.White),
                 contentScale = ContentScale.Crop
             )
-
             Spacer(Modifier.width(12.dp))
 
             // 오른쪽 정보
             Column(
+                modifier = Modifier.weight(1f),
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -93,6 +96,15 @@ fun MypageProfileCard(
                         color = Color.White
                     )
                 }
+            }
+
+            // 오른쪽 화살표 버튼
+            IconButton(onClick = onArrowClick) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = "이동",
+                    tint = Color.Gray
+                )
             }
         }
     }

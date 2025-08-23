@@ -42,6 +42,7 @@ import com.refit.app.ui.screen.SignupStep3Screen
 import com.refit.app.ui.screen.SplashScreen
 import com.refit.app.ui.screen.WishScreen
 import com.refit.app.data.auth.modelAndView.SignupViewModel
+import com.refit.app.ui.screen.CombinationListScreen
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -237,6 +238,10 @@ fun MainScreenWithBottomNav(
                     val type = backStackEntry.arguments?.getInt("type") ?: 0
                     RecommendationScreen(navController, type)
                 }
+
+                // 내 조합 저장 목록
+                composable("combinations") { CombinationListScreen() }
+
             }
         }
     }

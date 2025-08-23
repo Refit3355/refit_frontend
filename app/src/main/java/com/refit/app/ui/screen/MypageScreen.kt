@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.refit.app.network.UserPrefs
 import com.refit.app.ui.composable.mypage.*
 import com.refit.app.ui.fake.sampleRecentOrder
 
@@ -17,14 +18,24 @@ fun MypageScreen(navController: NavController) {
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
+
+        val nickname = UserPrefs.getNickname()
+        val health = UserPrefs.getHealth()
+
+        val allTags = health?.toTags().orEmpty()
+
         MypageProfileCard(
-            nickname = "외식고기",
-            tags = listOf("#민감성", "#수부지", "#홍조")
+            nickname = nickname ?: "사용자",
+            tags = allTags
         )
 
         Spacer(Modifier.height(12.dp))
 
-        RecentOrderSection(order = sampleRecentOrder)
+        RecentOrderSection(
+            order = sampleRecentOrder,
+            onClickAll = {
+            }
+        )
 
         Spacer(Modifier.height(12.dp))
 

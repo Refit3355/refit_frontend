@@ -26,9 +26,7 @@ fun MypageMenuSection(navController: NavController) {
         Row(
             Modifier
                 .fillMaxWidth()
-                // TODO: 찜 목록 화면 구현 후 연결
-                .clickable { /* 이동 없음 → ripple만 발생 */ }
-                // .clickable { navController.navigate("favorites") }
+                .clickable { navController.navigate("wish") }
                 .padding(vertical = 12.dp)
         ) {
             Icon(Icons.Default.Favorite, contentDescription = null, tint = Color.Black)
@@ -50,9 +48,9 @@ fun MypageMenuSection(navController: NavController) {
         Row(
             Modifier
                 .fillMaxWidth()
-                // TODO: 내 조합 목록 화면 구현 후 연결
-                .clickable { /* 이동 없음 → ripple만 발생 */ }
-                // .clickable { navController.navigate("savedCombos") }
+                .clickable {
+                    navController.navigate("combinations")
+                }
                 .padding(vertical = 12.dp)
         ) {
             Icon(Icons.Default.Save, contentDescription = null, tint = Color.Black)
