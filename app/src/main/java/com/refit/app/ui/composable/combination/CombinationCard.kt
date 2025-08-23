@@ -19,15 +19,16 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.refit.app.data.local.combination.model.CombinationResponse
+import com.refit.app.data.local.combination.model.CombinationDto
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun CombinationCard(
-    combination: CombinationResponse,
+    combination: CombinationDto,
     isSaved: Boolean,
-    onToggleSave: (Long) -> Unit
+    onToggleSave: (Long) -> Unit,
+    showSaveButton: Boolean = true
 ) {
     Card(
         modifier = Modifier
@@ -53,7 +54,7 @@ fun CombinationCard(
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = combination.nickname.limitWithEllipsis(10),
+                        text = combination.nickname ?: "알 수 없음",
                         fontSize = 14.sp,
                         fontFamily = Pretendard
                     )
@@ -62,7 +63,7 @@ fun CombinationCard(
                 Spacer(Modifier.height(6.dp))
 
                 Text(
-                    text = combination.combinationName.limitWithEllipsis(10),
+                    text = combination.combinationName,
                     fontSize = 16.sp,
                     fontFamily = Pretendard,
                     fontWeight = FontWeight.Bold,
@@ -72,14 +73,14 @@ fun CombinationCard(
 
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
-                        text = "${combination.discountPrice}원",
+                        text = "${combination.discountedTotalPrice}원",
                         fontSize = 16.sp,
                         color = MainPurple,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = "${combination.originalPrice}원",
+                        text = "${combination.originalTotalPrice}원",
                         fontSize = 14.sp,
                         color = Color.Gray,
                         textDecoration = TextDecoration.LineThrough
@@ -89,14 +90,13 @@ fun CombinationCard(
                 Spacer(Modifier.height(8.dp))
 
                 Row {
-                    val products = combination.products
+                    val products = combination.productImages
                     val imageSize = 80.dp
                     val imageShape = RoundedCornerShape(6.dp)
 
-                    val baseModifier = Modifier
-                        .size(imageSize)
+                    val baseModifier = Modifier.size(imageSize)
 
-                    products.take(minOf(3, products.size)).forEachIndexed { index, product ->
+                    products.take(minOf(3, products.size)).forEachIndexed { index, url ->
                         val itemModifier =
                             if (index < 2 || products.size > 3) baseModifier.padding(end = 6.dp)
                             else baseModifier
@@ -106,7 +106,7 @@ fun CombinationCard(
                             contentAlignment = Alignment.Center
                         ) {
                             AsyncImage(
-                                model = product.imageUrl,
+                                model = url,
                                 contentDescription = null,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
@@ -123,7 +123,7 @@ fun CombinationCard(
                                 contentAlignment = Alignment.Center
                             ) {
                                 AsyncImage(
-                                    model = products[3].imageUrl,
+                                    model = products[3],
                                     contentDescription = null,
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
@@ -145,14 +145,13 @@ fun CombinationCard(
                                 )
                             }
                         }
-
                         products.size == 4 -> {
                             Box(
                                 modifier = baseModifier,
                                 contentAlignment = Alignment.Center
                             ) {
                                 AsyncImage(
-                                    model = products[3].imageUrl,
+                                    model = products[3],
                                     contentDescription = null,
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
@@ -161,8 +160,6 @@ fun CombinationCard(
                                 )
                             }
                         }
-
-                        else -> Unit
                     }
                 }
             }
@@ -173,24 +170,30 @@ fun CombinationCard(
                     .padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "저장수: ${combination.likes}",
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
-                Spacer(Modifier.width(4.dp))
-                IconButton(onClick = { onToggleSave(combination.combinationId) }) {
-                    Icon(
-                        imageVector = if (isSaved) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                        tint = if (isSaved) MainPurple else Color.Gray,
-                        contentDescription = if (isSaved) "저장됨" else "저장"
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (showSaveButton) {
+                        IconButton(
+                            onClick = { onToggleSave(combination.combinationId) },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (isSaved) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
+                                tint = if (isSaved) MainPurple else Color.Gray,
+                                contentDescription = if (isSaved) "저장됨" else "저장",
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                    Text(
+                        text = "저장수: ${combination.likes ?: 0}",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MainPurple,
                     )
                 }
             }
         }
     }
-}
-
-fun String.limitWithEllipsis(limit: Int): String {
-    return if (this.length > limit) this.take(limit) + "..." else this
 }
