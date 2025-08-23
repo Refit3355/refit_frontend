@@ -3,6 +3,7 @@ package com.refit.app.ui.composable.mypage
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -18,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.refit.app.R
@@ -52,7 +54,7 @@ fun MypageProfileCard(
                 modifier = Modifier
                     .size(80.dp)
                     .clip(CircleShape)
-                    .border(1.dp, MainPurple, CircleShape)
+                    .border(2.dp, MainPurple, CircleShape) // MainPurple 테두리
                     .background(Color.White),
                 contentScale = ContentScale.Crop
             )
@@ -81,24 +83,25 @@ fun MypageProfileCard(
                     }
                 }
                 Spacer(Modifier.height(12.dp))
-                Button(
-                    onClick = onEditClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = MainPurple),
-                    shape = RoundedCornerShape(12.dp),
+                Box(
                     modifier = Modifier
-                        .height(36.dp)
+                        .height(28.dp)
                         .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MainPurple)
+                        .clickable { onEditClick() },
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "내 타입 수정",
+                        text = "내 타입 수정",
                         fontFamily = Pretendard,
-                        fontSize = 14.sp,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
                         color = Color.White
                     )
                 }
             }
 
-            // 오른쪽 화살표 버튼
             IconButton(onClick = onArrowClick) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
