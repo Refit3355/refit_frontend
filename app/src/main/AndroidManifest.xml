@@ -28,6 +28,11 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.Refit">
+
+        <meta-data
+            android:name="com.kakao.sdk.AppKey"
+            android:value="${KAKAO_APP_KEY}" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

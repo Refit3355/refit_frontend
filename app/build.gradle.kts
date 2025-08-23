@@ -8,6 +8,21 @@ android {
     namespace = "com.refit.app"
     compileSdk = 36
 
+    packaging {
+        resources {
+            // 멀티-릴리즈 JAR 영역 전체 제외 (안드로이드에서 필요 없음)
+            excludes += "META-INF/versions/**"
+
+            // (옵션) 흔한 충돌 메타데이터도 함께 제외
+            excludes += setOf(
+                "META-INF/DEPENDENCIES",
+                "META-INF/NOTICE*",
+                "META-INF/LICENSE*",
+                "META-INF/*.kotlin_module"
+            )
+        }
+    }
+
     defaultConfig {
         applicationId = "com.refit.app"
         minSdk = 28
@@ -16,6 +31,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders["KAKAO_APP_KEY"] = project.findProperty("KAKAO_APP_KEY") ?: ""
     }
 
     buildTypes {
@@ -52,6 +69,7 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.android)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.i18n)
+    implementation(libs.identity.android.legacy)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -100,4 +118,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
 
+    // 카카오 로그인
+    implementation("com.kakao.sdk:v2-user:2.19.0")
 }
