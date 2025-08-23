@@ -159,7 +159,14 @@ class SignupViewModel : ViewModel() {
             isValidForEdit() && nickOk
         }
     }
-
+    private fun skinTypeCode(name: String?): Int = when (name) {
+        "건성" -> 0
+        "중성" -> 1
+        "지성" -> 2
+        "복합성" -> 3
+        "수부지" -> 4
+        else -> 5
+    }
     // ---------------------------
     // 회원가입 DTO 변환 & 호출
     // ---------------------------
@@ -200,8 +207,10 @@ class SignupViewModel : ViewModel() {
             wrinkles = if ("주름/탄력" in uiState.skinConcerns) 1 else 0,
             enlargedPores = if ("모공" in uiState.skinConcerns) 1 else 0,
             redness = if ("홍조" in uiState.skinConcerns) 1 else 0,
-            keratin = if ("각질" in uiState.skinConcerns) 1 else 0
+            keratin = if ("각질" in uiState.skinConcerns) 1 else 0,
+            skinType = skinTypeCode(uiState.skinType)
         )
+
         return SignupAllRequest(
             signup = signup,
             concerns = ConcernRequest(health = health, hair = hair, skin = skin)

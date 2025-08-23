@@ -50,6 +50,7 @@ import com.refit.app.data.auth.modelAndView.FormMode
 import com.refit.app.data.myfit.viewmodel.MyfitViewModel
 import com.refit.app.data.auth.modelAndView.SignupViewModel
 import com.refit.app.ui.screen.EditBasicInfoScreen
+import com.refit.app.ui.screen.HealthEditScreen
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -193,17 +194,28 @@ fun MainScreenWithBottomNav(
                         )
                     }
 
-                    // MainScreenWithBottomNav.kt 의 NavHost 내부
                     composable("account/edit") {
                         EditBasicInfoScreen(
                             onBack = { navController.popBackStack() },
                             onSaved = {
-                                // 지금은 저장 안 하니까 들어오진 않지만,
-                                // 나중에 저장 붙이면 완료 후 뒤로가기 등 처리:
                                 navController.popBackStack()
                             }
                         )
                     }
+
+                    composable("account/health/edit") {
+                        HealthEditScreen(
+                            onBack = { navController.popBackStack() },
+                            onSaved = {
+                                // 저장 성공 알림(임시) → 마이페이지로
+                                navController.navigate("my") {
+                                    popUpTo("account/health/edit") { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            }
+                        )
+                    }
+
 
 
                     composable(

@@ -71,6 +71,12 @@ fun MyScreen(navController: NavController) {
             Text("내 정보 수정(임시)")
         }
 
+        Button(
+            onClick = { navController.navigate("account/health/edit") },
+            shape = RoundedCornerShape(12.dp)
+        ) { Text("건강 정보 수정 (임시)") }
+
+
     }
 }
 

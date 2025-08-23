@@ -1,6 +1,7 @@
 package com.refit.app.data.auth.api
 
 import com.refit.app.data.auth.model.BasicInfoResponse
+import com.refit.app.data.auth.model.ConcernSummaryDto
 import com.refit.app.data.auth.model.KakaoSignupRequest
 import com.refit.app.data.auth.model.KakaoVerifyRequest
 import com.refit.app.data.auth.model.KakaoVerifyResponse
@@ -51,4 +52,8 @@ interface AuthApi {
     @PUT("/auth/basic")
     @Headers("Requires-Auth: true")
     suspend fun updateMyBasic(@Body req: UpdateBasicRequest): UtilResponse<Void?>
+
+    @PUT("/auth/health")
+    @Headers("Requires-Auth: true")
+    suspend fun updateMyConcerns(@Body req: ConcernSummaryDto): UtilResponse<Void?>
 }
