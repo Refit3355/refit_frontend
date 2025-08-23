@@ -36,7 +36,9 @@ fun MypageScreen(navController: NavController, vm: OrderViewModel = viewModel())
 
         MypageProfileCard(
             nickname = nickname ?: "사용자",
-            tags = tags
+            tags = tags,
+            onEditClick = { navController.navigate("account/health/edit") },
+            onArrowClick = { navController.navigate("account/edit") }
         )
 
         Spacer(Modifier.height(12.dp))
