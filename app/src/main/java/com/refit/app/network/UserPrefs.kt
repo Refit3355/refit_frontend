@@ -46,4 +46,9 @@ object UserPrefs {
         prefs.edit().clear().apply()
     }
 
+    fun setNickname(nickname: String?) {
+        if (!::prefs.isInitialized) return
+        prefs.edit().putString(KEY_NICKNAME, nickname ?: "").apply()
+    }
+
 }

@@ -14,6 +14,7 @@ import com.refit.app.data.auth.model.SignupRequest
 import com.refit.app.data.auth.model.SkinInfoDto
 import com.refit.app.data.auth.model.UpdateBasicRequest
 import com.refit.app.network.RetrofitInstance
+import com.refit.app.network.UserPrefs
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -461,6 +462,11 @@ class SignupViewModel : ViewModel() {
                     detailAddress = req.detailAddress ?: original.detailAddress
                 )
                 originalNickname = original.nickname
+
+                // 닉네임이 바뀌었으면 SharedPreferences 즉시 반영
+                req.nickname?.let { newNick ->
+                    UserPrefs.setNickname(newNick)
+                }
 
                 onSaved()
             } catch (t: Throwable) {
