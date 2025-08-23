@@ -78,39 +78,17 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                 onBack = { nav.popBackStack() }
             )
 
-        route.startsWith("stepsDetail") ->
-            AppBarConfig.BackWithActions(
-                title = "걸음 수 리포트",
-                onBack = { nav.popBackStack() },
-                onAlarmClick = { nav.navigate("notifications") },
-                onCartClick  = { nav.navigate("cart") },
-                showActions = true
-            )
-
-        route.startsWith("sleepDetail") ->
-            AppBarConfig.BackWithActions(
-                title = "수면 리포트",
-                onBack = { nav.popBackStack() },
-                onAlarmClick = { nav.navigate("notifications") },
-                onCartClick  = { nav.navigate("cart") },
-                showActions = true
-            )
-
-        route.startsWith("weatherDetail") ->
-            AppBarConfig.BackWithActions(
-                title = "날씨 리포트",
-                onBack = { nav.popBackStack() },
-                onAlarmClick = { nav.navigate("notifications") },
-                onCartClick  = { nav.navigate("cart") },
-                showActions = true
-            )
-
         else ->
             AppBarConfig.BackWithActions(
                 title = when {
                     route.startsWith("product") -> "상품 상세"
                     route.startsWith("wish") -> "찜 목록"
-                    route.startsWith("combinations") -> "조합 목록"
+                    route.startsWith("liked_combinations") -> "저장한 조합 목록"
+                    route.startsWith("created_combinations") -> "내가 생성한 조합"
+                    route.startsWith("orders") -> "주문 내역"
+                    route.startsWith("stepsDetail") -> "걸음 수 리포트"
+                    route.startsWith("sleepDetail") -> "수면 리포트"
+                    route.startsWith("weatherDetail") -> "날씨 리포트"
                     else -> "Re:fit"
                 },
                 onBack = { nav.popBackStack() },

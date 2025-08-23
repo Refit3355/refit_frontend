@@ -11,7 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -27,8 +26,11 @@ import androidx.navigation.navArgument
 import com.refit.app.ui.screen.CartScreen
 import com.refit.app.ui.screen.CategoryScreen
 import com.refit.app.ui.screen.CommunityScreen
+import com.refit.app.ui.screen.HealthScreen
 import com.refit.app.ui.screen.HomeScreen
 import com.refit.app.ui.screen.LoginScreen
+import com.refit.app.ui.screen.MyfitEditScreen
+import com.refit.app.ui.screen.MyfitRegisterScreen
 import com.refit.app.ui.screen.MyfitScreen
 import com.refit.app.ui.screen.NotificationScreen
 import com.refit.app.ui.screen.ProductDetailScreen
@@ -42,12 +44,13 @@ import com.refit.app.ui.screen.SignupStep2Screen
 import com.refit.app.ui.screen.SignupStep3Screen
 import com.refit.app.ui.screen.SplashScreen
 import com.refit.app.ui.screen.WishScreen
-import com.refit.app.data.auth.modelAndView.SignupViewModel
+import androidx.compose.ui.Alignment
 import com.refit.app.data.myfit.viewmodel.MyfitViewModel
-import com.refit.app.ui.screen.CombinationListScreen
-import com.refit.app.ui.screen.MyfitEditScreen
-import com.refit.app.ui.screen.MyfitRegisterScreen
+import com.refit.app.data.auth.modelAndView.SignupViewModel
+import com.refit.app.ui.screen.CreatedCombinationListScreen
+import com.refit.app.ui.screen.LikedCombinationListScreen
 import com.refit.app.ui.screen.MypageScreen
+import com.refit.app.ui.screen.OrderListScreen
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -55,13 +58,17 @@ import java.nio.charset.StandardCharsets
 @Composable
 fun MainScreenWithBottomNav(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = "splash"
+    startDestination: String = "splash",
+    onCartChanged: () -> Unit,
+    onLoggedIn: () -> Unit = {},
+    onLoggedOut: () -> Unit = {}
 )
 {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route ?: startDestination
+    val currentRoute = navBackStackEntry?.destination?.route ?: "home"
 
     val bottomTabs = listOf("home", "category", "myfit", "community", "my", "sleepDetail", "stepsDetail", "weatherDetail")
+    val noBottomTabs = listOf("myfit/register", "myfit/edit")
 
     // 스플래시/인증 경로에서는 상단 및 하단 바 숨김 처리
     val hideBars = currentRoute == "splash" || currentRoute.startsWith("auth/")
@@ -79,7 +86,10 @@ fun MainScreenWithBottomNav(
             }
         },
         bottomBar = {
-            if (!hideBars && bottomTabs.any { currentRoute.startsWith(it) }) {
+            if (!hideBars &&
+                noBottomTabs.none { currentRoute.startsWith(it) } &&
+                bottomTabs.any { currentRoute.startsWith(it) }
+            ) {
                 BottomBar(navController = navController)
             }
         }
@@ -99,11 +109,13 @@ fun MainScreenWithBottomNav(
                     SplashScreen(
                         onDecide = { loggedIn ->
                             if (loggedIn) {
+                                onLoggedIn()
                                 navController.navigate("home") {
                                     popUpTo("splash") { inclusive = true }
                                     launchSingleTop = true
                                 }
                             } else {
+                                onLoggedOut()
                                 navController.navigate("auth/login") {
                                     popUpTo("splash") { inclusive = true }
                                     launchSingleTop = true
@@ -118,6 +130,7 @@ fun MainScreenWithBottomNav(
                         onClose = { /* 필요시 */ },
                         onSignup = { navController.navigate("auth/signup") },
                         onLoggedIn = {
+                            onLoggedIn()
                             navController.navigate("home") {
                                 popUpTo("auth/login") { inclusive = true } // 뒤로가기로 로그인 안 돌아오게
                                 launchSingleTop = true
@@ -201,13 +214,18 @@ fun MainScreenWithBottomNav(
                 // 기본 탭
                 composable("home") { HomeScreen(navController) }
                 composable("category") { CategoryScreen(navController) }
-                composable("myfit") { MyfitScreen(navController) }
+                composable("myfit") { MyfitScreen(navController = navController) }
                 composable("community") { CommunityScreen(navController) }
                 composable("my") { MypageScreen(navController) }
 
                 // 검색/알림/장바구니
                 composable("notifications") { NotificationScreen(navController) }
-                composable("cart") { CartScreen(navController) }
+                composable("cart") {
+                    CartScreen(
+                        navController = navController,
+                        onCartChanged = onCartChanged
+                    )
+                }
                 composable(
                     route = "search?query={query}",
                     arguments = listOf(navArgument("query") {
@@ -224,7 +242,11 @@ fun MainScreenWithBottomNav(
                     arguments = listOf(navArgument("id") { type = NavType.IntType })
                 ) { backStackEntry ->
                     val id = backStackEntry.arguments!!.getInt("id")
-                    ProductDetailScreen(productId = id, navController = navController)
+                    ProductDetailScreen(
+                        productId = id,
+                        navController = navController,
+                        onCartChanged = onCartChanged
+                    )
                 }
 
                 // 찜 목록
@@ -243,9 +265,6 @@ fun MainScreenWithBottomNav(
                     val type = backStackEntry.arguments?.getInt("type") ?: 0
                     RecommendationScreen(navController, type)
                 }
-
-                // 내 조합 저장 목록
-                composable("combinations") { CombinationListScreen() }
 
                 // 마이핏 - 제품 등록/수정
                 composable("myfit/register") { MyfitRegisterScreen(navController) }
@@ -279,6 +298,15 @@ fun MainScreenWithBottomNav(
                         }
                     }
                 }
+
+                // 내가 저장한 조합 목록
+                composable("liked_combinations") { LikedCombinationListScreen() }
+
+                // 내 주문 내역
+                composable("orders") { OrderListScreen(navController) }
+
+                // 내가 생성한 조합 목록
+                composable("created_combinations") { CreatedCombinationListScreen() }
             }
         }
     }
