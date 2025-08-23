@@ -17,7 +17,7 @@ import com.refit.app.ui.composable.combination.CombinationCard
 import kotlinx.coroutines.launch
 
 @Composable
-fun CombinationListScreen(vm: LikedCombinationViewModel = viewModel()) {
+fun LikedCombinationListScreen(vm: LikedCombinationViewModel = viewModel()) {
     val state by vm.state.collectAsState()
 
     val context = LocalContext.current
@@ -53,7 +53,8 @@ fun CombinationListScreen(vm: LikedCombinationViewModel = viewModel()) {
                         isSaved = wishedIds.contains(combination.combinationId),
                         onToggleSave = { id ->
                             scope.launch { wishStore.toggle(id) }
-                        }
+                        },
+                        showSaveButton = true
                     )
                 }
             }
