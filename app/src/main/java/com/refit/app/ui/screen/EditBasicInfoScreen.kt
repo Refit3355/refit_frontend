@@ -26,6 +26,10 @@ fun EditBasicInfoScreen(
 ) {
     val showDialog = remember { mutableStateOf(false) }
 
+    var showSavedDialog by remember { mutableStateOf(false) }
+    var showErrorDialog by remember { mutableStateOf(false) }
+    var errorText by remember { mutableStateOf("") }
+
     // 처음 진입 시 프리필
     LaunchedEffect(Unit) { vm.prefillFromMe() }
 
@@ -33,7 +37,12 @@ fun EditBasicInfoScreen(
         containerColor = Color.White,
         bottomBar = {
             Button(
-                onClick = onSaved,
+                onClick = {
+                    vm.updateMyInfo(
+                        onSaved = { showSavedDialog = true },               // 성공 → 다이얼로그
+                        onError = { msg -> errorText = msg; showErrorDialog = true } // 실패 → 다이얼로그
+                    )
+                },
                 enabled = vm.canProceed(FormMode.EDIT),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -100,12 +109,6 @@ fun EditBasicInfoScreen(
 
             Spacer(Modifier.height(60.dp))
 
-//            Button(
-//                onClick = { vm.updateMyInfo(onSaved, onError = {}) },
-//                enabled = vm.canProceed(FormMode.EDIT),
-//                modifier = Modifier.fillMaxWidth().height(52.dp),
-//                colors = ButtonDefaults.buttonColors(containerColor = MainPurple)
-//            ) { Text("저장") }
         }
     }
 
@@ -115,6 +118,30 @@ fun EditBasicInfoScreen(
             onSelected = { zone, road ->
                 vm.onZipcode(zone); vm.onRoad(road); showDialog.value = false
             }
+        )
+    }
+    if (showSavedDialog) {
+        AlertDialog(
+            onDismissRequest = { showSavedDialog = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    showSavedDialog = false
+                    onBack()
+                }) { Text("확인") }
+            },
+            title = { Text("저장 완료") },
+            text = { Text("기본 정보가 저장되었습니다.") }
+        )
+    }
+
+    if (showErrorDialog) {
+        AlertDialog(
+            onDismissRequest = { showErrorDialog = false },
+            confirmButton = {
+                TextButton(onClick = { showErrorDialog = false }) { Text("확인") }
+            },
+            title = { Text("저장 실패") },
+            text = { Text(errorText.ifBlank { "수정에 실패했어요. 잠시 후 다시 시도해 주세요." }) }
         )
     }
 }

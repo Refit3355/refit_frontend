@@ -13,12 +13,12 @@ data class BasicInfoResponse (
 )
 
 data class UpdateBasicRequest(
-    val email: String?,
-    val name: String?,
-    val password: String?,
-    val zipcode: String?,
-    val roadAddress: String?,
-    val detailAddress: String?,
-    val birthday: String?,
-    val phoneNumber: String?
+    val nickname: String? = null,
+    val name: String? = null,
+    val password: String? = null,
+    val zipcode: String? = null,
+    val roadAddress: String? = null,
+    val detailAddress: String? = null,
+    val birthday: String? = null,
+    val phone: String? = null
 )
