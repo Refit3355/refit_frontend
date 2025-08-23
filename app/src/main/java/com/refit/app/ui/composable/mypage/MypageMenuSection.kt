@@ -3,7 +3,9 @@ package com.refit.app.ui.composable.mypage
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.HorizontalDivider
@@ -11,17 +13,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.refit.app.network.TokenManager
 import com.refit.app.network.UserPrefs
+import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun MypageMenuSection(navController: NavController) {
-    Column(Modifier.padding(horizontal = 16.dp)){
+    Column(Modifier.padding(horizontal = 16.dp)) {
         // 찜 목록
         Row(
             Modifier
@@ -29,43 +31,44 @@ fun MypageMenuSection(navController: NavController) {
                 .clickable { navController.navigate("wish") }
                 .padding(vertical = 12.dp)
         ) {
-            Icon(Icons.Default.Favorite, contentDescription = null, tint = Color.Black)
+            Icon(Icons.Default.Favorite, contentDescription = null, tint = MainPurple)
             Spacer(Modifier.width(12.dp))
-            Text("찜 목록", fontSize = 16.sp, fontFamily = Pretendard)
+            Text("찜 목록", fontSize = 16.sp, fontFamily = Pretendard, color = MainPurple)
         }
 
         Spacer(Modifier.height(4.dp))
-
-        HorizontalDivider(
-            modifier = Modifier.fillMaxWidth(),
-            thickness = 1.dp,
-            color = Color.LightGray
-        )
-
+        HorizontalDivider(thickness = 1.dp, color = androidx.compose.ui.graphics.Color.LightGray)
         Spacer(Modifier.height(4.dp))
 
         // 저장한 조합 목록
         Row(
             Modifier
                 .fillMaxWidth()
-                .clickable {
-                    navController.navigate("combinations")
-                }
+                .clickable { navController.navigate("liked_combinations") }
                 .padding(vertical = 12.dp)
         ) {
-            Icon(Icons.Default.Save, contentDescription = null, tint = Color.Black)
+            Icon(Icons.Default.Save, contentDescription = null, tint = MainPurple)
             Spacer(Modifier.width(12.dp))
-            Text("저장한 조합 목록", fontSize = 16.sp, fontFamily = Pretendard)
+            Text("저장한 조합 목록", fontSize = 16.sp, fontFamily = Pretendard, color = MainPurple)
         }
 
         Spacer(Modifier.height(4.dp))
+        HorizontalDivider(thickness = 1.dp, color = androidx.compose.ui.graphics.Color.LightGray)
+        Spacer(Modifier.height(4.dp))
 
-        HorizontalDivider(
-            modifier = Modifier.fillMaxWidth(),
-            thickness = 1.dp,
-            color = Color.LightGray
-        )
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clickable { navController.navigate("created_combinations") }
+                .padding(vertical = 12.dp)
+        ) {
+            Icon(Icons.AutoMirrored.Filled.ListAlt, contentDescription = null, tint = MainPurple)
+            Spacer(Modifier.width(12.dp))
+            Text("내가 생성한 조합", fontSize = 16.sp, fontFamily = Pretendard, color = MainPurple)
+        }
 
+        Spacer(Modifier.height(4.dp))
+        HorizontalDivider(thickness = 1.dp, color = androidx.compose.ui.graphics.Color.LightGray)
         Spacer(Modifier.height(4.dp))
 
         // 로그아웃
@@ -82,9 +85,9 @@ fun MypageMenuSection(navController: NavController) {
                 }
                 .padding(vertical = 12.dp)
         ) {
-            Icon(Icons.Default.Logout, contentDescription = null, tint = Color.Black)
+            Icon(Icons.Default.Logout, contentDescription = null, tint = MainPurple)
             Spacer(Modifier.width(12.dp))
-            Text("로그아웃", fontSize = 16.sp, fontFamily = Pretendard)
+            Text("로그아웃", fontSize = 16.sp, fontFamily = Pretendard, color = MainPurple)
         }
 
         Spacer(Modifier.height(4.dp))
