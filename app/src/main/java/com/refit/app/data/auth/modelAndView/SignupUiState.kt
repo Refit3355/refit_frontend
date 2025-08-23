@@ -28,5 +28,9 @@ data class SignupUiState (
     val nickCheckLoading: Boolean = false,
     val nickChecked: Boolean = false,
     val nickAvailable: Boolean = false,
-    val nickMsg: String? = null
+    val nickMsg: String? = null,
+
+    // 내 기본 정보 수정 ui 재사용
+    val originalEmail: String? = null,
+    val originalNickname: String? = null,
     )

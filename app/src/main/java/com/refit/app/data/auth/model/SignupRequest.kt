@@ -40,5 +40,6 @@ data class HairInfoDto(
 data class SkinInfoDto(
     val atopic: Int, val acne: Int, val whitening: Int, val sebum: Int,
     val innerDryness: Int, val wrinkles: Int, val enlargedPores: Int,
-    val redness: Int, val keratin: Int
+    val redness: Int, val keratin: Int,
+    val skinType: Int? = null
 )
