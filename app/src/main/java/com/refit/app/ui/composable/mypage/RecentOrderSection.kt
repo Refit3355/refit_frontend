@@ -1,5 +1,6 @@
 package com.refit.app.ui.composable.mypage
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -11,19 +12,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.refit.app.ui.fake.RecentOrderDummy
+import com.refit.app.data.me.model.OrderResponse
+import com.refit.app.ui.theme.LightPurple
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun RecentOrderSection(
-    order: RecentOrderDummy,
+    order: OrderResponse,
     onClickAll: () -> Unit
 ) {
-    Column(Modifier.padding(horizontal = 16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(LightPurple)
+            .padding(16.dp)
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -42,22 +50,18 @@ fun RecentOrderSection(
 
         Spacer(Modifier.height(8.dp))
 
-        // 주문 카드
+        // 주문 내역 카드 → 흰색
         Card(
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9)),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(Modifier.padding(16.dp)) {
-                // 기존 Text 대신 Column 배치
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                val firstItem = order.items.firstOrNull()
+                if (firstItem != null) {
                     Column {
                         Text(
-                            text = order.date,
+                            text = firstItem.createdAt.take(10).replace("-", "."),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = Pretendard,
@@ -65,15 +69,12 @@ fun RecentOrderSection(
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            text = "주문번호 ${order.orderNumber}",
+                            text = "주문번호 ${firstItem.orderNumber}",
                             fontSize = 12.sp,
                             fontFamily = Pretendard,
                             color = Color.Gray
                         )
                     }
-
-                    // 주문 상세 보기가 있는 경우
-                    // Icon(Icons.Default.ArrowForwardIos, contentDescription = "상세보기", tint = Color.Gray)
                 }
 
                 Spacer(Modifier.height(8.dp))
@@ -83,28 +84,36 @@ fun RecentOrderSection(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             AsyncImage(
-                                model = item.imageUrl,
+                                model = item.thumbnailUrl,
                                 contentDescription = item.productName,
                                 modifier = Modifier.size(60.dp)
                             )
                             Spacer(Modifier.width(12.dp))
                             Column {
                                 Text(
-                                    text = item.status,
+                                    text = when (item.status) {
+                                        0 -> "결제완료"
+                                        1 -> "배송중"
+                                        2 -> "배송완료"
+                                        3 -> "취소완료"
+                                        else -> "알수없음"
+                                    },
                                     color = MainPurple,
                                     fontSize = 12.sp,
                                     fontFamily = Pretendard,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = item.productName,
+                                    text = "[${item.brand}] ${item.productName}".limitWithEllipsis(10),
                                     fontSize = 14.sp,
                                     fontFamily = Pretendard,
-                                    maxLines = 1
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                                 Row {
                                     Text(
@@ -113,14 +122,16 @@ fun RecentOrderSection(
                                         fontWeight = FontWeight.Bold,
                                         fontFamily = Pretendard
                                     )
-                                    Spacer(Modifier.width(6.dp))
-                                    Text(
-                                        text = "${item.originalPrice}원",
-                                        fontSize = 12.sp,
-                                        fontFamily = Pretendard,
-                                        color = Color.Gray,
-                                        textDecoration = TextDecoration.LineThrough
-                                    )
+                                    if (item.originalPrice > item.price) {
+                                        Spacer(Modifier.width(6.dp))
+                                        Text(
+                                            text = "${item.originalPrice}원",
+                                            fontSize = 12.sp,
+                                            fontFamily = Pretendard,
+                                            color = Color.Gray,
+                                            textDecoration = TextDecoration.LineThrough
+                                        )
+                                    }
                                     Spacer(Modifier.width(6.dp))
                                     Text(
                                         text = "수량:${item.quantity}",
@@ -130,44 +141,33 @@ fun RecentOrderSection(
                                     )
                                 }
 
-                                if (item.status != "취소완료") {
-                                    Row {
-                                        Button(
-                                            onClick = { },
-                                            colors = ButtonDefaults.buttonColors(containerColor = MainPurple),
-                                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                                            shape = RoundedCornerShape(6.dp),
-                                            modifier = Modifier.height(25.dp)
-                                        ) {
-                                            Text(
-                                                "주문취소",
-                                                fontSize = 11.sp,
-                                                fontFamily = Pretendard,
-                                                color = Color.White
-                                            )
-                                        }
+                                // 결제완료 → 주문취소 버튼
+                                if (item.status == 0) {
+                                    MyOrderActionButton(
+                                        text = "주문 취소",
+                                        modifier = Modifier
+                                            .width(70.dp)
+                                            .height(28.dp)
+                                            .padding(top = 6.dp)
+                                    )
+                                }
 
-                                        Spacer(Modifier.width(8.dp))
-
-                                        Button(
-                                            onClick = { },
-                                            colors = ButtonDefaults.buttonColors(containerColor = MainPurple),
-                                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                                            shape = RoundedCornerShape(6.dp),
-                                            modifier = Modifier.height(25.dp)
-                                        ) {
-                                            Text(
-                                                "교환/반품 신청",
-                                                fontSize = 11.sp,
-                                                fontFamily = Pretendard,
-                                                color = Color.White
-                                            )
-                                        }
-                                    }
+                                // 배송완료 → 교환/반품 신청 버튼
+                                if (item.status == 2) {
+                                    MyOrderActionButton(
+                                        text = "교환/반품 신청",
+                                        modifier = Modifier
+                                            .width(90.dp)
+                                            .height(28.dp)
+                                            .padding(top = 6.dp)
+                                    )
                                 }
                             }
                         }
-                        IconButton(onClick = { }) {
+                        IconButton(
+                            onClick = { },
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.ShoppingCart,
                                 contentDescription = "장바구니 담기",
@@ -179,5 +179,14 @@ fun RecentOrderSection(
                 }
             }
         }
+        Spacer(Modifier.height(24.dp))
+    }
+}
+
+private fun String.limitWithEllipsis(maxLength: Int): String {
+    return if (this.length > maxLength) {
+        this.take(maxLength) + "..."
+    } else {
+        this
     }
 }
