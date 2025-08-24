@@ -1,16 +1,14 @@
 package com.refit.app.ui.composable.mypage
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,11 +18,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.refit.app.data.me.model.OrderItemDto
+import com.refit.app.data.me.modelAndView.OrderViewModel
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
-fun OrderItemRow(item: OrderItemDto) {
+fun OrderItemRow(item: OrderItemDto, vm: OrderViewModel) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -36,6 +37,10 @@ fun OrderItemRow(item: OrderItemDto) {
             1 -> "배송중"
             2 -> "배송완료"
             3 -> "취소완료"
+            4 -> "교환 신청중"
+            5 -> "교환 완료"
+            6 -> "반품 신청중"
+            7 -> "반품 완료"
             else -> "알수없음"
         }
 
@@ -109,12 +114,23 @@ fun OrderItemRow(item: OrderItemDto) {
 
                 // 교환/반품 버튼 (배송완료일 때만)
                 if (item.status == 2) {
-                    Spacer(Modifier.height(10.dp))
+                    var showDialog by remember { mutableStateOf(false) }
+
+                    if (showDialog) {
+                        ExchangeReturnReasonDialog(
+                            orderItemId = item.orderItemId,
+                            onDismiss = { showDialog = false },
+                            onConfirmExchange = { vm.requestExchange(it) },
+                            onConfirmReturn = { vm.requestReturn(it) }
+                        )
+                    }
+
                     MyOrderActionButton(
-                        text = "교환/반품 신청",
+                        text = "교환/반품",
                         modifier = Modifier
                             .width(80.dp)
-                            .height(24.dp)
+                            .height(24.dp),
+                        onClick = { showDialog = true }
                     )
                 }
             }

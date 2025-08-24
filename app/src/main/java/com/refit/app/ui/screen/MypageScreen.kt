@@ -49,7 +49,8 @@ fun MypageScreen(navController: NavController, vm: OrderViewModel = viewModel())
             ?.let { latestOrder ->
                 RecentOrderSection(
                     order = latestOrder,
-                    onClickAll = { navController.navigate("orders") }
+                    onClickAll = { navController.navigate("orders") },
+                    vm = vm
                 )
                 Spacer(Modifier.height(12.dp))
             }

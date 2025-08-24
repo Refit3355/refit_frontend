@@ -73,7 +73,7 @@ fun OrderListScreen(navController: NavController, vm: OrderViewModel = viewModel
                             }
 
                             order.items.forEach { item ->
-                                OrderItemRow(item)
+                                OrderItemRow(item, vm)
                                 Spacer(Modifier.height(12.dp))
                             }
                         }

@@ -5,6 +5,7 @@ import com.refit.app.data.me.model.LikeRequest
 import com.refit.app.data.me.model.LikeResponse
 import com.refit.app.data.me.model.OrdersResponse
 import com.refit.app.data.me.model.ProfileImageResponse
+import com.refit.app.data.me.model.UpdateOrderStatusResponse
 import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -12,6 +13,7 @@ import retrofit2.http.Headers
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Path
 
 interface MeApi {
     @POST("products/like")
@@ -32,5 +34,13 @@ interface MeApi {
     suspend fun updateProfileImage(
         @Part profileImage: MultipartBody.Part
     ): ProfileImageResponse
+
+    @POST("/orders/{orderItemId}/exchange")
+    @Headers("Requires-Auth: true")
+    suspend fun requestExchange(@Path("orderItemId") orderItemId: Long): UpdateOrderStatusResponse
+
+    @POST("/orders/{orderItemId}/return")
+    @Headers("Requires-Auth: true")
+    suspend fun requestReturn(@Path("orderItemId") orderItemId: Long): UpdateOrderStatusResponse
 
 }
