@@ -199,7 +199,7 @@ fun SleepDetailScreen(
                         valueTextColor = Color.DKGRAY
                     }
 
-                    val avgSet = BarDataSet(listOf(entries[1]), "한국인 평균 수면 시간").apply {
+                    val avgSet = BarDataSet(listOf(entries[1]), "한국인 일평균 수면 시간").apply {
                         color = Color.LTGRAY
                         valueTextColor = Color.DKGRAY
                     }

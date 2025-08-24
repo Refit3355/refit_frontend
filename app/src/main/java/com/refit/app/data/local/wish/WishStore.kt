@@ -30,4 +30,5 @@ class WishStore(private val context: Context) {
             pref[KEY_WISH] = cur
         }
     }
+
 }
