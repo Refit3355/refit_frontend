@@ -52,7 +52,17 @@ fun LikedCombinationListScreen(vm: LikedCombinationViewModel = viewModel()) {
                         combination = combination,
                         isSaved = wishedIds.contains(combination.combinationId),
                         onToggleSave = { id ->
-                            scope.launch { wishStore.toggle(id) }
+                            scope.launch {
+                                if (wishedIds.contains(id)) {
+                                    // 이미 저장된 상태라면 → 해제
+                                    vm.dislikeCombination(id)
+                                } else {
+                                    // 저장되지 않은 상태라면 → 등록
+                                    vm.likeCombination(id)
+                                }
+
+                                wishStore.toggle(id)
+                            }
                         },
                         showSaveButton = true
                     )

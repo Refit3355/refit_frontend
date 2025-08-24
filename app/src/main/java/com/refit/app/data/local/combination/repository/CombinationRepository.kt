@@ -1,6 +1,7 @@
 package com.refit.app.data.local.combination.repository
 
 import com.refit.app.data.local.combination.api.CombinationApi
+import com.refit.app.data.local.combination.model.CombinationLikeResponse
 import com.refit.app.data.local.combination.model.LikedCombinationRequest
 import com.refit.app.data.local.combination.model.CombinationsResponse
 import com.refit.app.network.RetrofitInstance
@@ -10,5 +11,13 @@ class CombinationRepository(
 ) {
     suspend fun getLikedCombinations(ids: List<Long>): Result<CombinationsResponse> = runCatching {
         api.getLikedCombinations(LikedCombinationRequest(ids))
+    }
+
+    suspend fun likeCombination(combinationId: Long): Result<CombinationLikeResponse> = runCatching {
+        api.likeCombination(combinationId)
+    }
+
+    suspend fun dislikeCombination(combinationId: Long): Result<CombinationLikeResponse> = runCatching {
+        api.dislikeCombination(combinationId)
     }
 }
