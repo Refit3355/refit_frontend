@@ -32,13 +32,12 @@ fun SignupFlowScreen(
 
     var step by remember { mutableStateOf(Step.STEP1) }
 
-    // ✅ StateFlow를 Compose 상태로 수집
     val prefillNick by KakaoFlowStore.prefillNickname.collectAsState()
     val prefillEmail by KakaoFlowStore.prefillEmail.collectAsState()
     val kakaoToken  by KakaoFlowStore.kakaoAccessToken.collectAsState()
     val kakaoId    by KakaoFlowStore.kakaoId.collectAsState()
 
-    // ✅ 값이 들어오면 VM에 주입
+
     LaunchedEffect(prefillNick, prefillEmail) {
         if (!prefillNick.isNullOrBlank() || !prefillEmail.isNullOrBlank()) {
             signupVm.prefillFromKakao(prefillNick, prefillEmail)
@@ -52,7 +51,6 @@ fun SignupFlowScreen(
                 onBack = { /* 닫기 or 이전 */ },
                 onNextOrSubmit = { step = Step.STEP2 },
                 onSearchAddress = { /* 주소검색 다이얼로그 */ },
-                // ✅ prefill 값을 실제로 내려보내서 내부 LaunchedEffect가 동작하게 한다
                 prefillNickname = prefillNick,
                 prefillEmail = prefillEmail,
                 vm = signupVm
