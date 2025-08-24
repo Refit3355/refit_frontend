@@ -13,6 +13,7 @@ import com.refit.app.ui.composable.auth.*
 import com.refit.app.ui.theme.MainPurple
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import com.refit.app.data.auth.modelAndView.FormMode
@@ -25,9 +26,20 @@ fun SignupStep1Screen(
     onBack: () -> Unit,
     onNextOrSubmit: () -> Unit,
     onSearchAddress: () -> Unit,
+    prefillNickname: String? = null,
+    prefillEmail: String? = null,
     vm: SignupViewModel = viewModel()
 ) {
     val showDialog = remember { mutableStateOf(false) }
+
+    LaunchedEffect(prefillNickname, prefillEmail) {
+        if (!prefillNickname.isNullOrBlank() || !prefillEmail.isNullOrBlank()) {
+            // 1) 이메일만 프리필 (닉네임은 건드리지 않음)
+            vm.prefillFromKakao(nickname = null, email = prefillEmail)
+            // 2) 카카오 닉네임을 '이름(memberName)' 필드에 넣기
+            prefillNickname?.let { vm.onMemberName(it) }
+        }
+    }
 
     Scaffold(
         topBar = { SignupTopBar("회원가입", 1, 3, onBack) },

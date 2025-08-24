@@ -35,14 +35,10 @@ interface AuthApi {
     suspend fun checkNickname(@Query("nickname") nickname: String): UtilResponse<Boolean>
 
     @POST("/auth/oauth/kakao/verify")
-    suspend fun kakaoVerify(
-        @Body req: KakaoVerifyRequest
-    ): Response<UtilResponse<KakaoVerifyResponse>>
+    suspend fun kakaoVerify(@Body req: KakaoVerifyRequest): Response<UtilResponse<KakaoVerifyResponse>>
 
     @POST("/auth/oauth/kakao/signup")
-    suspend fun kakaoSignup(
-        @Body req: KakaoSignupRequest
-    ): Response<UtilResponse<LoginResponse>>
+    suspend fun kakaoSignup(@Body req: KakaoSignupRequest): Response<UtilResponse<LoginResponse>>
 
     @GET("/auth/basic/me")
     @Headers("Requires-Auth: true")

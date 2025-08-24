@@ -34,6 +34,7 @@ object RetrofitInstance {
 
         baseUrlString = baseUrlOverride ?: if (debug)
             //"http://192.168.5.193:8080/"     // 로컬 + 개발(실제 기기) - http://<PC의 LAN IP>:8080
+            //"http://192.168.0.13:8080/"
             "http://10.0.2.2:8080/" // 애뮬레이터
             //"http://127.0.0.1:8080/" // 로컬 + 실제 기기 연결이 안될 때 -> 노션 트러블슈팅에서 읽고 해당 주소로 요청
         else

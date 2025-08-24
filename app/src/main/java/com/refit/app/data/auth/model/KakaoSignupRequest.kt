@@ -4,11 +4,6 @@ data class KakaoVerifyRequest(
     val accessToken: String
 )
 
-data class KakaoSignupRequest(
-    val accessToken: String,
-    val signupAll: SignupAllRequest
-)
-
 data class KakaoVerifyResponse(
     val needSignup: Boolean,
     val kakaoId: String?,
@@ -20,5 +15,15 @@ data class KakaoVerifyResponse(
     val userEmail: String?,
     val userNickname: String?,
     val name: String?,
-    val refreshToken: String?
+    val refreshToken: String?,
+
+    val health: HealthInfoDto?,
+    val hair: HairInfoDto?,
+    val skin: SkinInfoDto?
+)
+
+data class KakaoSignupRequest(
+    val accessToken: String,
+    val kakaoId: String,
+    val signupAll: SignupAllRequest
 )

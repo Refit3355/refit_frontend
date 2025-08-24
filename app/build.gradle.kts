@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -32,7 +34,23 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        manifestPlaceholders["KAKAO_APP_KEY"] = project.findProperty("KAKAO_APP_KEY") ?: ""
+        // local.properties 로드
+        val props = Properties().apply {
+            load(rootProject.file("local.properties").inputStream())
+        }
+        val kakaoAppKey = (props.getProperty("KAKAO_NATIVE_APP_KEY") ?: "").trim()
+
+        // 값 없으면 빌드 단계에서 바로 실패시켜 원인 명확화
+        require(kakaoAppKey.isNotEmpty()) {
+            "KAKAO_NATIVE_APP_KEY is missing or blank in local.properties"
+        }
+
+        // Manifest 치환
+        manifestPlaceholders["KAKAO_APP_KEY"] = kakaoAppKey
+        manifestPlaceholders["KAKAO_SCHEME"] = "kakao$kakaoAppKey"
+
+        // 코드용 BuildConfig
+        buildConfigField("String", "KAKAO_NATIVE_APP_KEY", "\"$kakaoAppKey\"")
     }
 
     buildTypes {
@@ -53,6 +71,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -70,6 +89,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.i18n)
     implementation(libs.identity.android.legacy)
+    implementation(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -119,5 +139,10 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
 
     // 카카오 로그인
-    implementation("com.kakao.sdk:v2-user:2.19.0")
+    implementation("com.kakao.sdk:v2-all:2.20.6")
+    implementation("com.kakao.sdk:v2-user:2.20.6")
+}
+
+configurations.all {
+    exclude(group = "com.intellij", module = "annotations")
 }
