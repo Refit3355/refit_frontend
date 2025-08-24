@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,26 +26,30 @@ import com.refit.app.ui.composable.auth.RefitTextField
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 import com.refit.app.data.auth.modelAndView.AuthViewModel
+import com.refit.app.data.auth.modelAndView.KakaoFlowStore
+import com.refit.app.data.auth.modelAndView.KakaoLoginViewModel
 
 @Composable
 fun LoginScreen(
     onClose: () -> Unit,
-    onSignup: () -> Unit,
+    onSignup: (prefilledFromKakao: Boolean) -> Unit, // ← 카카오 프리필로 회원가입 진입
     onLoggedIn: () -> Unit,
-    vm: AuthViewModel = viewModel()
+    vm: AuthViewModel = viewModel(),
+    kakaoVm: KakaoLoginViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+
     LaunchedEffect(vm.loggedIn) {
         if (vm.loggedIn) onLoggedIn()
     }
-   // 배경
-    Scaffold { padding ->
-        Box (
+
+    Scaffold {
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFFAFAFD))
-                .padding(padding)
+                .padding(it)
         ) {
-            // 본문
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -52,8 +57,7 @@ fun LoginScreen(
                     .align(Alignment.Center)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
@@ -70,9 +74,7 @@ fun LoginScreen(
                         value = vm.email,
                         onValueChange = { vm.onEmailChange(it); vm.clearError() },
                         hint = "이메일",
-                        modifier = Modifier
-                            .width(382.dp)
-                            .align(Alignment.CenterHorizontally)
+                        modifier = Modifier.width(382.dp)
                     )
 
                     Spacer(Modifier.height(15.dp))
@@ -82,21 +84,13 @@ fun LoginScreen(
                         onValueChange = { vm.onPasswordChange(it); vm.clearError() },
                         hint = "비밀번호",
                         isPassword = true,
-                        modifier = Modifier
-                            .width(382.dp)
-                            .align(Alignment.CenterHorizontally)
+                        modifier = Modifier.width(382.dp)
                     )
-
                 }
 
-                // 에러 안내
                 vm.error?.let { msg ->
                     Spacer(Modifier.height(16.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ){
-                        // 간단한 경고
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             Modifier
                                 .size(16.dp)
@@ -104,31 +98,45 @@ fun LoginScreen(
                                 .background(Color(0xFF8E24AA))
                         )
                         Spacer(Modifier.width(10.dp))
-                        Text(
-                            text = msg,
-                            color = Color(0xFF6A1B9A),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        Text(text = msg, color = Color(0xFF6A1B9A), style = MaterialTheme.typography.bodyMedium)
                     }
                 }
 
                 Spacer(Modifier.height(25.dp))
 
-                // 로그인 버튼
                 PurpleButton(
                     text = "로그인",
-                    onClick = {vm.login()},
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
+                    onClick = { vm.login() },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
                 Spacer(Modifier.height(15.dp))
 
                 KakaoButton(
-                    onClick = { vm.loginKakao() },
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
+                    onClick = {
+                        kakaoVm.startLogin(
+                            context = context,
+                            onNeedSignup = { nickname, email, kakaoToken, kakaoId ->
+                                KakaoFlowStore.set(
+                                    accessToken = kakaoToken,
+                                    nickname = nickname,
+                                    email = email,
+                                    kakaoId = kakaoId
+                                )
+                                onSignup(true)
+                            },
+                            onLoggedIn = {
+                                // 바로 로그인된 케이스
+                                onLoggedIn()
+                            },
+                            onError = { msg ->
+                                // TODO: 스낵바/다이얼로그로 표시
+                            }
+                        )
+                    },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
+
                 Spacer(Modifier.height(15.dp))
 
                 Text(
@@ -136,7 +144,7 @@ fun LoginScreen(
                     color = MainPurple,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
-                        .clickable { onSignup() },
+                        .clickable { onSignup(false) },
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp,
                     fontFamily = Pretendard,

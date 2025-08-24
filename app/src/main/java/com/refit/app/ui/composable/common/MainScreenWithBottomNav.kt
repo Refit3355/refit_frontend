@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -45,6 +46,7 @@ import com.refit.app.ui.screen.SplashScreen
 import com.refit.app.ui.screen.WishScreen
 import androidx.compose.ui.Alignment
 import com.refit.app.data.auth.modelAndView.FormMode
+import com.refit.app.data.auth.modelAndView.KakaoFlowStore
 import com.refit.app.data.myfit.viewmodel.MyfitViewModel
 import com.refit.app.data.auth.modelAndView.SignupViewModel
 import com.refit.app.ui.screen.CreatedCombinationListScreen
@@ -53,6 +55,7 @@ import com.refit.app.ui.screen.MypageScreen
 import com.refit.app.ui.screen.OrderListScreen
 import com.refit.app.ui.screen.EditBasicInfoScreen
 import com.refit.app.ui.screen.HealthEditScreen
+import com.refit.app.ui.screen.SignupFlowScreen
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -152,11 +155,17 @@ fun MainScreenWithBottomNav(
                         }
                         val vm: SignupViewModel = viewModel(parentEntry)
 
+                        // KakaoFlowStore에서 프리필 값 수집
+                        val prefillNick by KakaoFlowStore.prefillNickname.collectAsState()
+                        val prefillEmail by KakaoFlowStore.prefillEmail.collectAsState()
+
                         SignupStep1Screen(
-                            mode = FormMode.SIGNUP,                 // ★ 추가
+                            mode = FormMode.SIGNUP,
                             onBack = { navController.popBackStack() },
                             onNextOrSubmit = { navController.navigate("auth/signup2") },
                             onSearchAddress = { /* 주소검색 다이얼로그 열기 */ },
+                            prefillNickname = prefillNick,
+                            prefillEmail = prefillEmail,
                             vm = vm
                         )
                     }
@@ -166,6 +175,11 @@ fun MainScreenWithBottomNav(
                             navController.getBackStackEntry("auth/signup")
                         }
                         val vm: SignupViewModel = viewModel(parentEntry)
+
+                        // KakaoFlowStore에서 토큰/아이디 수집
+                        val kakaoToken by KakaoFlowStore.kakaoAccessToken.collectAsState()
+                        val kakaoId    by KakaoFlowStore.kakaoId.collectAsState()
+                        val kakaoVm: com.refit.app.data.auth.modelAndView.KakaoLoginViewModel = viewModel(parentEntry)
 
                         SignupStep2Screen(
                             selectedSkinType = vm.uiState.skinType,
@@ -178,20 +192,33 @@ fun MainScreenWithBottomNav(
                             onToggleHealthConcern = vm::toggleHealthConcern,
                             onBack = { navController.popBackStack() },
                             onNextOrSubmit = {
-                                // 가입 API 호출
-                                vm.submitSignup(
-                                    onSuccess = { _ ->
-                                        val nick = vm.uiState.nickname
-                                        val encoded = URLEncoder.encode(nick, StandardCharsets.UTF_8.name())
-                                        navController.navigate("auth/signup3?nickname=$encoded") {
-                                        }
-                                    },
-                                    onError = { msg ->
-                                        // TODO: 스낵바/토스트 등으로 msg 표시
-                                    }
-                                )
+                                val req = vm.buildSignupAllRequest()
+
+                                if (!kakaoToken.isNullOrBlank() && !kakaoId.isNullOrBlank()) {
+                                    kakaoVm.signupWithKakao(
+                                        kakaoAccessToken = kakaoToken!!,
+                                        signupAll = req,
+                                        kakaoId = kakaoId!!,
+                                        onSuccessLogin = {
+                                            val nick = vm.uiState.nickname
+                                            val encoded = URLEncoder.encode(nick, StandardCharsets.UTF_8.name())
+                                            KakaoFlowStore.clear()
+                                            navController.navigate("auth/signup3?nickname=$encoded")
+                                        },
+                                        onError = { /* TODO: 에러 표시 */ }
+                                    )
+                                } else {
+                                    // 일반 회원가입
+                                    vm.submitSignup(
+                                        onSuccess = {
+                                            val nick = vm.uiState.nickname
+                                            val encoded = URLEncoder.encode(nick, StandardCharsets.UTF_8.name())
+                                            navController.navigate("auth/signup3?nickname=$encoded")
+                                        },
+                                        onError = { /* TODO: 에러 표시 */ }
+                                    )
+                                }
                             },
-                            // 입력 전체(valid) + step2 선택(skinType) 둘 다 만족해야 버튼 활성화
                             submitEnabled = vm.isStep2Valid && vm.isValid
                         )
                     }

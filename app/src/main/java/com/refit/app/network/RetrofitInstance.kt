@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit
 object RetrofitInstance {
     @Volatile private var initialized = false
     private lateinit var retrofitInternal: Retrofit
+    private var baseUrlString: String = ""
 
     private fun isDebuggable(context: Context): Boolean =
         (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
@@ -31,8 +32,9 @@ object RetrofitInstance {
             else HttpLoggingInterceptor.Level.BASIC
         }
 
-        val baseUrl = baseUrlOverride ?: if (debug)
+        baseUrlString = baseUrlOverride ?: if (debug)
             //"http://192.168.5.193:8080/"     // 로컬 + 개발(실제 기기) - http://<PC의 LAN IP>:8080
+            //"http://192.168.0.13:8080/"
             "http://10.0.2.2:8080/" // 애뮬레이터
             //"http://127.0.0.1:8080/" // 로컬 + 실제 기기 연결이 안될 때 -> 노션 트러블슈팅에서 읽고 해당 주소로 요청
         else
@@ -44,17 +46,20 @@ object RetrofitInstance {
             .writeTimeout(60, TimeUnit.SECONDS)
             .addInterceptor(logging)
             .addInterceptor(TokenInterceptor())
+            .authenticator(RefreshAuthenticator(::baseUrl))
             .addInterceptor(logging)
             .build()
 
         retrofitInternal = Retrofit.Builder()
-            .baseUrl(baseUrl)
+            .baseUrl(baseUrlString)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
         initialized = true
     }
+
+    fun baseUrl(): String = baseUrlString
 
     val retrofit: Retrofit
         get() {

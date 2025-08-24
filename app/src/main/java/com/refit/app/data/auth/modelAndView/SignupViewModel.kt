@@ -485,4 +485,19 @@ class SignupViewModel : ViewModel() {
             }
         }
     }
+
+    /** 카카오에서 넘어온 닉네임/이메일 프리필 */
+    fun prefillFromKakao(nickname: String?, email: String?) {
+        uiState = uiState.copy(
+            nickname = nickname?.trim().orEmpty(),
+            email = email?.trim().orEmpty(),
+            // 중복검사는 직접 버튼 눌러 확인하는 걸 권장 → 기본값은 미검사 상태로 둠
+            emailChecked = false, emailAvailable = false,
+            nickChecked = false,  nickAvailable  = false,
+            emailMsg = null, nickMsg = null
+        )
+    }
+
+    /** 외부(카카오 VM)가 재사용할 수 있게 요청 DTO 빌더를 공개 */
+    fun buildSignupAllRequest(): SignupAllRequest = toSignupAllRequest()
 }

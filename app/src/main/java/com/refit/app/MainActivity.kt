@@ -1,8 +1,10 @@
 package com.refit.app
 
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -21,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.health.connect.client.PermissionController
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.kakao.sdk.common.KakaoSdk
 import com.refit.app.data.cart.api.CartApi
 import com.refit.app.data.cart.modelAndView.CartBadgeViewModel
 import com.refit.app.data.cart.repository.CartRepository
@@ -29,6 +32,7 @@ import com.refit.app.data.local.cart.LocalCartCount
 import com.refit.app.network.RetrofitInstance
 import com.refit.app.network.TokenManager
 import com.refit.app.network.UserPrefs
+import com.refit.app.BuildConfig
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -37,6 +41,10 @@ class MainActivity : ComponentActivity() {
         TokenManager.init(this)
         RetrofitInstance.init(this)
         UserPrefs.init(this) // 사용자 정보 prefs
+
+        Log.d("kakaoApp", BuildConfig.KAKAO_NATIVE_APP_KEY)
+
+        KakaoSdk.init(this, BuildConfig.KAKAO_NATIVE_APP_KEY)
 
         enableEdgeToEdge()
 
