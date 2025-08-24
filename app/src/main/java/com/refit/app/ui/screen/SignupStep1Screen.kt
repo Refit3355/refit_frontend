@@ -111,6 +111,7 @@ fun SignupStep1Screen(
                 onClick = onNextOrSubmit,
                 enabled = vm.canProceed(mode),
                 modifier = Modifier.fillMaxWidth().height(56.dp),
+                shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MainPurple, contentColor = Color.White)
             ) { Text("다음", fontFamily = Pretendard) }
         }

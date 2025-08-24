@@ -2,6 +2,7 @@ package com.refit.app.ui.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -49,6 +50,7 @@ fun EditBasicInfoScreen(
                     .height(56.dp)
                     .padding(horizontal = 16.dp, vertical = 0.dp)
                     .imePadding(),
+                shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MainPurple,
                     contentColor = Color.White

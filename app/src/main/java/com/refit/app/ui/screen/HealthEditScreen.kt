@@ -70,7 +70,7 @@ fun HealthEditScreen(
                 .fillMaxSize()
                 .background(Color.White)
                 .padding(pad)
-                .padding(horizontal = 20.dp, vertical = 16.dp)
+                .padding(horizontal = 20.dp)
                 .verticalScroll(scroll),
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
