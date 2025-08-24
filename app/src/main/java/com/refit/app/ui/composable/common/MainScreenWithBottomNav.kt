@@ -26,10 +26,8 @@ import androidx.navigation.navArgument
 import com.refit.app.ui.screen.CartScreen
 import com.refit.app.ui.screen.CategoryScreen
 import com.refit.app.ui.screen.CommunityScreen
-import com.refit.app.ui.screen.HealthScreen
 import com.refit.app.ui.screen.HomeScreen
 import com.refit.app.ui.screen.LoginScreen
-import com.refit.app.ui.screen.MyScreen
 import com.refit.app.ui.screen.MyfitEditScreen
 import com.refit.app.ui.screen.MyfitRegisterScreen
 import com.refit.app.ui.screen.MyfitScreen
@@ -49,6 +47,10 @@ import androidx.compose.ui.Alignment
 import com.refit.app.data.auth.modelAndView.FormMode
 import com.refit.app.data.myfit.viewmodel.MyfitViewModel
 import com.refit.app.data.auth.modelAndView.SignupViewModel
+import com.refit.app.ui.screen.CreatedCombinationListScreen
+import com.refit.app.ui.screen.LikedCombinationListScreen
+import com.refit.app.ui.screen.MypageScreen
+import com.refit.app.ui.screen.OrderListScreen
 import com.refit.app.ui.screen.EditBasicInfoScreen
 import com.refit.app.ui.screen.HealthEditScreen
 import java.net.URLEncoder
@@ -216,8 +218,6 @@ fun MainScreenWithBottomNav(
                         )
                     }
 
-
-
                     composable(
                         route = "auth/signup3?nickname={nickname}",
                         arguments = listOf(navArgument("nickname") { defaultValue = "" })
@@ -241,7 +241,7 @@ fun MainScreenWithBottomNav(
                 composable("category") { CategoryScreen(navController) }
                 composable("myfit") { MyfitScreen(navController = navController) }
                 composable("community") { CommunityScreen(navController) }
-                composable("my") { MyScreen(navController) }
+                composable("my") { MypageScreen(navController) }
 
                 // 검색/알림/장바구니
                 composable("notifications") { NotificationScreen(navController) }
@@ -323,6 +323,15 @@ fun MainScreenWithBottomNav(
                         }
                     }
                 }
+
+                // 내가 저장한 조합 목록
+                composable("liked_combinations") { LikedCombinationListScreen() }
+
+                // 내 주문 내역
+                composable("orders") { OrderListScreen(navController) }
+
+                // 내가 생성한 조합 목록
+                composable("created_combinations") { CreatedCombinationListScreen() }
             }
         }
     }

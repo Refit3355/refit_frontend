@@ -1,5 +1,6 @@
 package com.refit.app.ui.screen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -9,13 +10,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 import androidx.navigation.NavHostController
+import com.google.gson.Gson
 import com.refit.app.R
+import com.refit.app.data.auth.model.HealthInfoDto
 import com.refit.app.ui.composable.home.GreetingCard
 import com.refit.app.ui.composable.home.HomeProductRow
 import com.refit.app.ui.composable.home.MetricRow
@@ -23,6 +27,7 @@ import com.refit.app.ui.composable.home.SectionHeader
 import com.refit.app.data.health.model.MetricItem
 import com.refit.app.ui.fake.MemberDummy
 import com.refit.app.data.home.modelAndView.HomeViewModel
+import com.refit.app.network.UserPrefs
 import com.refit.app.util.home.getWeatherIcon
 import com.refit.app.util.home.highlightText
 
@@ -34,6 +39,12 @@ fun HomeScreen(
     val scroll = rememberScrollState()
     val uiState by vm.uiState.collectAsState()
     val context = LocalContext.current
+
+    val nickname = UserPrefs.getNickname()
+    val health = UserPrefs.getHealth()
+
+    val allTags = health?.toTags().orEmpty()
+    val selectedTags = allTags.shuffled().take(3).sorted()
 
     LaunchedEffect(Unit) {
         vm.loadData(context)
@@ -54,12 +65,8 @@ fun HomeScreen(
                 .padding(top = 36.dp)
         ) {
             GreetingCard(
-                nickname = MemberDummy.member.nickname,
-                tags = listOf(
-                    "#${MemberDummy.member.concern1}",
-                    "#${MemberDummy.member.concern2}",
-                    "#${MemberDummy.member.concern3}"
-                )
+                nickname = nickname ?: "사용자",
+                tags = selectedTags
             )
 
             Spacer(Modifier.height(12.dp))
@@ -165,4 +172,18 @@ fun HomeScreen(
 
         Spacer(Modifier.height(16.dp))
     }
+}
+
+fun HealthInfoDto.toTags(): List<String> {
+    val tags = mutableListOf<String>()
+
+    if (eyeHealth > 0) tags.add("#눈 건강")
+    if (fatigue > 0) tags.add("#피로 회복")
+    if (sleepStress > 0) tags.add("#수면/스트레스")
+    if (immuneCare > 0) tags.add("#면역 케어")
+    if (muscleHealth > 0) tags.add("#근육 건강")
+    if (gutHealth > 0) tags.add("#장 건강")
+    if (bloodCirculation > 0) tags.add("#혈액 순환")
+
+    return tags
 }
