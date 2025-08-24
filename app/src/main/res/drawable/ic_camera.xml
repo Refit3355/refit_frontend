@@ -1,0 +1,27 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- 카메라 본체 (전체 흰색 채움 + 검은색 윤곽) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#000000"
+        android:strokeWidth="2"
+        android:pathData="M20 5h-3.2l-1.8-2H9L7.2 5H4c-1.1 0-2 .9-2 2v12c0
+                          1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z" />
+
+    <!-- 렌즈 (흰색 내부 + 검은색 윤곽) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#000000"
+        android:strokeWidth="2"
+        android:pathData="M12 17c2.8 0 5-2.2 5-5s-2.2-5-5-5-5
+                          2.2-5 5 2.2 5 5 5z" />
+
+    <!-- 뷰파인더 작은 점 (검은색 채움) -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M17.5 8.5a1 1 0 1 0 0.001-2.001A1 1 0 0 0 17.5 8.5z" />
+</vector>

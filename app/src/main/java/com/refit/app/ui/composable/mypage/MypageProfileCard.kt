@@ -85,18 +85,36 @@ fun MypageProfileCard(
             modifier = Modifier.padding(20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 프로필 이미지
-            AsyncImage(
-                model = finalUrl,
-                contentDescription = null,
+            // 프로필 이미지 박스
+            Box(
                 modifier = Modifier
                     .size(80.dp)
-                    .clip(CircleShape)
-                    .border(2.dp, MainPurple, CircleShape)
-                    .background(Color.White)
                     .clickable { launcher.launch("image/*") },
-                contentScale = ContentScale.Crop
-            )
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                // 프사 부분
+                AsyncImage(
+                    model = finalUrl,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(CircleShape)
+                        .border(2.dp, MainPurple, CircleShape)
+                        .background(Color.White),
+                    contentScale = ContentScale.Crop
+                )
+
+                Icon(
+                    painter = painterResource(R.drawable.ic_camera),
+                    contentDescription = "프로필 변경",
+                    tint = Color.Unspecified,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .background(Color.White, CircleShape)
+                        .border(1.dp, Color.Black, CircleShape)
+                        .padding(4.dp)
+                )
+            }
             Spacer(Modifier.width(12.dp))
 
             // 오른쪽 정보
