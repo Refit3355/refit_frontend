@@ -64,7 +64,7 @@ fun MypageProfileCard(
             val file = FileUtils.getFileFromUri(context, it)
             file?.let { f ->
                 val requestFile = f.asRequestBody("image/*".toMediaTypeOrNull())
-                val body = MultipartBody.Part.createFormData("file", f.name, requestFile)
+                val body = MultipartBody.Part.createFormData("profileImage", f.name, requestFile)
                 vm.updateProfileImage(body)
             } ?: run {
                 // 파일 변환 실패 처리

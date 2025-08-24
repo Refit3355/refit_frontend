@@ -30,6 +30,6 @@ interface MeApi {
     @POST("/me/profile/image/update")
     @Headers("Requires-Auth: true")
     suspend fun updateProfileImage(
-        @Part profileImage: MultipartBody.Part
+        @Part("profileImage") profileImage: MultipartBody.Part
     ): ProfileImageResponse
 }
