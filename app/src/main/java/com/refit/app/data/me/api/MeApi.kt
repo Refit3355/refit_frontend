@@ -4,10 +4,14 @@ import com.refit.app.data.local.combination.model.CombinationsResponse
 import com.refit.app.data.me.model.LikeRequest
 import com.refit.app.data.me.model.LikeResponse
 import com.refit.app.data.me.model.OrdersResponse
+import com.refit.app.data.me.model.ProfileImageResponse
+import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 
 interface MeApi {
     @POST("products/like")
@@ -22,4 +26,10 @@ interface MeApi {
     @Headers("Requires-Auth: true")
     suspend fun getCreatedCombinations(): CombinationsResponse
 
+    @Multipart
+    @POST("/me/profile/image/update")
+    @Headers("Requires-Auth: true")
+    suspend fun updateProfileImage(
+        @Part profileImage: MultipartBody.Part
+    ): ProfileImageResponse
 }
