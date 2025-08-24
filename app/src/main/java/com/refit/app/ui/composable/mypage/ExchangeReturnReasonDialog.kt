@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.refit.app.ui.theme.LightPurple
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 
@@ -54,7 +55,7 @@ fun ExchangeReturnReasonDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp)
-                .border(1.dp, Color.Black, RoundedCornerShape(16.dp))
+                .border(3.dp, Color.Black, RoundedCornerShape(16.dp))
         ) {
             Column(
                 modifier = Modifier
@@ -66,7 +67,7 @@ fun ExchangeReturnReasonDialog(
                     progress = { if (step == 1) 0.5f else 1f },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(8.dp)
+                        .height(10.dp)
                         .clipToBounds(),
                     color = MainPurple,
                     trackColor = Color(0xFFEAEAEA),

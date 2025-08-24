@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.refit.app.data.local.wish.WishStore
-import com.refit.app.data.local.combination.modelAndView.LikedCombinationViewModel
+import com.refit.app.data.combination.modelAndView.LikedCombinationViewModel
 import com.refit.app.ui.composable.combination.CombinationCard
 import kotlinx.coroutines.launch
 

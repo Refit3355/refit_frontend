@@ -23,9 +23,10 @@ import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.refit.app.data.cart.modelAndView.CartEditViewModel
 
 @Composable
-fun OrderItemRow(item: OrderItemDto, vm: OrderViewModel) {
+fun OrderItemRow(item: OrderItemDto, vm: OrderViewModel, cartVm: CartEditViewModel) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -135,7 +136,11 @@ fun OrderItemRow(item: OrderItemDto, vm: OrderViewModel) {
                 }
             }
 
-            IconButton(onClick = { /* 장바구니 담기 */ }) {
+            IconButton(onClick = {
+                cartVm.addOne(item.productId, 1)
+            },
+                modifier = Modifier.align(Alignment.CenterVertically)
+            ) {
                 Icon(
                     imageVector = Icons.Default.ShoppingCart,
                     tint = MainPurple,

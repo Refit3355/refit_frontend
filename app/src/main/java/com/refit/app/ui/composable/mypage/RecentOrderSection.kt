@@ -24,6 +24,7 @@ import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.refit.app.data.cart.modelAndView.CartEditViewModel
 import com.refit.app.data.me.modelAndView.OrderViewModel
 
 
@@ -31,7 +32,8 @@ import com.refit.app.data.me.modelAndView.OrderViewModel
 fun RecentOrderSection(
     order: OrderResponse,
     onClickAll: () -> Unit,
-    vm: OrderViewModel
+    vm: OrderViewModel,
+    cartVm: CartEditViewModel
 ) {
     Column(
         modifier = Modifier
@@ -188,7 +190,9 @@ fun RecentOrderSection(
                             }
                         }
                         IconButton(
-                            onClick = { },
+                            onClick = {
+                                cartVm.addOne(item.productId, 1)
+                            },
                             modifier = Modifier.align(Alignment.CenterVertically)
                         ) {
                             Icon(

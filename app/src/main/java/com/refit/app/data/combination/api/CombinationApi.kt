@@ -1,8 +1,8 @@
-package com.refit.app.data.local.combination.api
+package com.refit.app.data.combination.api
 
-import com.refit.app.data.local.combination.model.CombinationLikeResponse
-import com.refit.app.data.local.combination.model.LikedCombinationRequest
-import com.refit.app.data.local.combination.model.CombinationsResponse
+import com.refit.app.data.combination.model.CombinationLikeResponse
+import com.refit.app.data.combination.model.LikedCombinationRequest
+import com.refit.app.data.combination.model.CombinationsResponse
 import retrofit2.http.Body
 import retrofit2.http.Headers
 import retrofit2.http.POST

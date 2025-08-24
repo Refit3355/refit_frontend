@@ -1,9 +1,9 @@
-package com.refit.app.data.local.combination.repository
+package com.refit.app.data.combination.repository
 
-import com.refit.app.data.local.combination.api.CombinationApi
-import com.refit.app.data.local.combination.model.CombinationLikeResponse
-import com.refit.app.data.local.combination.model.LikedCombinationRequest
-import com.refit.app.data.local.combination.model.CombinationsResponse
+import com.refit.app.data.combination.api.CombinationApi
+import com.refit.app.data.combination.model.CombinationLikeResponse
+import com.refit.app.data.combination.model.LikedCombinationRequest
+import com.refit.app.data.combination.model.CombinationsResponse
 import com.refit.app.network.RetrofitInstance
 
 class CombinationRepository(

@@ -1,9 +1,9 @@
-package com.refit.app.data.local.combination.modelAndView
+package com.refit.app.data.combination.modelAndView
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.refit.app.data.local.combination.model.CombinationDto
-import com.refit.app.data.local.combination.repository.CombinationRepository
+import com.refit.app.data.combination.model.CombinationDto
+import com.refit.app.data.combination.repository.CombinationRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

@@ -1,7 +1,7 @@
 package com.refit.app.data.me.repository
 
 import com.refit.app.data.me.api.MeApi
-import com.refit.app.data.local.combination.model.CombinationsResponse
+import com.refit.app.data.combination.model.CombinationsResponse
 import com.refit.app.data.me.model.LikeProductDto
 import com.refit.app.data.me.model.LikeRequest
 import com.refit.app.data.me.model.OrdersResponse

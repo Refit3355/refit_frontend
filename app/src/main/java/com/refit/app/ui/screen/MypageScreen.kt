@@ -7,19 +7,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.refit.app.data.cart.api.CartApi
+import com.refit.app.data.cart.modelAndView.CartBadgeViewModel
+import com.refit.app.data.cart.modelAndView.CartEditViewModel
+import com.refit.app.data.cart.repository.CartRepository
 import com.refit.app.network.UserPrefs
 import com.refit.app.ui.composable.mypage.MypageMenuSection
 import com.refit.app.ui.composable.mypage.MypageProfileCard
 import com.refit.app.ui.composable.mypage.RecentOrderSection
 import com.refit.app.data.me.modelAndView.OrderViewModel
+import com.refit.app.network.RetrofitInstance
 
 @Composable
-fun MypageScreen(navController: NavController, vm: OrderViewModel = viewModel()) {
+fun MypageScreen(
+    navController: NavController,
+    vm: OrderViewModel = viewModel(),
+) {
     val state by vm.state.collectAsState()
+    val api = RetrofitInstance.create(CartApi::class.java)
+    val repo = remember { CartRepository(api) }
+    val badgeVm = remember { CartBadgeViewModel(repo) }
+    val cartVm = remember { CartEditViewModel(repo, badgeVm) }
 
     LaunchedEffect(Unit) {
         vm.loadOrders()
@@ -50,7 +63,8 @@ fun MypageScreen(navController: NavController, vm: OrderViewModel = viewModel())
                 RecentOrderSection(
                     order = latestOrder,
                     onClickAll = { navController.navigate("orders") },
-                    vm = vm
+                    vm = vm,
+                    cartVm = cartVm
                 )
                 Spacer(Modifier.height(12.dp))
             }
