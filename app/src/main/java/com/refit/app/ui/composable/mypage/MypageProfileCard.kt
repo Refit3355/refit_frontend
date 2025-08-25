@@ -109,7 +109,6 @@ fun MypageProfileCard(
                             .background(Color.White),
                         contentScale = ContentScale.Crop
                     )
-
                     Icon(
                         painter = painterResource(R.drawable.ic_camera),
                         contentDescription = "프로필 변경",
@@ -119,7 +118,6 @@ fun MypageProfileCard(
                             .offset(x = 8.dp, y = 8.dp)
                     )
                 }
-
             }
             Spacer(Modifier.width(12.dp))
 

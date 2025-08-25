@@ -1,10 +1,10 @@
 package com.refit.app.ui.composable.mypage
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +24,9 @@ import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
+import com.refit.app.R
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
 import com.refit.app.data.me.modelAndView.OrderViewModel
 
@@ -200,16 +203,20 @@ fun RecentOrderSection(
                                 }
                             }
                         }
-                        IconButton(
-                            onClick = {
-                                cartVm.addOne(item.productId, 1)
-                            },
-                            modifier = Modifier.align(Alignment.CenterVertically)
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .size(40.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                                .clickable { cartVm.addOne(item.productId, 1) },
+                            contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Default.ShoppingCart,
+                                painter = painterResource(R.drawable.ic_icon_bag),
                                 contentDescription = "장바구니 담기",
-                                tint = MainPurple
+                                tint = Color.Black,
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                     }
