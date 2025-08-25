@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.refit.app.R
+import com.refit.app.data.auth.model.SamsungHealthSaveRequest
 import com.refit.app.ui.composable.auth.KakaoButton
 import com.refit.app.ui.composable.auth.PurpleButton
 import com.refit.app.ui.composable.auth.RefitTextField
@@ -28,6 +29,8 @@ import com.refit.app.ui.theme.Pretendard
 import com.refit.app.data.auth.modelAndView.AuthViewModel
 import com.refit.app.data.auth.modelAndView.KakaoFlowStore
 import com.refit.app.data.auth.modelAndView.KakaoLoginViewModel
+import com.refit.app.data.auth.modelAndView.SamsungHealthViewModel
+import com.refit.app.data.health.HealthRepo
 
 @Composable
 fun LoginScreen(
@@ -35,12 +38,31 @@ fun LoginScreen(
     onSignup: (prefilledFromKakao: Boolean) -> Unit, // ← 카카오 프리필로 회원가입 진입
     onLoggedIn: () -> Unit,
     vm: AuthViewModel = viewModel(),
-    kakaoVm: KakaoLoginViewModel = viewModel()
+    kakaoVm: KakaoLoginViewModel = viewModel(),
+    samsungVm: SamsungHealthViewModel = viewModel()
 ) {
     val context = LocalContext.current
 
     LaunchedEffect(vm.loggedIn) {
-        if (vm.loggedIn) onLoggedIn()
+        if (vm.loggedIn) {
+
+            // 로그인 성공시 삼성헬스의 오늘 하루치 데이터를 불러와서 저장
+            val rows = HealthRepo.readDailyAll(context, days = 1)
+            rows.firstOrNull()?.let { today ->
+                val req = SamsungHealthSaveRequest(
+                    steps = today.steps,
+                    totalKcal = today.totalKcal,
+                    bloodGlucoseMgdl = today.bloodGlucoseMgdl,
+                    systolicMmhg = today.systolicMmhg,
+                    diastolicMmhg = today.diastolicMmhg,
+                    intakeKcal = today.intakeKcal,
+                    sleepMinutes = today.sleepMinutes
+                )
+                samsungVm.saveHealthInfo(req)
+            }
+
+            onLoggedIn()
+        }
     }
 
     Scaffold {

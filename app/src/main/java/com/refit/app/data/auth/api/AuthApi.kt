@@ -7,6 +7,7 @@ import com.refit.app.data.auth.model.KakaoVerifyRequest
 import com.refit.app.data.auth.model.KakaoVerifyResponse
 import com.refit.app.data.auth.model.LoginRequest
 import com.refit.app.data.auth.model.LoginResponse
+import com.refit.app.data.auth.model.SamsungHealthSaveRequest
 import com.refit.app.data.auth.model.SignupAllRequest
 import com.refit.app.data.auth.model.SignupResponse
 import com.refit.app.data.auth.model.UpdateBasicRequest
@@ -52,4 +53,11 @@ interface AuthApi {
     @PUT("/auth/health")
     @Headers("Requires-Auth: true")
     suspend fun updateMyConcerns(@Body req: ConcernSummaryDto): UtilResponse<Void?>
+
+    @POST("/auth/health/samsung")
+    @Headers("Requires-Auth: true")
+    suspend fun saveSamsungHealth(
+        @Body req: SamsungHealthSaveRequest
+    ): UtilResponse<String>
+
 }

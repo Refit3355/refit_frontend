@@ -14,6 +14,9 @@ object UserPrefs {
     private const val KEY_HEALTH    = "health_json"
     private const val KEY_HAIR      = "hair_json"
     private const val KEY_SKIN      = "skin_json"
+    private const val KEY_PROFILE_URL = "profile_url"
+    private const val DEFAULT_PROFILE_URL =
+        "https://refit-s3.s3.ap-northeast-2.amazonaws.com/default_profile/default.png"
 
     private lateinit var prefs: SharedPreferences
     private val gson by lazy { Gson() }
@@ -86,5 +89,16 @@ object UserPrefs {
     fun setSkin(skin: SkinInfoDto?) {
         prefs.edit().putString(KEY_SKIN, skin?.let { gson.toJson(it) } ?: "").apply()
     }
+
+    fun setProfileUrl(url: String?) {
+        if (!::prefs.isInitialized) return
+        prefs.edit().putString(KEY_PROFILE_URL, url ?: DEFAULT_PROFILE_URL).apply()
+    }
+
+    fun getProfileUrl(): String =
+        if (!::prefs.isInitialized) DEFAULT_PROFILE_URL
+        else prefs.getString(KEY_PROFILE_URL, null)
+            ?.takeIf { it.isNotBlank() }
+            ?: DEFAULT_PROFILE_URL
 
 }

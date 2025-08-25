@@ -3,7 +3,7 @@ package com.refit.app.data.me.modelAndView
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.refit.app.data.local.combination.model.CombinationDto
+import com.refit.app.data.combination.model.CombinationDto
 import com.refit.app.data.me.repository.MeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

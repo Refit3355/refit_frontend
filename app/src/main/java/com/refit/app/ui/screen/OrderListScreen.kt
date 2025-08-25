@@ -15,14 +15,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.refit.app.data.cart.api.CartApi
+import com.refit.app.data.cart.modelAndView.CartBadgeViewModel
+import com.refit.app.data.cart.modelAndView.CartEditViewModel
+import com.refit.app.data.cart.repository.CartRepository
 import com.refit.app.data.me.modelAndView.OrderViewModel
+import com.refit.app.network.RetrofitInstance
 import com.refit.app.ui.composable.mypage.OrderItemRow
 import com.refit.app.ui.theme.LightPurple
 import com.refit.app.ui.theme.Pretendard
 
 @Composable
-fun OrderListScreen(navController: NavController, vm: OrderViewModel = viewModel()) {
+fun OrderListScreen(
+    navController: NavController,
+    vm: OrderViewModel = viewModel(),
+) {
     val state by vm.state.collectAsState()
+    val api = RetrofitInstance.create(CartApi::class.java)
+    val repo = remember { CartRepository(api) }
+    val badgeVm = remember { CartBadgeViewModel(repo) }
+    val cartVm = remember { CartEditViewModel(repo, badgeVm) }
 
     LaunchedEffect(Unit) {
         vm.loadOrders()
@@ -73,7 +85,7 @@ fun OrderListScreen(navController: NavController, vm: OrderViewModel = viewModel
                             }
 
                             order.items.forEach { item ->
-                                OrderItemRow(item)
+                                OrderItemRow(item, vm, cartVm)
                                 Spacer(Modifier.height(12.dp))
                             }
                         }

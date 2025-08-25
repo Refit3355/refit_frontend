@@ -2,6 +2,7 @@ package com.refit.app.data.me.model
 
 data class OrderItemDto(
     val orderItemId: Long,
+    val productId: Long,
     val orderNumber: String,
     val productName: String,
     val thumbnailUrl: String,
