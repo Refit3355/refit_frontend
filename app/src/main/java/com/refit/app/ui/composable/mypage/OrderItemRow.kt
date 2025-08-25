@@ -95,7 +95,7 @@ fun OrderItemRow(item: OrderItemDto, vm: OrderViewModel, cartVm: CartEditViewMod
                     )
                     Text(
                         text = " | ${item.quantity}개",
-                        fontFamily = Pretendard,서
+                        fontFamily = Pretendard,
                         fontSize = 13.sp,
                         color = Color.Gray,
                         modifier = Modifier.padding(start = 6.dp)
