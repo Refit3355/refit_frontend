@@ -103,4 +103,35 @@ class OrderViewModel(
             )
         }
     }
+
+    // 주문 취소
+    fun requestCancel(orderItemId: Long) {
+        viewModelScope.launch {
+            val result = repo.requestCancel(orderItemId)
+            _state.value = result.fold(
+                onSuccess = { res: UpdateOrderStatusResponse ->
+                    val currentOrders = _state.value.orders
+                    val updatedOrders = currentOrders?.copy(
+                        recentOrder = currentOrders.recentOrder.map { order ->
+                            order.copy(
+                                items = order.items.map { item ->
+                                    if (item.orderItemId == orderItemId) {
+                                        item.copy(status = 3)
+                                    } else item
+                                }
+                            )
+                        }
+                    )
+                    _state.value.copy(
+                        orders = updatedOrders,
+                        actionMessage = res.message
+                    )
+                },
+                onFailure = {
+                    _state.value.copy(actionMessage = "주문 취소 실패: ${it.message}")
+                }
+            )
+        }
+    }
+
 }

@@ -95,7 +95,7 @@ fun OrderItemRow(item: OrderItemDto, vm: OrderViewModel, cartVm: CartEditViewMod
                     )
                     Text(
                         text = " | ${item.quantity}개",
-                        fontFamily = Pretendard,
+                        fontFamily = Pretendard,서
                         fontSize = 13.sp,
                         color = Color.Gray,
                         modifier = Modifier.padding(start = 6.dp)
@@ -104,12 +104,23 @@ fun OrderItemRow(item: OrderItemDto, vm: OrderViewModel, cartVm: CartEditViewMod
 
                 // 주문취소 버튼 (결제완료일 때만)
                 if (item.status == 0) {
+                    var showCancelDialog by remember { mutableStateOf(false) }
+
+                    if (showCancelDialog) {
+                        CancelOrderReasonDialog(
+                            orderItemId = item.orderItemId,
+                            onDismiss = { showCancelDialog = false },
+                            onConfirmCancel = { vm.requestCancel(it) }
+                        )
+                    }
+
                     Spacer(Modifier.height(10.dp))
                     MyOrderActionButton(
                         text = "주문 취소",
                         modifier = Modifier
                             .width(80.dp)
-                            .height(24.dp)
+                            .height(24.dp),
+                        onClick = { showCancelDialog = true }
                     )
                 }
 

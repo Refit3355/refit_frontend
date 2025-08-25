@@ -156,12 +156,23 @@ fun RecentOrderSection(
 
                                 // 결제완료 → 주문취소 버튼
                                 if (item.status == 0) {
+                                    var showCancelDialog by remember { mutableStateOf(false) }
+
+                                    if (showCancelDialog) {
+                                        CancelOrderReasonDialog(
+                                            orderItemId = item.orderItemId,
+                                            onDismiss = { showCancelDialog = false },
+                                            onConfirmCancel = { vm.requestCancel(it) }
+                                        )
+                                    }
+
                                     MyOrderActionButton(
                                         text = "주문 취소",
                                         modifier = Modifier
                                             .width(70.dp)
                                             .height(28.dp)
-                                            .padding(top = 6.dp)
+                                            .padding(top = 6.dp),
+                                        onClick = { showCancelDialog = true }
                                     )
                                 }
 
