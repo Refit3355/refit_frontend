@@ -141,6 +141,9 @@ dependencies {
     // 카카오 로그인
     implementation("com.kakao.sdk:v2-all:2.20.6")
     implementation("com.kakao.sdk:v2-user:2.20.6")
+
+    // 이미지 미리보기
+    implementation("io.coil-kt:coil-compose:2.4.0")
 }
 
 configurations.all {

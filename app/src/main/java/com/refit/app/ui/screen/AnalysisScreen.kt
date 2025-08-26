@@ -1,35 +1,25 @@
 package com.refit.app.ui.screen
 
+import android.content.ContentValues
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -108,7 +98,6 @@ fun AnalysisScreen() {
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 뷰티 버튼
                 OutlinedButton(
                     onClick = { selected = "뷰티" },
                     shape = RoundedCornerShape(24.dp),
@@ -118,10 +107,9 @@ fun AnalysisScreen() {
                         contentColor = if (selected == "뷰티") MainPurple else Color.Gray
                     )
                 ) {
-                    Text("뷰티", fontFamily = Pretendard,)
+                    Text("뷰티", fontFamily = Pretendard)
                 }
 
-                // 헬스 버튼
                 OutlinedButton(
                     onClick = { selected = "헬스" },
                     shape = RoundedCornerShape(24.dp),
@@ -131,25 +119,18 @@ fun AnalysisScreen() {
                         contentColor = if (selected == "헬스") MainPurple else Color.Gray
                     )
                 ) {
-                    Text("헬스", fontFamily = Pretendard,)
+                    Text("헬스", fontFamily = Pretendard)
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // 사진 업로드 버튼
-            Button(
-                onClick = { /* TODO */ },
-                modifier = Modifier
-                    .width(250.dp)
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF6A1B9A),
-                    contentColor = Color.White
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(text = "+ 사진 업로드", fontSize = 17.sp, fontFamily = Pretendard)
+            // 사진 업로드 버튼 통합
+            PhotoUploadButton { uri ->
+                uri?.let {
+                    // Uri를 이용한 처리
+                    println("선택된 이미지 URI: $it")
+                }
             }
 
             Spacer(modifier = Modifier.height(50.dp))
@@ -172,10 +153,69 @@ fun AnalysisScreen() {
     }
 }
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
+@Composable
+fun PhotoUploadButton(onImageSelected: (Uri?) -> Unit) {
+    val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
+    var cameraImageUri by remember { mutableStateOf<Uri?>(null) }
+
+    // 갤러리 선택
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri -> onImageSelected(uri) }
+
+    // 카메라 촬영
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            onImageSelected(cameraImageUri)
+        }
+    }
+
+    Button(
+        onClick = { showDialog = true },
+        modifier = Modifier
+            .width(250.dp)
+            .height(56.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF6A1B9A),
+            contentColor = Color.White
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Text(text = "+ 사진 업로드", fontSize = 17.sp, fontFamily = Pretendard)
+    }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("이미지 선택") },
+            text = {},
+            confirmButton = {
+                TextButton(onClick = {
+                    galleryLauncher.launch("image/*")
+                    showDialog = false
+                }) { Text("갤러리") }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    // 카메라용 Uri 생성
+                    val resolver = context.contentResolver
+                    val contentValues = ContentValues().apply {
+                        put(MediaStore.MediaColumns.DISPLAY_NAME, "photo_${System.currentTimeMillis()}")
+                        put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+                    }
+                    cameraImageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+                    cameraImageUri?.let { cameraLauncher.launch(it) }
+                    showDialog = false
+                }) { Text("카메라") }
+            }
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewIngredientAnalysisScreen() {
     RefitTheme {
