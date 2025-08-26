@@ -49,6 +49,7 @@ import com.refit.app.data.auth.modelAndView.FormMode
 import com.refit.app.data.auth.modelAndView.KakaoFlowStore
 import com.refit.app.data.myfit.viewmodel.MyfitViewModel
 import com.refit.app.data.auth.modelAndView.SignupViewModel
+import com.refit.app.ui.screen.AnalysisScreen
 import com.refit.app.ui.screen.CreatedCombinationListScreen
 import com.refit.app.ui.screen.LikedCombinationListScreen
 import com.refit.app.ui.screen.MypageScreen
@@ -269,6 +270,9 @@ fun MainScreenWithBottomNav(
                 composable("myfit") { MyfitScreen(navController = navController) }
                 composable("community") { CommunityScreen(navController) }
                 composable("my") { MypageScreen(navController) }
+
+                // 성분 분석
+                composable("ingredient") { AnalysisScreen() }
 
                 // 검색/알림/장바구니
                 composable("notifications") { NotificationScreen(navController) }
