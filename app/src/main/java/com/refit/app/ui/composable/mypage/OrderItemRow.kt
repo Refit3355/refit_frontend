@@ -1,10 +1,12 @@
 package com.refit.app.ui.composable.mypage
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.foundation.shape.RoundedCornerShape
+import com.refit.app.R
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +25,8 @@ import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
 
 @Composable
@@ -104,12 +108,23 @@ fun OrderItemRow(item: OrderItemDto, vm: OrderViewModel, cartVm: CartEditViewMod
 
                 // 주문취소 버튼 (결제완료일 때만)
                 if (item.status == 0) {
+                    var showCancelDialog by remember { mutableStateOf(false) }
+
+                    if (showCancelDialog) {
+                        CancelOrderReasonDialog(
+                            orderItemId = item.orderItemId,
+                            onDismiss = { showCancelDialog = false },
+                            onConfirmCancel = { vm.requestCancel(it) }
+                        )
+                    }
+
                     Spacer(Modifier.height(10.dp))
                     MyOrderActionButton(
                         text = "주문 취소",
                         modifier = Modifier
                             .width(80.dp)
-                            .height(24.dp)
+                            .height(24.dp),
+                        onClick = { showCancelDialog = true }
                     )
                 }
 
@@ -136,15 +151,20 @@ fun OrderItemRow(item: OrderItemDto, vm: OrderViewModel, cartVm: CartEditViewMod
                 }
             }
 
-            IconButton(onClick = {
-                cartVm.addOne(item.productId, 1)
-            },
-                modifier = Modifier.align(Alignment.CenterVertically)
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                    .clickable { cartVm.addOne(item.productId, 1) },
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.ShoppingCart,
-                    tint = MainPurple,
-                    contentDescription = "장바구니 담기"
+                    painter = painterResource(R.drawable.ic_icon_bag),
+                    contentDescription = "장바구니 담기",
+                    tint = Color.Black,
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }

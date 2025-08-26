@@ -48,4 +48,13 @@ class MeRepository(
     suspend fun requestReturn(orderItemId: Long): Result<UpdateOrderStatusResponse> = runCatching {
         meApi.requestReturn(orderItemId)
     }
+
+    // TODO: 주문 취소 API
+    suspend fun requestCancel(orderItemId: Long): Result<UpdateOrderStatusResponse> = runCatching {
+        // 임시로 성공 응답 반환 (백엔드 연동 후 수정)
+        UpdateOrderStatusResponse(
+            message = "주문 취소 처리 완료"
+        )
+    }
+
 }
