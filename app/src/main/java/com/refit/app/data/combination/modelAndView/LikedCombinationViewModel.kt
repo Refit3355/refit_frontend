@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-data class CombinationUiState(
+data class LikedCombinationUiState(
     val combinations: List<CombinationDto> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
@@ -20,8 +20,8 @@ class LikedCombinationViewModel(
     private val repo: CombinationRepository = CombinationRepository()
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(CombinationUiState())
-    val state: StateFlow<CombinationUiState> = _state
+    private val _state = MutableStateFlow(LikedCombinationUiState())
+    val state: StateFlow<LikedCombinationUiState> = _state
 
     /** 찜한 조합 불러오기 */
     fun loadLikedCombinations(ids: Set<Long>) {
@@ -29,8 +29,8 @@ class LikedCombinationViewModel(
             _state.value = _state.value.copy(isLoading = true, error = null, message = null)
             val result = repo.getLikedCombinations(ids.toList())
             _state.value = result.fold(
-                onSuccess = { CombinationUiState(combinations = it.combinations) },
-                onFailure = { CombinationUiState(error = it.message) }
+                onSuccess = { LikedCombinationUiState(combinations = it.combinations) },
+                onFailure = { LikedCombinationUiState(error = it.message) }
             )
         }
     }
