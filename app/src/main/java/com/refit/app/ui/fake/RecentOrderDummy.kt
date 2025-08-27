@@ -1,7 +1,7 @@
 package com.refit.app.ui.fake
 
 data class RecentOrderDummy(
-    val orderNumber: String,
+    val orderCode: String,
     val date: String,
     val items: List<RecentOrderItemDummy>
 )
@@ -17,7 +17,7 @@ data class RecentOrderItemDummy(
 
 // 샘플 데이터
 val sampleRecentOrder = RecentOrderDummy(
-    orderNumber = "1234567890",
+    orderCode = "1234567890",
     date = "2025-08-20",
     items = listOf(
         RecentOrderItemDummy(

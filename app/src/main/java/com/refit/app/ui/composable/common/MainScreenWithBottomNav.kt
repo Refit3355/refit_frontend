@@ -49,6 +49,7 @@ import com.refit.app.data.auth.modelAndView.FormMode
 import com.refit.app.data.auth.modelAndView.KakaoFlowStore
 import com.refit.app.data.myfit.viewmodel.MyfitViewModel
 import com.refit.app.data.auth.modelAndView.SignupViewModel
+import com.refit.app.ui.screen.CombinationDetailScreen
 import com.refit.app.ui.screen.CreatedCombinationListScreen
 import com.refit.app.ui.screen.LikedCombinationListScreen
 import com.refit.app.ui.screen.MypageScreen
@@ -360,6 +361,17 @@ fun MainScreenWithBottomNav(
                 // 내가 생성한 조합 목록
                 composable("created_combinations") { CreatedCombinationListScreen() }
 
+                // 조합 상세 페이지
+                composable(
+                    route = "combinationDetail/{combinationId}",
+                    arguments = listOf(navArgument("combinationId") { type = NavType.LongType })
+                ) { backStackEntry ->
+                    val combinationId = backStackEntry.arguments?.getLong("combinationId") ?: return@composable
+                    CombinationDetailScreen(
+                        navController = navController,
+                        combinationId = combinationId
+                    )
+                }
             }
         }
     }
