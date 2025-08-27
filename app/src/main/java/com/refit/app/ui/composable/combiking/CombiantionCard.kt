@@ -24,6 +24,7 @@ import com.refit.app.ui.theme.LightPurple
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 import com.refit.app.data.combination.model.CombinationDto
+import com.refit.app.util.price.PriceUtil
 
 @Composable
 fun CombinationCard(
@@ -66,14 +67,14 @@ fun CombinationCard(
                 Spacer(Modifier.height(6.dp))
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
-                        "${combination.discountedTotalPrice}원",
+                        PriceUtil.formatPrice(combination.discountedTotalPrice),
                         fontSize = 16.sp,
                         color = MainPurple,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(Modifier.width(6.dp))
                     Text(
-                        "${combination.originalTotalPrice}원",
+                        PriceUtil.formatPrice(combination.originalTotalPrice),
                         fontSize = 14.sp,
                         color = Color.Gray,
                         textDecoration = TextDecoration.LineThrough

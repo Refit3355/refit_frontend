@@ -38,6 +38,7 @@ import com.refit.app.data.cart.api.CartApi
 import com.refit.app.data.cart.model.CartAddBulkRequest
 import com.refit.app.data.cart.model.CartAddRequest
 import com.refit.app.network.RetrofitInstance
+import com.refit.app.util.price.PriceUtil
 
 @Composable
 fun CombinationDetailScreen(
@@ -213,9 +214,21 @@ fun CombinationDetailScreen(
                                     Text(product.brandName ?: "", fontSize = 10.sp, lineHeight = 10.sp, color = Color.Black, maxLines = 1)
                                     Text(product.productName, fontSize = 11.sp, lineHeight = 11.sp, fontWeight = FontWeight.Bold, color = Color.Black, maxLines = 1)
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text("${product.discountRate}%", color = Color.Red, fontSize = 11.sp, lineHeight = 11.sp, fontWeight = FontWeight.Bold)
+                                        Text(
+                                            "${product.discountRate}%",
+                                            color = Color.Red,
+                                            fontSize = 11.sp,
+                                            lineHeight = 11.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
                                         Spacer(Modifier.width(2.dp))
-                                        Text("${product.discountedPrice}원", fontSize = 11.sp, lineHeight = 11.sp, fontWeight = FontWeight.Medium, color = Color.Black)
+                                        Text(
+                                            PriceUtil.formatPrice(product.discountedPrice),
+                                            fontSize = 11.sp,
+                                            lineHeight = 11.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = Color.Black
+                                        )
                                     }
                                 }
                             }
@@ -240,9 +253,20 @@ fun CombinationDetailScreen(
                     Spacer(Modifier.height(8.dp))
 
                     Row(verticalAlignment = Alignment.Bottom) {
-                        Text("${detail.discountedTotalPrice}원", fontWeight = FontWeight.Bold, color = Color.Black, style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            PriceUtil.formatPrice(detail.discountedTotalPrice),
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                         Spacer(Modifier.width(8.dp))
-                        Text("${detail.originalTotalPrice}원", style = MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.LineThrough), color = Color.Gray)
+                        Text(
+                            PriceUtil.formatPrice(detail.originalTotalPrice),
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                textDecoration = TextDecoration.LineThrough
+                            ),
+                            color = Color.Gray
+                        )
                     }
 
                     Spacer(Modifier.height(16.dp))
