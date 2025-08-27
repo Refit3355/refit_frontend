@@ -81,7 +81,7 @@ fun RecentOrderSection(
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            text = "주문번호 ${firstItem.orderNumber}",
+                            text = "주문번호 ${firstItem.orderCode}",
                             fontSize = 12.sp,
                             fontFamily = Pretendard,
                             color = Color.Gray
