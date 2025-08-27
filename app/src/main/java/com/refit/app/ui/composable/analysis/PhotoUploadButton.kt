@@ -40,20 +40,19 @@ fun PhotoUploadButton(
     }
 
     if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text("이미지 선택") },
-            confirmButton = {
-                TextButton(onClick = {
-                    galleryLauncher.launch("image/*")
-                    showDialog = false
-                }) { Text("갤러리") }
+        AnalysisDialog(
+            title = "이미지 업로드",
+            text = "원하는 업로드 방식을 선택하세요.",
+            confirmText = "갤러리",
+            onDismiss = { showDialog = false },
+            onConfirm = {
+                galleryLauncher.launch("image/*")
+                showDialog = false
             },
-            dismissButton = {
-                TextButton(onClick = {
-                    onOpenInAppCamera()
-                    showDialog = false
-                }) { Text("카메라") }
+            secondaryText = "카메라",
+            onSecondary = {
+                onOpenInAppCamera()
+                showDialog = false
             }
         )
     }
