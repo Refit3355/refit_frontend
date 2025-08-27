@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -15,7 +16,7 @@ android {
             // 멀티-릴리즈 JAR 영역 전체 제외 (안드로이드에서 필요 없음)
             excludes += "META-INF/versions/**"
 
-            // (옵션) 흔한 충돌 메타데이터도 함께 제외
+            // 흔한 충돌 메타데이터도 함께 제외
             excludes += setOf(
                 "META-INF/DEPENDENCIES",
                 "META-INF/NOTICE*",
@@ -149,6 +150,11 @@ dependencies {
     implementation("androidx.camera:camera-camera2:$cameraX")
     implementation("androidx.camera:camera-lifecycle:$cameraX")
     implementation("androidx.camera:camera-view:$cameraX")
+
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
+    implementation("com.google.firebase:firebase-messaging")
+
 }
 
 configurations.all {

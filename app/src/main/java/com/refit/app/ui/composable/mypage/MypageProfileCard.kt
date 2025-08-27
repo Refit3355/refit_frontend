@@ -93,27 +93,31 @@ fun MypageProfileCard(
                 contentAlignment = Alignment.BottomEnd
             ) {
                 // 프사 부분
-                AsyncImage(
-                    model = finalUrl,
-                    contentDescription = null,
+                Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .clip(CircleShape)
-                        .border(2.dp, MainPurple, CircleShape)
-                        .background(Color.White),
-                    contentScale = ContentScale.Crop
-                )
-
-                Icon(
-                    painter = painterResource(R.drawable.ic_camera),
-                    contentDescription = "프로필 변경",
-                    tint = Color.Unspecified,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .background(Color.White, CircleShape)
-                        .border(1.dp, Color.Black, CircleShape)
-                        .padding(4.dp)
-                )
+                        .size(80.dp)
+                        .clickable { launcher.launch("image/*") },
+                    contentAlignment = Alignment.BottomEnd
+                ) {
+                    AsyncImage(
+                        model = finalUrl,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape)
+                            .border(2.dp, MainPurple, CircleShape)
+                            .background(Color.White),
+                        contentScale = ContentScale.Crop
+                    )
+                    Icon(
+                        painter = painterResource(R.drawable.ic_camera),
+                        contentDescription = "프로필 변경",
+                        tint = Color.Unspecified,
+                        modifier = Modifier
+                            .size(36.dp)
+                            .offset(x = 8.dp, y = 8.dp)
+                    )
+                }
             }
             Spacer(Modifier.width(12.dp))
 
