@@ -1,6 +1,7 @@
 package com.refit.app.ui.composable.combiking
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,17 +23,20 @@ import coil.compose.AsyncImage
 import com.refit.app.ui.theme.LightPurple
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
+import com.refit.app.data.combination.model.CombinationDto
 
 @Composable
 fun CombinationCard(
     combination: CombinationDto,
     isSaved: Boolean,
-    onToggleSave: (Long) -> Unit
+    onToggleSave: (Long) -> Unit,
+    onClick: (Long) -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+            .clickable { onClick(combination.combinationId) },
         colors = CardDefaults.cardColors(containerColor = LightPurple),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -62,14 +66,14 @@ fun CombinationCard(
                 Spacer(Modifier.height(6.dp))
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
-                        "${combination.price}원",
+                        "${combination.discountedTotalPrice}원",
                         fontSize = 16.sp,
                         color = MainPurple,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(Modifier.width(6.dp))
                     Text(
-                        "${combination.originalPrice}원",
+                        "${combination.originalTotalPrice}원",
                         fontSize = 14.sp,
                         color = Color.Gray,
                         textDecoration = TextDecoration.LineThrough
@@ -80,7 +84,7 @@ fun CombinationCard(
 
                 // 상품 이미지
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    val images = combination.images
+                    val images = combination.productImages
                     val size = 75.dp
                     val shape = RoundedCornerShape(6.dp)
 
@@ -120,7 +124,9 @@ fun CombinationCard(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
-                    modifier = Modifier.size(28.dp),
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clickable { onToggleSave(combination.combinationId) },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
