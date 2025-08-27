@@ -1,11 +1,18 @@
 package com.refit.app.ui.screen
 
 import android.content.ContentValues
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageFormat
+import android.graphics.Matrix
+import android.graphics.Rect
+import android.graphics.YuvImage
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.ImageProxy
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -27,12 +35,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.refit.app.R
+import com.refit.app.ui.composable.analysis.PhotoUploadButton
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 import com.refit.app.ui.theme.RefitTheme
+import java.io.ByteArrayOutputStream
+
 
 @Composable
 fun AnalysisScreen() {
+    val context = LocalContext.current
+    
+    var showCamera by remember { mutableStateOf(false) }
+    var previewBytes by remember { mutableStateOf<ByteArray?>(null) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -54,7 +70,7 @@ fun AnalysisScreen() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Spacer(modifier = Modifier.height(60.dp))
+            Spacer(Modifier.height(60.dp))
 
             // 제목
             Text(
@@ -64,12 +80,11 @@ fun AnalysisScreen() {
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
                 fontFamily = Pretendard,
-                lineHeight = 34.sp
+                lineHeight = 30.sp
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(Modifier.height(14.dp))
 
-            // 설명
             Text(
                 text = "더 빠르게, 더 안전하게, 더 똑똑하게\n나만의 제품을 선택할 수 있습니다.",
                 color = Color.Gray,
@@ -78,7 +93,7 @@ fun AnalysisScreen() {
                 fontFamily = Pretendard,
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(Modifier.height(32.dp))
 
             Text(
                 text = "어떤 상품인가요?",
@@ -89,11 +104,10 @@ fun AnalysisScreen() {
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(Modifier.height(12.dp))
 
-            // 선택 상태 관리
+            // 뷰티 or 헬스 선택
             var selected by remember { mutableStateOf("뷰티") }
-
             Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -101,39 +115,58 @@ fun AnalysisScreen() {
                 OutlinedButton(
                     onClick = { selected = "뷰티" },
                     shape = RoundedCornerShape(24.dp),
-                    border = BorderStroke(1.dp, if (selected == "뷰티") MainPurple else Color.Gray),
+                    border = ButtonDefaults.outlinedButtonBorder.copy(
+                        brush = Brush.linearGradient(listOf(if (selected == "뷰티") MainPurple else Color.Gray, if (selected == "뷰티") MainPurple else Color.Gray))
+                    ),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = if (selected == "뷰티") MainPurple.copy(alpha = 0.1f) else Color.Transparent,
                         contentColor = if (selected == "뷰티") MainPurple else Color.Gray
                     )
-                ) {
-                    Text("뷰티", fontFamily = Pretendard)
-                }
+                ) { Text("뷰티", fontFamily = Pretendard) }
 
                 OutlinedButton(
                     onClick = { selected = "헬스" },
                     shape = RoundedCornerShape(24.dp),
-                    border = BorderStroke(1.dp, if (selected == "헬스") MainPurple else Color.Gray),
+                    border = ButtonDefaults.outlinedButtonBorder.copy(
+                        brush = Brush.linearGradient(listOf(if (selected == "헬스") MainPurple else Color.Gray, if (selected == "헬스") MainPurple else Color.Gray))
+                    ),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = if (selected == "헬스") MainPurple.copy(alpha = 0.1f) else Color.Transparent,
                         contentColor = if (selected == "헬스") MainPurple else Color.Gray
                     )
-                ) {
-                    Text("헬스", fontFamily = Pretendard)
+                ) { Text("헬스", fontFamily = Pretendard) }
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            // 갤러리 or 내부 카메라 연결
+            PhotoUploadButton(
+                onPickFromGallery = { uri ->
+                    // 미리보기용 - 임시
+                    previewBytes = uri?.let { u ->
+                        context.contentResolver.openInputStream(u)?.use { it.readBytes() }
+                    }
+                },
+                onOpenInAppCamera = { showCamera = true }
+            )
+
+            Spacer(Modifier.height(20.dp))
+
+            // 미리보기 - 임시
+            previewBytes?.let { bytes ->
+                val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                if (bmp != null) {
+                    Image(
+                        bitmap = bmp.asImageBitmap(),
+                        contentDescription = "preview",
+                        modifier = Modifier
+                            .size(220.dp)
+                            .padding(top = 8.dp)
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // 사진 업로드 버튼 통합
-            PhotoUploadButton { uri ->
-                uri?.let {
-                    // Uri를 이용한 처리
-                    println("선택된 이미지 URI: $it")
-                }
-            }
-
-            Spacer(modifier = Modifier.height(50.dp))
+            Spacer(Modifier.height(50.dp))
 
             Box(
                 modifier = Modifier
@@ -148,76 +181,26 @@ fun AnalysisScreen() {
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(Modifier.height(16.dp))
         }
-    }
-}
 
-@Composable
-fun PhotoUploadButton(onImageSelected: (Uri?) -> Unit) {
-    val context = LocalContext.current
-    var showDialog by remember { mutableStateOf(false) }
-    var cameraImageUri by remember { mutableStateOf<Uri?>(null) }
-
-    // 갤러리 선택
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri -> onImageSelected(uri) }
-
-    // 카메라 촬영
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) {
-            onImageSelected(cameraImageUri)
+        // 내부 카메라
+        if (showCamera) {
+            InAppCameraScreen(
+                onCancel = { showCamera = false },
+                onCroppedBytes = { bytes ->
+                    // TODO: 여기서 bytes를 API로 업로드
+                    previewBytes = bytes // 미리보기 업데이트 - 임시!
+                    showCamera = false
+                }
+            )
         }
-    }
-
-    Button(
-        onClick = { showDialog = true },
-        modifier = Modifier
-            .width(250.dp)
-            .height(56.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF6A1B9A),
-            contentColor = Color.White
-        ),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Text(text = "+ 사진 업로드", fontSize = 17.sp, fontFamily = Pretendard)
-    }
-
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text("이미지 선택") },
-            text = {},
-            confirmButton = {
-                TextButton(onClick = {
-                    galleryLauncher.launch("image/*")
-                    showDialog = false
-                }) { Text("갤러리") }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    // 카메라용 Uri 생성
-                    val resolver = context.contentResolver
-                    val contentValues = ContentValues().apply {
-                        put(MediaStore.MediaColumns.DISPLAY_NAME, "photo_${System.currentTimeMillis()}")
-                        put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-                    }
-                    cameraImageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-                    cameraImageUri?.let { cameraLauncher.launch(it) }
-                    showDialog = false
-                }) { Text("카메라") }
-            }
-        )
     }
 }
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun PreviewIngredientAnalysisScreen() {
+fun PreviewAnalysisScreen() {
     RefitTheme {
         AnalysisScreen()
     }

@@ -38,8 +38,8 @@ fun IngredientSection(
         Surface(color = Color(0xFFF2F3F5), shape = RoundedCornerShape(16.dp)) {
             FlowRow(
                 modifier = Modifier.padding(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp), // ✅ 변경
-                verticalArrangement = Arrangement.spacedBy(8.dp)    // ✅ 변경
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 if (chips.isEmpty()) {
                     Text("해당되는 성분이 없어요", color = Color.Gray, modifier = Modifier.padding(4.dp))
