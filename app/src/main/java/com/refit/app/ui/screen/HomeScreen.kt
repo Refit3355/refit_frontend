@@ -1,6 +1,5 @@
 package com.refit.app.ui.screen
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -17,7 +16,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 import androidx.navigation.NavHostController
-import com.google.gson.Gson
 import com.refit.app.R
 import com.refit.app.data.auth.model.HealthInfoDto
 import com.refit.app.ui.composable.home.GreetingCard
