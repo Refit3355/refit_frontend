@@ -271,7 +271,7 @@ fun MainScreenWithBottomNav(
                 composable("my") { MypageScreen(navController) }
 
                 // 검색/알림/장바구니
-                composable("notifications") { NotificationScreen(navController) }
+                composable("notifications") { NotificationScreen() }
                 composable("cart") {
                     CartScreen(
                         navController = navController,
@@ -359,6 +359,7 @@ fun MainScreenWithBottomNav(
 
                 // 내가 생성한 조합 목록
                 composable("created_combinations") { CreatedCombinationListScreen() }
+
             }
         }
     }
