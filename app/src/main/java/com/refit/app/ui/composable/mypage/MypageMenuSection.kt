@@ -5,24 +5,32 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.refit.app.data.push.PushRegistrar
+import com.refit.app.data.push.repository.NotificationRepository
+import com.refit.app.network.RetrofitInstance
 import com.refit.app.network.TokenManager
 import com.refit.app.network.UserPrefs
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
+import kotlinx.coroutines.launch
 
 @Composable
 fun MypageMenuSection(navController: NavController) {
+    val scope = rememberCoroutineScope()
+    val ctx = LocalContext.current
+
     Column(Modifier.padding(horizontal = 16.dp)) {
         // 찜 목록
         Row(
@@ -76,11 +84,21 @@ fun MypageMenuSection(navController: NavController) {
             Modifier
                 .fillMaxWidth()
                 .clickable {
-                    TokenManager.clearAll()
-                    UserPrefs.clear()
-                    navController.navigate("auth/login") {
-                        popUpTo("home") { inclusive = true }
-                        launchSingleTop = true
+                    scope.launch {
+                        val repo = NotificationRepository()
+
+                        // 1) 서버 등록 해제 + 로컬 FCM 토큰 폐기 (인증 살아있을 때)
+                        PushRegistrar.unregister(ctx, repo)
+
+                        // 2) 인증정보/유저정보 삭제
+                        TokenManager.clearAll()
+                        UserPrefs.clear()
+
+                        // 3) 이동
+                        navController.navigate("auth/login") {
+                            popUpTo("home") { inclusive = true }
+                            launchSingleTop = true
+                        }
                     }
                 }
                 .padding(vertical = 12.dp)

@@ -272,7 +272,7 @@ fun MainScreenWithBottomNav(
                 composable("my") { MypageScreen(navController) }
 
                 // 검색/알림/장바구니
-                composable("notifications") { NotificationScreen(navController) }
+                composable("notifications") { NotificationScreen() }
                 composable("cart") {
                     CartScreen(
                         navController = navController,
@@ -372,7 +372,6 @@ fun MainScreenWithBottomNav(
                         combinationId = combinationId
                     )
                 }
-
             }
         }
     }
