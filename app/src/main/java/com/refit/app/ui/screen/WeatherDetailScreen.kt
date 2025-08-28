@@ -2,7 +2,6 @@ package com.refit.app.ui.screen
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.graphics.Color
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,20 +15,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.github.mikephil.charting.charts.LineChart as MpLineChart
-import com.github.mikephil.charting.data.*
-import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.LocationServices
 import com.refit.app.R
 import com.refit.app.ui.theme.Pretendard
-import com.refit.app.ui.theme.MainPurple
 import com.refit.app.data.weather.modelAndView.WeatherViewModel
+import com.refit.app.ui.composable.weather.WeatherChart
 
 @OptIn(ExperimentalPermissionsApi::class)
 @SuppressLint("MissingPermission")
@@ -119,69 +114,17 @@ fun WeatherDetailScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        WeatherChart(title = "최근 기온 기록", values = uiState.maxTemps, unit = "℃", iconRes = R.drawable.jellbbo_sunny)
+        val chartTemps = remember(uiState.maxTemps, uiState.temperature) {
+            uiState.maxTemps.toMutableList().apply {
+                if (uiState.temperature != null && isNotEmpty()) {
+                    this[lastIndex] = uiState.temperature!!
+                }
+            }
+        }
+
+        WeatherChart(title = "최근 기온 기록", values = chartTemps, unit = "℃", iconRes = R.drawable.jellbbo_sunny)
         WeatherChart(title = "최근 습도 기록", values = uiState.humidities, unit = "%", iconRes = R.drawable.jellbbo_humid)
         WeatherChart(title = "최근 강수량 기록", values = uiState.precipitations, unit = "mm", iconRes = R.drawable.jellbbo_rainy)
         WeatherChart(title = "최근 적설량 기록", values = uiState.snowfalls, unit = "cm", iconRes = R.drawable.jellbbo_snow)
     }
-}
-
-@Composable
-fun WeatherChart(title: String, values: List<Double>, unit: String, iconRes: Int) {
-    Spacer(Modifier.height(24.dp))
-    Row(verticalAlignment = Alignment.CenterVertically
-    ) {
-        Image(
-            painter = painterResource(id = iconRes),
-            contentDescription = title,
-            modifier = Modifier.size(24.dp)
-        )
-        Spacer(modifier = Modifier.width(6.dp))
-        Text(title, style = MaterialTheme.typography.titleMedium.copy(fontFamily = Pretendard))
-    }
-    Spacer(Modifier.height(8.dp))
-
-    AndroidView(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(220.dp),
-        factory = { ctx ->
-            MpLineChart(ctx).apply {
-                val entries = values.mapIndexed { idx, value ->
-                    Entry(idx.toFloat(), value.toFloat())
-                }
-                val dataSet = LineDataSet(entries, "$title ($unit)").apply {
-                    color = MainPurple.hashCode()
-                    valueTextColor = Color.BLACK
-                    lineWidth = 2f
-                    setDrawCircles(true)
-                    setCircleColor(MainPurple.hashCode())
-                    circleRadius = 4f
-                }
-                data = LineData(dataSet)
-
-                description.isEnabled = false
-                axisRight.isEnabled = false
-                xAxis.granularity = 1f
-                xAxis.setDrawGridLines(false)
-                axisLeft.setDrawGridLines(false)
-                legend.isEnabled = false
-
-                val totalDays = values.size
-                xAxis.valueFormatter = object : ValueFormatter() {
-                    override fun getFormattedValue(value: Float): String {
-                        val idx = value.toInt()
-                        val daysAgo = (totalDays - 1) - idx
-                        return if (daysAgo == 0) "오늘(예보)" else "${daysAgo}일 전"
-                    }
-                }
-
-                axisLeft.valueFormatter = object : ValueFormatter() {
-                    override fun getFormattedValue(value: Float): String {
-                        return "${value.toInt()}$unit"
-                    }
-                }
-            }
-        }
-    )
 }

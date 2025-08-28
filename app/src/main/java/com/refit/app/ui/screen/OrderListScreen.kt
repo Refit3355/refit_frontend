@@ -71,7 +71,7 @@ fun OrderListScreen(
                                     color = Color.Black
                                 )
                                 Text(
-                                    text = "주문번호 ${firstItem.orderNumber}",
+                                    text = "주문번호 ${firstItem.orderCode}",
                                     fontFamily = Pretendard,
                                     fontSize = 13.sp,
                                     color = Color.Gray
