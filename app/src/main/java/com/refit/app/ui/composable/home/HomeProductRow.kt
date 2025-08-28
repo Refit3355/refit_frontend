@@ -14,6 +14,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.refit.app.data.local.wish.WishViewModel
 import com.refit.app.data.product.model.Product
 import com.refit.app.ui.composable.product.ProductCard
+import androidx.compose.foundation.layout.heightIn
 
 @Composable
 fun HomeProductRow(
@@ -27,7 +28,7 @@ fun HomeProductRow(
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp), // 카드 간격
-        modifier = modifier
+        modifier = modifier.heightIn(min = 280.dp)
     ) {
         items(products) { p ->
             ProductCard(

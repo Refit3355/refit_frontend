@@ -20,6 +20,8 @@ fun LabeledField(
     placeholder: String = "",
     modifier: Modifier = Modifier,
     singleLine: Boolean = true,
+    readOnly: Boolean = false,
+    enabled: Boolean = true,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     trailing: @Composable (() -> Unit)? = null,
     labelTextStyle: TextStyle = MaterialTheme.typography.labelLarge,
@@ -33,7 +35,7 @@ fun LabeledField(
 
         OutlinedTextField(
             value = value,
-            onValueChange = onValueChange,
+            onValueChange = { if (!readOnly) onValueChange(it) },
             singleLine = singleLine,
             visualTransformation = visualTransformation,
             modifier = Modifier.fillMaxWidth(),
@@ -41,6 +43,8 @@ fun LabeledField(
             trailingIcon = trailing,
             supportingText = supportingText,
             textStyle = textStyle,
+            readOnly = readOnly,
+            enabled = enabled,
             placeholder = {
                 Text(
                     text = placeholder,
@@ -68,7 +72,7 @@ fun LabeledField(
 
                 focusedPlaceholderColor = Color(0xFF9E9E9E),
                 unfocusedPlaceholderColor = Color(0xFF9E9E9E),
-                disabledPlaceholderColor = Color.Gray,
+                disabledPlaceholderColor = Color(0xFFBDBDBD),
                 errorPlaceholderColor = Color.Red
             )
         )

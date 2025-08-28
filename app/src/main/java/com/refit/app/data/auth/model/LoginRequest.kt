@@ -9,5 +9,7 @@ data class LoginResponse(
     val memberId: Long,
     val nickname: String,
     val health: HealthInfoDto?,
+    val hair: HairInfoDto?,
+    val skin: SkinInfoDto?,
     val refreshToken: String?
 )

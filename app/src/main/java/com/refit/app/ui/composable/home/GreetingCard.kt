@@ -25,9 +25,12 @@ import androidx.compose.ui.unit.sp
 import com.refit.app.R
 import com.refit.app.ui.theme.MainPurple
 import androidx.compose.foundation.border
+import coil.compose.AsyncImage
+import com.refit.app.network.UserPrefs
 
 @Composable
 fun GreetingCard(nickname: String, tags: List<String>) {
+    val profileUrl = UserPrefs.getProfileUrl()
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -42,8 +45,8 @@ fun GreetingCard(nickname: String, tags: List<String>) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             // 프사
-            Image(
-                painter = painterResource(R.drawable.jellbbo_default),
+            AsyncImage(
+                model = profileUrl,
                 contentDescription = null,
                 modifier = Modifier
                     .size(72.dp)

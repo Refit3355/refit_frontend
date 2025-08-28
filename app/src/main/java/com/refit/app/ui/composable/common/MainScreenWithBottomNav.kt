@@ -7,14 +7,12 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.navigation.navDeepLink
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -34,7 +32,6 @@ import com.refit.app.ui.screen.CategoryScreen
 import com.refit.app.ui.screen.CommunityScreen
 import com.refit.app.ui.screen.HomeScreen
 import com.refit.app.ui.screen.LoginScreen
-import com.refit.app.ui.screen.MyScreen
 import com.refit.app.ui.screen.MyfitEditScreen
 import com.refit.app.ui.screen.MyfitRegisterScreen
 import com.refit.app.ui.screen.MyfitScreen
@@ -51,14 +48,33 @@ import com.refit.app.ui.screen.SignupStep3Screen
 import com.refit.app.ui.screen.SplashScreen
 import com.refit.app.ui.screen.WishScreen
 import androidx.compose.ui.Alignment
-import androidx.navigation.navDeepLink
 import com.refit.app.BuildConfig
-import com.refit.app.data.myfit.viewmodel.MyfitViewModel
-import com.refit.app.data.auth.modelAndView.SignupViewModel
+import com.refit.app.ui.screen.AnalysisScreen
+import com.refit.app.ui.screen.CombinationDetailScreen
+import com.refit.app.ui.screen.CreatedCombinationListScreen
+import com.refit.app.ui.screen.LikedCombinationListScreen
+import com.refit.app.ui.screen.MypageScreen
+import com.refit.app.ui.screen.OrderListScreen
+import com.refit.app.ui.screen.EditBasicInfoScreen
+import com.refit.app.ui.screen.HealthEditScreen
+import com.refit.app.ui.screen.SignupFlowScreen
+import com.refit.app.data.auth.modelAndView.FormMode
+import com.refit.app.data.auth.modelAndView.KakaoFlowStore
+import com.refit.app.ui.screen.AnalysisScreen
+import com.refit.app.ui.screen.CombinationDetailScreen
+import com.refit.app.ui.screen.CreatedCombinationListScreen
+import com.refit.app.ui.screen.LikedCombinationListScreen
+import com.refit.app.ui.screen.MypageScreen
+import com.refit.app.ui.screen.OrderListScreen
+import com.refit.app.ui.screen.EditBasicInfoScreen
+import com.refit.app.ui.screen.HealthEditScreen
+import com.refit.app.ui.screen.SignupFlowScreen
 import com.refit.app.data.order.model.decodeDraftOrderRequest
 import com.refit.app.ui.screen.order.OrderSheetScreen
 import com.refit.app.ui.screen.order.PayFailScreen
 import com.refit.app.ui.screen.order.TossWebViewScreen
+import com.refit.app.data.myfit.viewmodel.MyfitViewModel
+import com.refit.app.data.auth.modelAndView.SignupViewModel
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -158,10 +174,17 @@ fun MainScreenWithBottomNav(
                         }
                         val vm: SignupViewModel = viewModel(parentEntry)
 
+                        // KakaoFlowStore에서 프리필 값 수집
+                        val prefillNick by KakaoFlowStore.prefillNickname.collectAsState()
+                        val prefillEmail by KakaoFlowStore.prefillEmail.collectAsState()
+
                         SignupStep1Screen(
+                            mode = FormMode.SIGNUP,
                             onBack = { navController.popBackStack() },
                             onNextOrSubmit = { navController.navigate("auth/signup2") },
-                            onSearchAddress = { /* 주소 검색 */ },
+                            onSearchAddress = { /* 주소검색 다이얼로그 열기 */ },
+                            prefillNickname = prefillNick,
+                            prefillEmail = prefillEmail,
                             vm = vm
                         )
                     }
@@ -171,6 +194,11 @@ fun MainScreenWithBottomNav(
                             navController.getBackStackEntry("auth/signup")
                         }
                         val vm: SignupViewModel = viewModel(parentEntry)
+
+                        // KakaoFlowStore에서 토큰/아이디 수집
+                        val kakaoToken by KakaoFlowStore.kakaoAccessToken.collectAsState()
+                        val kakaoId    by KakaoFlowStore.kakaoId.collectAsState()
+                        val kakaoVm: com.refit.app.data.auth.modelAndView.KakaoLoginViewModel = viewModel(parentEntry)
 
                         SignupStep2Screen(
                             selectedSkinType = vm.uiState.skinType,
@@ -183,21 +211,56 @@ fun MainScreenWithBottomNav(
                             onToggleHealthConcern = vm::toggleHealthConcern,
                             onBack = { navController.popBackStack() },
                             onNextOrSubmit = {
-                                // 가입 API 호출
-                                vm.submitSignup(
-                                    onSuccess = { _ ->
-                                        val nick = vm.uiState.nickname
-                                        val encoded = URLEncoder.encode(nick, StandardCharsets.UTF_8.name())
-                                        navController.navigate("auth/signup3?nickname=$encoded") {
-                                        }
-                                    },
-                                    onError = { msg ->
-                                        // TODO: 스낵바/토스트 등으로 msg 표시
-                                    }
-                                )
+                                val req = vm.buildSignupAllRequest()
+
+                                if (!kakaoToken.isNullOrBlank() && !kakaoId.isNullOrBlank()) {
+                                    kakaoVm.signupWithKakao(
+                                        kakaoAccessToken = kakaoToken!!,
+                                        signupAll = req,
+                                        kakaoId = kakaoId!!,
+                                        onSuccessLogin = {
+                                            val nick = vm.uiState.nickname
+                                            val encoded = URLEncoder.encode(nick, StandardCharsets.UTF_8.name())
+                                            KakaoFlowStore.clear()
+                                            navController.navigate("auth/signup3?nickname=$encoded")
+                                        },
+                                        onError = { /* TODO: 에러 표시 */ }
+                                    )
+                                } else {
+                                    // 일반 회원가입
+                                    vm.submitSignup(
+                                        onSuccess = {
+                                            val nick = vm.uiState.nickname
+                                            val encoded = URLEncoder.encode(nick, StandardCharsets.UTF_8.name())
+                                            navController.navigate("auth/signup3?nickname=$encoded")
+                                        },
+                                        onError = { /* TODO: 에러 표시 */ }
+                                    )
+                                }
                             },
-                            // 입력 전체(valid) + step2 선택(skinType) 둘 다 만족해야 버튼 활성화
                             submitEnabled = vm.isStep2Valid && vm.isValid
+                        )
+                    }
+
+                    composable("account/edit") {
+                        EditBasicInfoScreen(
+                            onBack = { navController.popBackStack() },
+                            onSaved = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable("account/health/edit") {
+                        HealthEditScreen(
+                            onBack = { navController.popBackStack() },
+                            onSaved = {
+                                // 저장 성공 알림(임시) → 마이페이지로
+                                navController.navigate("my") {
+                                    popUpTo("account/health/edit") { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            }
                         )
                     }
 
@@ -224,10 +287,13 @@ fun MainScreenWithBottomNav(
                 composable("category") { CategoryScreen(navController) }
                 composable("myfit") { MyfitScreen(navController = navController) }
                 composable("community") { CommunityScreen(navController) }
-                composable("my") { MyScreen(navController) }
+                composable("my") { MypageScreen(navController) }
+
+                // 성분 분석
+                composable("ingredient") { AnalysisScreen() }
 
                 // 검색/알림/장바구니
-                composable("notifications") { NotificationScreen(navController) }
+                composable("notifications") { NotificationScreen() }
                 composable("cart") {
                     CartScreen(
                         navController = navController,
@@ -306,6 +372,28 @@ fun MainScreenWithBottomNav(
                         }
                     }
                 }
+
+                // 내가 저장한 조합 목록
+                composable("liked_combinations") { LikedCombinationListScreen() }
+
+                // 내 주문 내역
+                composable("orders") { OrderListScreen(navController) }
+
+                // 내가 생성한 조합 목록
+                composable("created_combinations") { CreatedCombinationListScreen() }
+
+                // 조합 상세 페이지
+                composable(
+                    route = "combinationDetail/{combinationId}",
+                    arguments = listOf(navArgument("combinationId") { type = NavType.LongType })
+                ) { backStackEntry ->
+                    val combinationId = backStackEntry.arguments?.getLong("combinationId") ?: return@composable
+                    CombinationDetailScreen(
+                        navController = navController,
+                        combinationId = combinationId
+                    )
+                }
+
 
                 // 문자열 인코딩 유틸
                 fun enc(s: String) = java.net.URLEncoder.encode(s, "utf-8")
@@ -432,4 +520,3 @@ fun MainScreenWithBottomNav(
         }
     }
 }
-

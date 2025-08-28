@@ -1,5 +1,7 @@
 package com.refit.app.data.product.model
 
+import com.google.gson.annotations.SerializedName
+
 data class ProductListResponse(
     val items: List<ProductDto>,
     val totalCount: Int,
@@ -18,6 +20,7 @@ data class Product(
 )
 
 data class ProductDto(
+    @SerializedName(value = "id", alternate = ["productId"])
     val id: Long,
     val thumbnailUrl: String,
     val brandName: String,

@@ -65,7 +65,7 @@ fun SignupStep2Screen(
         },
         bottomBar = {
             Button(
-                onClick = onNextOrSubmit,
+                onClick = onNextOrSubmit, // ← 상위 컨테이너에서 로직 처리
                 enabled = submitEnabled,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -122,7 +122,6 @@ fun SignupStep2Screen(
                 fontFamily = Pretendard
             )
 
-            // 본문 카드
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10),
@@ -182,37 +181,7 @@ fun SignupStep2Screen(
                 }
             }
 
-            // 스크롤 끝에 살짝 여백 (하단 버튼과 겹치지 않게)
             Spacer(Modifier.height(8.dp))
         }
-    }
-}
-
-
-@Preview(showBackground = true, widthDp = 420, heightDp = 1000)
-@Composable
-private fun PreviewSignupStep2Hoisted() {
-    MaterialTheme {
-        var skinType by remember { mutableStateOf<String?>(null) }
-        var skinC by remember { mutableStateOf(setOf<String>()) }
-        var scalpC by remember { mutableStateOf(setOf<String>()) }
-        var healthC by remember { mutableStateOf(setOf<String>()) }
-
-        fun toggle(set: Set<String>, item: String): Set<String> =
-            if (item in set) set - item else set + item
-
-        SignupStep2Screen(
-            selectedSkinType = skinType,
-            selectedSkinConcerns = skinC,
-            selectedScalpConcerns = scalpC,
-            selectedHealthConcerns = healthC,
-            onSkinTypeChange = { skinType = it },
-            onToggleSkinConcern = { skinC = toggle(skinC, it) },
-            onToggleScalpConcern = { scalpC = toggle(scalpC, it) },
-            onToggleHealthConcern = { healthC = toggle(healthC, it) },
-            onBack = {},
-            onNextOrSubmit = {},
-            submitEnabled = (skinType != null)
-        )
     }
 }

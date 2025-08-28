@@ -19,12 +19,28 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.services)
     id("org.jetbrains.kotlin.plugin.serialization") version "2.0.21"
 }
 
 android {
     namespace = "com.refit.app"
     compileSdk = 36
+
+    packaging {
+        resources {
+            // 멀티-릴리즈 JAR 영역 전체 제외 (안드로이드에서 필요 없음)
+            excludes += "META-INF/versions/**"
+
+            // 흔한 충돌 메타데이터도 함께 제외
+            excludes += setOf(
+                "META-INF/DEPENDENCIES",
+                "META-INF/NOTICE*",
+                "META-INF/LICENSE*",
+                "META-INF/*.kotlin_module"
+            )
+        }
+    }
 
     defaultConfig {
         applicationId = "com.refit.app"
@@ -34,6 +50,24 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // local.properties 로드
+        val props = Properties().apply {
+            load(rootProject.file("local.properties").inputStream())
+        }
+        val kakaoAppKey = (props.getProperty("KAKAO_NATIVE_APP_KEY") ?: "").trim()
+
+        // 값 없으면 빌드 단계에서 바로 실패시켜 원인 명확화
+        require(kakaoAppKey.isNotEmpty()) {
+            "KAKAO_NATIVE_APP_KEY is missing or blank in local.properties"
+        }
+
+        // Manifest 치환
+        manifestPlaceholders["KAKAO_APP_KEY"] = kakaoAppKey
+        manifestPlaceholders["KAKAO_SCHEME"] = "kakao$kakaoAppKey"
+
+        // 코드용 BuildConfig
+        buildConfigField("String", "KAKAO_NATIVE_APP_KEY", "\"$kakaoAppKey\"")
     }
 
     buildTypes {
@@ -49,6 +83,11 @@ android {
                 "String",
                 "TOSS_CLIENT_KEY",
                 "\"${escForBuildConfig(tossClientKey)}\""
+            )
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
             )
 
             if (tossClientKey.isBlank()) {
@@ -82,6 +121,8 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.android)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.i18n)
+    implementation(libs.identity.android.legacy)
+    implementation(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -130,4 +171,24 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
 
+    // 카카오 로그인
+    implementation("com.kakao.sdk:v2-all:2.20.6")
+    implementation("com.kakao.sdk:v2-user:2.20.6")
+
+    // 이미지 미리보기
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.7.3")
+    val cameraX = "1.3.4"
+    implementation("androidx.camera:camera-core:$cameraX")
+    implementation("androidx.camera:camera-camera2:$cameraX")
+    implementation("androidx.camera:camera-lifecycle:$cameraX")
+    implementation("androidx.camera:camera-view:$cameraX")
+
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
+    implementation("com.google.firebase:firebase-messaging")
+
+}
+
+configurations.all {
+    exclude(group = "com.intellij", module = "annotations")
 }
