@@ -29,7 +29,7 @@ fun OtherMessageBubble(
         if (showAvatarAndName) {
             Avatar(profileUrl = msg.profileUrl)
         } else {
-            Spacer(Modifier.size(36.dp)) // 아바타 자리 유지(정렬 안정)
+            Spacer(Modifier.size(42.dp)) // 아바타 자리 유지(정렬 안정)
         }
         Spacer(Modifier.width(8.dp))
 
