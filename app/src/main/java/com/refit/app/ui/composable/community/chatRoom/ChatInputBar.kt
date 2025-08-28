@@ -79,14 +79,14 @@ fun ChatInputBar(
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 modifier = Modifier
                     .weight(1f)
-                    .heightIn(min = 34.dp, max = 60.dp) // 대략 1~2줄
+                    .heightIn(min = 40.dp, max = 60.dp) // 대략 1~2줄
                     .verticalScroll(scroll),
                 decorationBox = { inner ->
                     // 내부 패딩 완전 최소화
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 26.dp, vertical = 2.dp),
+                            .padding(horizontal = 26.dp, vertical = 8.dp),
                         contentAlignment = Alignment.CenterStart
                     ) {
                         if (value.text.isBlank()) {

@@ -71,7 +71,7 @@ fun ChatRoomScreen(
     val imeHeightPx = WindowInsets.ime.getBottom(density)  // 0보다 크면 보이는 중
     val isImeVisible = imeHeightPx > 0
     val inputBarHeight = 14.dp
-    val extraGap = if (isImeVisible) 20.dp else 8.dp
+    val extraGap = if (isImeVisible) 10.dp else 8.dp
 
     LaunchedEffect(isImeVisible, uiItems.size) {
         if (uiItems.isNotEmpty()) {
