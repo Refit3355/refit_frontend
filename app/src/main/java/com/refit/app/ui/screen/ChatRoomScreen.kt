@@ -40,7 +40,17 @@ fun ChatRoomScreen(
 
 
     // 초기 로드
-    LaunchedEffect(categoryId) { vm.loadInitial(categoryId, size = 20) }
+    LaunchedEffect(categoryId) {
+        vm.loadInitial(categoryId, size = 20)              // 1) 초기 HTTP 로드
+
+        // 에뮬레이터 ← PC 서버에 연결
+        val wsUrl = "ws://10.0.2.2:8080/ws-stomp"
+        vm.connectRealtime(categoryId, wsUrl)
+    }
+
+    DisposableEffect(Unit) {
+        onDispose { vm.disconnectRealtime() }              // 3) 화면 떠날 때 종료
+    }
 
     // 초기 로드 완료 후 맨 아래로 이동(최신 메시지)
     var didScrollToBottom by remember { mutableStateOf(false) }
@@ -185,7 +195,7 @@ fun ChatRoomScreen(
                     onSend = {
                         val text = input.text.trim()
                         if (text.isNotEmpty()) {
-                            // TODO: vm.sendMessage(categoryId, text)
+                            vm.sendRealtime(categoryId, text)
                             input = TextFieldValue("")
                         }
                     }

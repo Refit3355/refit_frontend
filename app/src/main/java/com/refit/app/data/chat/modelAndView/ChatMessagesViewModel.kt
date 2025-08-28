@@ -6,7 +6,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.refit.app.data.chat.model.ChatMessage
+import com.refit.app.data.chat.repository.ChatSocketRepository
 import com.refit.app.data.chat.usecase.GetChatMessagesPageUseCase
+import com.refit.app.network.TokenManager
+import com.refit.app.network.UserPrefs
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -27,6 +30,8 @@ class ChatMessagesViewModel(
         private set
 
     private var loadJob: Job? = null
+    private var socketRepo: ChatSocketRepository? = null
+
 
     fun loadInitial(categoryId: Long, size: Int = 20) {
         loadJob?.cancel()
@@ -71,5 +76,42 @@ class ChatMessagesViewModel(
                     uiState = uiState.copy(isLoadingOlder = false, error = e.message)
                 }
         }
+    }
+
+    fun connectRealtime(categoryId: Long, wsUrl: String) {
+        if (socketRepo != null) return
+        socketRepo = ChatSocketRepository(
+            wsUrl = wsUrl,
+            connectHeadersProvider = {
+                buildMap {
+                    TokenManager.getAccessToken()?.let { put("Authorization", "Bearer $it") }
+                    UserPrefs.getNickname()?.let { put("nickname", it) }
+                    UserPrefs.getMemberId()?.let { put("memberId", it.toString()) }
+                }
+            }
+        ).also { repo ->
+            viewModelScope.launch {
+                repo.incoming.collect { msg ->
+                    // 수신 → 리스트 뒤에 붙여 최신 반영
+                    uiState = uiState.copy(messages = uiState.messages + msg)
+                }
+            }
+            repo.connectAndSubscribe(categoryId)
+        }
+    }
+
+    fun sendRealtime(categoryId: Long, text: String) {
+        val memberId = UserPrefs.getMemberId() ?: return
+        socketRepo?.sendMessage(categoryId, memberId, text)
+    }
+
+    fun disconnectRealtime() {
+        socketRepo?.disconnect()
+        socketRepo = null
+    }
+
+    override fun onCleared() {
+        disconnectRealtime()
+        super.onCleared()
     }
 }
