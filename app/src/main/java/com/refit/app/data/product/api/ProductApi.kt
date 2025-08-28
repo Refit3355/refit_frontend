@@ -4,11 +4,13 @@ import com.refit.app.data.product.model.ProductDetailResponse
 import com.refit.app.data.product.model.ProductDto
 import com.refit.app.data.product.model.ProductListResponse
 import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ProductApi {
     @GET("products")
+    @Headers("Requires-Auth: true")
     suspend fun getProducts(
         @Query("sort") sort: String,
         @Query("limit") limit: Int = 20,
@@ -18,11 +20,13 @@ interface ProductApi {
     ): ProductListResponse
 
     @GET("products/{id}")
+    @Headers("Requires-Auth: true")
     suspend fun getProductDetail(
         @Path("id") id: Int
     ): ProductDetailResponse
 
     @GET("products/search")
+    @Headers("Requires-Auth: true")
     suspend fun searchProducts(
         @Query("q") q: String,
         @Query("cursor") cursor: String? = null,
@@ -31,6 +35,7 @@ interface ProductApi {
     ): ProductListResponse
 
     @GET("products/popular")
+    @Headers("Requires-Auth: true")
     suspend fun getPopularProducts(
         @Query("limit") limit: Int = 10
     ): List<ProductDto>

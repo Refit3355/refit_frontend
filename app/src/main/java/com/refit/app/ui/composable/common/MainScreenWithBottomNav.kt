@@ -1,11 +1,17 @@
 package com.refit.app.ui.composable.common
 
+import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +32,6 @@ import androidx.navigation.navArgument
 import com.refit.app.ui.screen.CartScreen
 import com.refit.app.ui.screen.CategoryScreen
 import com.refit.app.ui.screen.CommunityScreen
-import com.refit.app.ui.screen.HealthScreen
 import com.refit.app.ui.screen.HomeScreen
 import com.refit.app.ui.screen.LoginScreen
 import com.refit.app.ui.screen.MyScreen
@@ -46,8 +51,14 @@ import com.refit.app.ui.screen.SignupStep3Screen
 import com.refit.app.ui.screen.SplashScreen
 import com.refit.app.ui.screen.WishScreen
 import androidx.compose.ui.Alignment
+import androidx.navigation.navDeepLink
+import com.refit.app.BuildConfig
 import com.refit.app.data.myfit.viewmodel.MyfitViewModel
 import com.refit.app.data.auth.modelAndView.SignupViewModel
+import com.refit.app.data.order.model.decodeDraftOrderRequest
+import com.refit.app.ui.screen.order.OrderSheetScreen
+import com.refit.app.ui.screen.order.PayFailScreen
+import com.refit.app.ui.screen.order.TossWebViewScreen
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -65,7 +76,7 @@ fun MainScreenWithBottomNav(
     val currentRoute = navBackStackEntry?.destination?.route ?: "home"
 
     val bottomTabs = listOf("home", "category", "myfit", "community", "my", "sleepDetail", "stepsDetail", "weatherDetail")
-    val noBottomTabs = listOf("myfit/register", "myfit/edit")
+    val noBottomTabs = listOf("myfit/register", "myfit/edit", "checkout/")
 
     // 스플래시/인증 경로에서는 상단 및 하단 바 숨김 처리
     val hideBars = currentRoute == "splash" || currentRoute.startsWith("auth/")
@@ -295,7 +306,130 @@ fun MainScreenWithBottomNav(
                         }
                     }
                 }
+
+                // 문자열 인코딩 유틸
+                fun enc(s: String) = java.net.URLEncoder.encode(s, "utf-8")
+
+                navigation(
+                    startDestination = NavRoutes.OrderSheet,
+                    route = NavRoutes.CheckoutRoot
+                ) {
+                    // 주문서 화면
+                    composable(
+                        route = NavRoutes.OrderSheet,
+                        arguments = listOf(
+                            navArgument("payload") {
+                                type = NavType.StringType
+                            } // DraftOrderRequest 를 JSON+URL-encode로 전달
+                        )
+                    ) { back ->
+                        // payload를 복원해서 DraftOrderRequest 로 파싱
+                        val payload = back.arguments?.getString("payload").orEmpty()
+                        val draftReq = decodeDraftOrderRequest(payload)  // TODO: 구현
+
+                        OrderSheetScreen(
+                            navController = navController,
+                            draftReq = draftReq,
+                            clientKey = BuildConfig.TOSS_CLIENT_KEY,
+                            successUrl = "refitapp://pay/success",
+                            failUrl = "refitapp://pay/fail"
+                        )
+                    }
+
+                    composable(
+                        route =
+                            "tossPay?orderId={orderId}" +
+                                    "&orderName={orderName}" +
+                                    "&amount={amount}" +
+                                    "&method={method}" +
+                                    "&successUrl={successUrl}" +
+                                    "&failUrl={failUrl}",
+                        arguments = listOf(
+                            navArgument("orderId")   { type = NavType.StringType },  // "ORD-..." ← String
+                            navArgument("orderName") { type = NavType.StringType },
+                            navArgument("amount")    { type = NavType.LongType },
+                            navArgument("method")    { type = NavType.StringType },
+                            navArgument("successUrl"){ type = NavType.StringType },
+                            navArgument("failUrl")   { type = NavType.StringType },
+                        )
+                    ) { backStackEntry ->
+                        val args      = backStackEntry.arguments!!
+                        val orderId   = args.getString("orderId")!!
+                        val orderName = args.getString("orderName")!!
+                        val amount    = args.getLong("amount")
+                        val method    = args.getString("method")!!
+                        val success   = Uri.decode(args.getString("successUrl") ?: "")
+                        val fail      = Uri.decode(args.getString("failUrl") ?: "")
+
+                        Log.d("TOSS", BuildConfig.TOSS_CLIENT_KEY.take(8))
+                        TossWebViewScreen(
+                            navController = navController,
+                            orderId = orderId,
+                            orderName = orderName,
+                            amount = amount,
+                            method = method,
+                            clientKey = BuildConfig.TOSS_CLIENT_KEY,
+                            successUrl = success,
+                            failUrl = fail
+                        )
+                    }
+
+                    composable(
+                        route = "checkout/payResult?paymentKey={paymentKey}&orderId={orderId}&amount={amount}",
+                        deepLinks = listOf(
+                            navDeepLink {
+                                uriPattern = "refitapp://pay/success?paymentKey={paymentKey}&orderId={orderId}&amount={amount}"
+                            }
+                        ),
+                        arguments = listOf(
+                            navArgument("paymentKey") { type = NavType.StringType },
+                            navArgument("orderId")    { type = NavType.StringType },
+                            navArgument("amount")     { type = NavType.LongType }
+                        )
+                    ) { back ->
+                        val paymentKey = back.arguments!!.getString("paymentKey")!!
+                        val orderId    = back.arguments!!.getString("orderId")!!
+                        val amount     = back.arguments!!.getLong("amount")
+
+                        com.refit.app.ui.composable.order.PayResultHandler(
+                            navController = navController,
+                            paymentKey = paymentKey,
+                            orderId = orderId,
+                            amount = amount,
+                            onSuccessNavigate = { orderPk ->
+                                // 성공 후 이동 로직. orderPk가 없으면 마이페이지로 보내는 등 정책 결정
+                                if (orderPk > 0) {
+                                    navController.navigate("order/$orderPk") {
+                                        popUpTo(NavRoutes.CheckoutRoot) { inclusive = true }
+                                    }
+                                } else {
+                                    navController.navigate("my") {
+                                        popUpTo(NavRoutes.CheckoutRoot) { inclusive = true }
+                                    }
+                                }
+                            },
+                            onFailNavigate = {
+                                navController.navigate("cart") {
+                                    popUpTo(NavRoutes.CheckoutRoot) { inclusive = true }
+                                }
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = "checkout/payFail?code={code}&message={message}",
+                        arguments = listOf(
+                            navArgument("code")    { type = NavType.StringType; nullable = true; defaultValue = null },
+                            navArgument("message") { type = NavType.StringType; nullable = true; defaultValue = null },
+                        )
+                    ) { backStackEntry ->
+                        val code = backStackEntry.arguments?.getString("code") ?: "UNKNOWN"
+                        val message = backStackEntry.arguments?.getString("message") ?: ""
+                        PayFailScreen(navController = navController, code = code, message = message)
+                    }
+                }
             }
         }
     }
 }
+

@@ -1,7 +1,25 @@
+import java.util.Properties
+
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+
+val tossClientKey: String = (
+        providers.gradleProperty("TOSS_CLIENT_KEY").orNull
+            ?: localProps.getProperty("TOSS_CLIENT_KEY")
+            ?: System.getenv("TOSS_CLIENT_KEY")
+            ?: ""
+        ).trim()
+
+fun escForBuildConfig(s: String) =
+    s.replace("\\", "\\\\").replace("\"", "\\\"")
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.21"
 }
 
 android {
@@ -19,12 +37,23 @@ android {
     }
 
     buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+        debug {
+            buildConfigField(
+                "String",
+                "TOSS_CLIENT_KEY",
+                "\"${escForBuildConfig(tossClientKey)}\""
             )
+        }
+        release {
+            buildConfigField(
+                "String",
+                "TOSS_CLIENT_KEY",
+                "\"${escForBuildConfig(tossClientKey)}\""
+            )
+
+            if (tossClientKey.isBlank()) {
+                throw GradleException("TOSS_CLIENT_KEY is blank. Set it in local.properties or -P.")
+            }
         }
     }
     compileOptions {
@@ -36,6 +65,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -77,7 +107,7 @@ dependencies {
 
     // 찜 저장
     implementation("androidx.datastore:datastore-preferences:1.1.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
 
     // 날씨
     implementation("com.google.android.gms:play-services-location:21.3.0")
