@@ -1,6 +1,8 @@
 package com.refit.app.ui.composable.mypage
 
-import androidx.compose.foundation.background
+import android.view.LayoutInflater
+import android.widget.TextView
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -26,28 +28,26 @@ import com.refit.app.ui.theme.Pretendard
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
+import com.refit.app.util.order.OrderStatusMapper
 
 @Composable
-fun OrderItemRow(item: OrderItemDto, vm: OrderViewModel, cartVm: CartEditViewModel) {
+fun OrderItemRow(
+    item: OrderItemDto,
+    vm: OrderViewModel,
+    cartVm: CartEditViewModel
+) {
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
     ) {
         // 상태 텍스트
-        val statusText = when (item.status) {
-            0 -> "결제완료"
-            1 -> "배송중"
-            2 -> "배송완료"
-            3 -> "취소완료"
-            4 -> "교환 신청중"
-            5 -> "교환 완료"
-            6 -> "반품 신청중"
-            7 -> "반품 완료"
-            else -> "알수없음"
-        }
+        val statusText = OrderStatusMapper.getStatusText(item.status)
 
         Text(
             text = statusText,
@@ -107,7 +107,7 @@ fun OrderItemRow(item: OrderItemDto, vm: OrderViewModel, cartVm: CartEditViewMod
                 }
 
                 // 주문취소 버튼 (결제완료일 때만)
-                if (item.status == 0) {
+                if (item.status == 1) {
                     var showCancelDialog by remember { mutableStateOf(false) }
 
                     if (showCancelDialog) {
@@ -129,7 +129,7 @@ fun OrderItemRow(item: OrderItemDto, vm: OrderViewModel, cartVm: CartEditViewMod
                 }
 
                 // 교환/반품 버튼 (배송완료일 때만)
-                if (item.status == 2) {
+                if (item.status == 6) {
                     var showDialog by remember { mutableStateOf(false) }
 
                     if (showDialog) {
@@ -157,7 +157,21 @@ fun OrderItemRow(item: OrderItemDto, vm: OrderViewModel, cartVm: CartEditViewMod
                     .size(40.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
-                    .clickable { cartVm.addOne(item.productId, 1) },
+                    .clickable {
+                        cartVm.addOne(item.productId, 1)
+
+                        val inflater = LayoutInflater.from(context)
+                        val layout = inflater.inflate(R.layout.custom_toast, null)
+
+                        val textView = layout.findViewById<TextView>(R.id.toastText)
+                        textView.text = "${item.productName}이 장바구니에 추가되었습니다."
+
+                        Toast(context).apply {
+                            duration = Toast.LENGTH_SHORT
+                            view = layout
+                            show()
+                        }
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
