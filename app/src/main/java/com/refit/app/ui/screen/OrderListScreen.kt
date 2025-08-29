@@ -29,6 +29,7 @@ import com.refit.app.ui.theme.Pretendard
 fun OrderListScreen(
     navController: NavController,
     vm: OrderViewModel = viewModel(),
+    onCartChanged: () -> Unit
 ) {
     val state by vm.state.collectAsState()
     val api = RetrofitInstance.create(CartApi::class.java)
@@ -85,7 +86,7 @@ fun OrderListScreen(
                             }
 
                             order.items.forEach { item ->
-                                OrderItemRow(item, vm, cartVm)
+                                OrderItemRow(item, vm, cartVm, onCartChanged)
                                 Spacer(Modifier.height(12.dp))
                             }
                         }

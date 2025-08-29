@@ -270,7 +270,12 @@ fun MainScreenWithBottomNav(
                 composable("category") { CategoryScreen(navController) }
                 composable("myfit") { MyfitScreen(navController = navController) }
                 composable("community") { CommunityScreen(navController) }
-                composable("my") { MypageScreen(navController) }
+                composable("my") {
+                    MypageScreen(
+                        navController = navController,
+                        onCartChanged = onCartChanged
+                    )
+                }
 
                 // 검색/알림/장바구니
                 composable("notifications") { NotificationScreen() }
@@ -357,11 +362,17 @@ fun MainScreenWithBottomNav(
                 composable("liked_combinations") { LikedCombinationListScreen() }
 
                 // 내 주문 내역
-                composable("orders") { OrderListScreen(navController) }
+                composable("orders") {
+                    OrderListScreen(
+                        navController = navController,
+                        onCartChanged = onCartChanged
+                    )
+                }
 
                 // 내가 생성한 조합 목록
                 composable("created_combinations") { CreatedCombinationListScreen() }
 
+                // 조합 상세 페이지
                 // 조합 상세 페이지
                 composable(
                     route = "combinationDetail/{combinationId}",
@@ -370,7 +381,8 @@ fun MainScreenWithBottomNav(
                     val combinationId = backStackEntry.arguments?.getLong("combinationId") ?: return@composable
                     CombinationDetailScreen(
                         navController = navController,
-                        combinationId = combinationId
+                        combinationId = combinationId,
+                        onCartChanged = onCartChanged
                     )
                 }
 

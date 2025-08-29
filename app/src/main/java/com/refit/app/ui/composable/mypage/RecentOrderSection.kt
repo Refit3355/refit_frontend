@@ -42,6 +42,7 @@ fun RecentOrderSection(
     onClickAll: () -> Unit,
     vm: OrderViewModel,
     cartVm: CartEditViewModel,
+    onCartChanged: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -209,6 +210,7 @@ fun RecentOrderSection(
                                 .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
                                 .clickable {
                                     cartVm.addOne(item.productId, 1)
+                                    onCartChanged()
 
                                     val inflater = LayoutInflater.from(context)
                                     val layout = inflater.inflate(R.layout.custom_toast, null)

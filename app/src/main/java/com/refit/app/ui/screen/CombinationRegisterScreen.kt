@@ -8,12 +8,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,20 +24,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.refit.app.data.combination.model.CreateCombinationRequest
 import com.refit.app.data.combination.modelAndView.CombinationRegisterViewModel
-import com.refit.app.data.local.search.SearchHistoryStore
 import com.refit.app.data.product.model.Product
-import com.refit.app.data.product.modelAndView.SearchViewModel
-import com.refit.app.data.product.modelAndView.SearchViewModelFactory
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
-import kotlinx.coroutines.launch
 
 // -------------------------
 // 조합 등록 화면
 // -------------------------
 @Composable
 fun CombinationRegisterScreen(
-    onSearchClick: () -> Unit = {},
+    onSearchClick: (String) -> Unit = {},
     selectedProducts: List<Product> = emptyList(),
     vm: CombinationRegisterViewModel = viewModel(),
     onRegisterSuccess: () -> Unit = {}
@@ -112,7 +104,10 @@ fun CombinationRegisterScreen(
         Text("조합 상품 선택", fontSize = 14.sp, fontWeight = FontWeight.Medium)
         Spacer(modifier = Modifier.height(8.dp))
         Button(
-            onClick = { onSearchClick() },
+            onClick = {
+                val bh = if (type == "뷰티") "beauty" else "health"
+                onSearchClick(bh)
+            },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = MainPurple)
         ) {

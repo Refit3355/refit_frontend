@@ -44,7 +44,8 @@ import com.refit.app.util.price.PriceUtil
 fun CombinationDetailScreen(
     navController: NavController,
     combinationId: Long,
-    vm: CombinationDetailViewModel = viewModel()
+    vm: CombinationDetailViewModel = viewModel(),
+    onCartChanged: () -> Unit = {}
 ) {
     val state by vm.state.collectAsState()
     val pagerState = rememberPagerState { state.detail?.products?.size ?: 0 }
@@ -125,6 +126,8 @@ fun CombinationDetailScreen(
                                 if (items.isNotEmpty()) {
                                     cartApi.addCartItemsBulk(CartAddBulkRequest(items))
                                     snackbarHostState.showSnackbar("장바구니에 담겼습니다.")
+
+                                    onCartChanged()
                                 }
                             } catch (e: Exception) {
                                 snackbarHostState.showSnackbar("장바구니 추가 실패: ${e.message}")

@@ -27,6 +27,7 @@ import com.refit.app.network.RetrofitInstance
 fun MypageScreen(
     navController: NavController,
     vm: OrderViewModel = viewModel(),
+    onCartChanged: () -> Unit
 ) {
     val state by vm.state.collectAsState()
     val api = RetrofitInstance.create(CartApi::class.java)
@@ -64,7 +65,8 @@ fun MypageScreen(
                     order = latestOrder,
                     onClickAll = { navController.navigate("orders") },
                     vm = vm,
-                    cartVm = cartVm
+                    cartVm = cartVm,
+                    onCartChanged = onCartChanged
                 )
                 Spacer(Modifier.height(12.dp))
             }

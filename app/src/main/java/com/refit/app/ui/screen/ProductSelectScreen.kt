@@ -1,6 +1,5 @@
 package com.refit.app.ui.screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.refit.app.data.local.search.SearchHistoryStore
 import com.refit.app.data.product.model.Product
@@ -36,7 +36,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductSelectScreen(
-    navController: androidx.navigation.NavHostController? = null,
+    navController: NavController,
+    bhType: String? = null,
     onConfirm: (List<Product>) -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -44,6 +45,12 @@ fun ProductSelectScreen(
     val vm: SearchViewModel = viewModel(
         factory = SearchViewModelFactory(SearchHistoryStore(context))
     )
+
+    // ✅ bhType을 ViewModel에 반영
+    LaunchedEffect(bhType) {
+        vm.updateBhType(bhType)
+    }
+
     val uiState by vm.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -97,7 +104,6 @@ fun ProductSelectScreen(
                                         modifier = Modifier
                                             .size(18.dp)
                                             .align(Alignment.TopEnd)
-                                            .background(Color.White, CircleShape)
                                             .clip(CircleShape)
                                             .clickable {
                                                 selectedProducts = selectedProducts.filter { it.id != product.id }
