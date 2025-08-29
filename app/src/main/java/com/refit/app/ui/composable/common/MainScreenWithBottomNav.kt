@@ -74,7 +74,7 @@ fun MainScreenWithBottomNav(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: "home"
 
-    val bottomTabs = listOf("home", "category", "myfit", "community", "my", "sleepDetail", "stepsDetail", "weatherDetail")
+    val bottomTabs = listOf("home", "category", "myfit", "community", "my", "sleepDetail", "stepsDetail", "weatherDetail", "ingredient")
     val noBottomTabs = listOf("myfit/register", "myfit/edit")
 
     // 스플래시/인증 경로에서는 상단 및 하단 바 숨김 처리
@@ -273,7 +273,7 @@ fun MainScreenWithBottomNav(
                 composable("my") { MypageScreen(navController) }
 
                 // 성분 분석
-                composable("ingredient") { AnalysisScreen() }
+                composable("ingredient") { AnalysisScreen(navController) }
 
                 // 검색/알림/장바구니
                 composable("notifications") { NotificationScreen() }

@@ -90,6 +90,15 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                 onBack = { nav.popBackStack() }
             )
 
+        route == "ingredient" ->
+            AppBarConfig.BackWithActions(
+                title = "성분 분석",
+                onBack = { nav.popBackStack() },
+                onAlarmClick = { nav.navigate("notifications") },
+                onCartClick  = { nav.navigate("cart") },
+                showActions = true
+            )
+
         else ->
             AppBarConfig.BackWithActions(
                 title = when {
