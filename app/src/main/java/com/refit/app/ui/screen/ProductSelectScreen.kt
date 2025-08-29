@@ -46,7 +46,7 @@ fun ProductSelectScreen(
         factory = SearchViewModelFactory(SearchHistoryStore(context))
     )
 
-    // ✅ bhType을 ViewModel에 반영
+    // bhType을 ViewModel에 반영
     LaunchedEffect(bhType) {
         vm.updateBhType(bhType)
     }
@@ -62,7 +62,12 @@ fun ProductSelectScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         bottomBar = {
             Button(
-                onClick = { onConfirm(selectedProducts) },
+                onClick = {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("selectedProducts", selectedProducts)
+                    navController.popBackStack()
+                },
                 enabled = isValid,
                 modifier = Modifier
                     .fillMaxWidth()

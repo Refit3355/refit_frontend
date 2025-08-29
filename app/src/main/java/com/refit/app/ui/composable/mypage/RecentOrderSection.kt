@@ -210,14 +210,10 @@ fun RecentOrderSection(
                                 .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
                                 .clickable {
                                     cartVm.addOne(item.productId, 1)
-                                    onCartChanged()
-
                                     val inflater = LayoutInflater.from(context)
                                     val layout = inflater.inflate(R.layout.custom_toast, null)
-
                                     val textView = layout.findViewById<TextView>(R.id.toastText)
                                     textView.text = "${item.productName}이 장바구니에 추가되었습니다."
-
                                     Toast(context).apply {
                                         duration = Toast.LENGTH_SHORT
                                         view = layout

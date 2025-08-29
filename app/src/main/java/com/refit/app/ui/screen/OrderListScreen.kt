@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import com.refit.app.data.cart.api.CartApi
 import com.refit.app.data.cart.modelAndView.CartBadgeViewModel
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
+import com.refit.app.data.cart.modelAndView.CartOpType
 import com.refit.app.data.cart.repository.CartRepository
 import com.refit.app.data.me.modelAndView.OrderViewModel
 import com.refit.app.network.RetrofitInstance
@@ -39,6 +40,11 @@ fun OrderListScreen(
 
     LaunchedEffect(Unit) {
         vm.loadOrders()
+        cartVm.opEvents.collect { ev ->
+            if (ev.type == CartOpType.ADD_ONE && ev.success) {
+                onCartChanged()
+            }
+        }
     }
 
     when {

@@ -34,9 +34,14 @@ import com.refit.app.ui.theme.MainPurple
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.refit.app.data.cart.api.CartApi
 import com.refit.app.data.cart.model.CartAddBulkRequest
 import com.refit.app.data.cart.model.CartAddRequest
+import com.refit.app.data.cart.modelAndView.CartEditViewModel
+import com.refit.app.data.cart.modelAndView.CartOpType
+import com.refit.app.data.cart.repository.CartRepository
 import com.refit.app.network.RetrofitInstance
 import com.refit.app.util.price.PriceUtil
 
@@ -57,6 +62,10 @@ fun CombinationDetailScreen(
 
     val scope = rememberCoroutineScope()
     val cartApi = remember { RetrofitInstance.create(CartApi::class.java) }
+    val repo = remember { CartRepository(cartApi) }
+    val editVm: CartEditViewModel = viewModel(
+        factory = viewModelFactory { initializer { CartEditViewModel(repo, badgeVm = null) } }
+    )
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(pagerState.pageCount) {
@@ -71,6 +80,19 @@ fun CombinationDetailScreen(
 
     LaunchedEffect(combinationId) {
         vm.loadCombinationDetail(combinationId)
+    }
+
+    LaunchedEffect(Unit) {
+        editVm.opEvents.collect { ev ->
+            if (ev.type == CartOpType.ADD_BULK) {
+                if (ev.success) {
+                    snackbarHostState.showSnackbar("장바구니에 담겼습니다.")
+                    onCartChanged()
+                } else {
+                    snackbarHostState.showSnackbar(ev.message ?: "장바구니 추가 실패")
+                }
+            }
+        }
     }
 
     Scaffold(
@@ -124,10 +146,7 @@ fun CombinationDetailScreen(
                                 } ?: emptyList()
 
                                 if (items.isNotEmpty()) {
-                                    cartApi.addCartItemsBulk(CartAddBulkRequest(items))
-                                    snackbarHostState.showSnackbar("장바구니에 담겼습니다.")
-
-                                    onCartChanged()
+                                    editVm.addBulk(items)
                                 }
                             } catch (e: Exception) {
                                 snackbarHostState.showSnackbar("장바구니 추가 실패: ${e.message}")

@@ -49,6 +49,7 @@ import com.refit.app.data.auth.modelAndView.FormMode
 import com.refit.app.data.auth.modelAndView.KakaoFlowStore
 import com.refit.app.data.myfit.viewmodel.MyfitViewModel
 import com.refit.app.data.auth.modelAndView.SignupViewModel
+import com.refit.app.data.product.model.Product
 import com.refit.app.ui.screen.AnalysisResultScreen
 import com.refit.app.ui.screen.AnalysisScreen
 import com.refit.app.ui.screen.AnalysisUiState
@@ -406,10 +407,17 @@ fun MainScreenWithBottomNav(
                 }
 
                 // 조합 등록 페이지
-                composable("combinationRegister") {
+                composable("combinationRegister") { backStackEntry ->
+                    val selectedProducts =
+                        backStackEntry.savedStateHandle
+                            .getStateFlow("selectedProducts", emptyList<Product>())
+                            .collectAsState().value
+
                     CombinationRegisterScreen(
-                        onSearchClick = {
-                            navController.navigate("productSelect")
+                        navController = navController,
+                        selectedProducts = selectedProducts,
+                        onSearchClick = { bh ->
+                            navController.navigate("productSelect/$bh")
                         },
                         onRegisterSuccess = {
                             navController.popBackStack()
@@ -418,9 +426,15 @@ fun MainScreenWithBottomNav(
                 }
 
                 // 조합 등록 내 검색페이지
-                composable("productSelect") {
+                composable(
+                    route = "productSelect/{bhType}",
+                    arguments = listOf(navArgument("bhType") { nullable = true })
+                ) { backStackEntry ->
+                    val bhType = backStackEntry.arguments?.getString("bhType")
+
                     ProductSelectScreen(
                         navController = navController,
+                        bhType = bhType,
                         onConfirm = { selectedProducts ->
                             navController.previousBackStackEntry
                                 ?.savedStateHandle
