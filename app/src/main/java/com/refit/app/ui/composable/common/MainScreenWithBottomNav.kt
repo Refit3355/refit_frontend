@@ -49,6 +49,9 @@ import com.refit.app.data.auth.modelAndView.FormMode
 import com.refit.app.data.auth.modelAndView.KakaoFlowStore
 import com.refit.app.data.myfit.viewmodel.MyfitViewModel
 import com.refit.app.data.auth.modelAndView.SignupViewModel
+import com.refit.app.ui.screen.AnalysisResultScreen
+import com.refit.app.ui.screen.AnalysisScreen
+import com.refit.app.ui.screen.AnalysisUiState
 import com.refit.app.ui.screen.CombinationDetailScreen
 import com.refit.app.ui.screen.CombinationRegisterScreen
 import com.refit.app.ui.screen.CreatedCombinationListScreen
@@ -74,7 +77,7 @@ fun MainScreenWithBottomNav(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: "home"
 
-    val bottomTabs = listOf("home", "category", "myfit", "community", "my", "sleepDetail", "stepsDetail", "weatherDetail")
+    val bottomTabs = listOf("home", "category", "myfit", "community", "my", "sleepDetail", "stepsDetail", "weatherDetail", "ingredient")
     val noBottomTabs = listOf("myfit/register", "myfit/edit")
 
     // 스플래시/인증 경로에서는 상단 및 하단 바 숨김 처리
@@ -275,6 +278,22 @@ fun MainScreenWithBottomNav(
                         navController = navController,
                         onCartChanged = onCartChanged
                     )
+                }
+
+                // 성분 분석
+                composable("ingredient") { AnalysisScreen(navController) }
+                // 성분 분석 결과
+                composable("ingredient/result") {
+                    // 임시! API에서 받아와 처리할 예정!
+                    val demo = AnalysisUiState(
+                        memberName = "외식고기",
+                        matchRate = 72,
+                        risky = listOf("파라벤", "포름알데히드", "트리클로산"),
+                        caution = listOf("프탈레이트", "벤조페논"),
+                        safe = listOf("글리세린", "히알루론산", "세라마이드", "나이아신아마이드", "토코페롤"),
+                        summary = "자극 가능 성분이 일부 포함되어 있으나 보습/장벽 강화 성분도 풍부합니다. 민감 피부는 국소 테스트 후 사용을 권장합니다."
+                    )
+                    AnalysisResultScreen(ui = demo)
                 }
 
                 // 검색/알림/장바구니

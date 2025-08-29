@@ -143,9 +143,18 @@ dependencies {
     implementation("com.kakao.sdk:v2-all:2.20.6")
     implementation("com.kakao.sdk:v2-user:2.20.6")
 
+    // 이미지 미리보기
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.7.3")
+    val cameraX = "1.3.4"
+    implementation("androidx.camera:camera-core:$cameraX")
+    implementation("androidx.camera:camera-camera2:$cameraX")
+    implementation("androidx.camera:camera-lifecycle:$cameraX")
+    implementation("androidx.camera:camera-view:$cameraX")
+
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
     implementation("com.google.firebase:firebase-messaging")
+
 }
 
 configurations.all {
