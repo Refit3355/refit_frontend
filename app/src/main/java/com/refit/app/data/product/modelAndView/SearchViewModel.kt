@@ -21,6 +21,7 @@ data class SearchUiState(
     val hasMore: Boolean = false,
     val nextCursor: String? = null,
     val sort: String? = null,
+    val bhType: String? = null,
 
     // Suggest 전용
     val recentQueries: List<String> = emptyList(),
@@ -50,6 +51,9 @@ class SearchViewModel(
 
     fun updateQuery(q: String) { _state.update { it.copy(query = q) } }
 
+    fun updateBhType(type: String?) {
+        _state.update { it.copy(bhType = type) }
+    }
 
     fun enterSuggestMode() {
         _state.update {
@@ -85,7 +89,7 @@ class SearchViewModel(
         if (q.isEmpty()) return
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null, items = emptyList(), nextCursor = null) }
-            getSearchProducts(q, cursor = null, limit = 20, sort = _state.value.sort)
+            getSearchProducts(q, bhType = _state.value.bhType, cursor = null, limit = 20, sort = _state.value.sort)
                 .onSuccess { page ->
                     _state.update {
                         it.copy(
@@ -110,7 +114,7 @@ class SearchViewModel(
         if (!s.hasMore || s.isLoading || s.query.isBlank()) return
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
-            getSearchProducts(s.query, cursor = s.nextCursor, limit = 20, sort = s.sort)
+            getSearchProducts(s.query, bhType = s.bhType, cursor = s.nextCursor, limit = 20, sort = s.sort)
                 .onSuccess { page ->
                     _state.update {
                         it.copy(

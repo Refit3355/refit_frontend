@@ -194,7 +194,7 @@ fun CombiKingSection(
                         color = Color.White
                     )
                 ) {
-                    // TODO: 생성 버튼 클릭
+                    navController.navigate("combinationRegister")
                 },
             contentAlignment = Alignment.Center
         ) {

@@ -50,13 +50,14 @@ import com.refit.app.data.auth.modelAndView.KakaoFlowStore
 import com.refit.app.data.myfit.viewmodel.MyfitViewModel
 import com.refit.app.data.auth.modelAndView.SignupViewModel
 import com.refit.app.ui.screen.CombinationDetailScreen
+import com.refit.app.ui.screen.CombinationRegisterScreen
 import com.refit.app.ui.screen.CreatedCombinationListScreen
 import com.refit.app.ui.screen.LikedCombinationListScreen
 import com.refit.app.ui.screen.MypageScreen
 import com.refit.app.ui.screen.OrderListScreen
 import com.refit.app.ui.screen.EditBasicInfoScreen
 import com.refit.app.ui.screen.HealthEditScreen
-import com.refit.app.ui.screen.SignupFlowScreen
+import com.refit.app.ui.screen.ProductSelectScreen
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -372,6 +373,32 @@ fun MainScreenWithBottomNav(
                         combinationId = combinationId
                     )
                 }
+
+                // 조합 등록 페이지
+                composable("combinationRegister") {
+                    CombinationRegisterScreen(
+                        onSearchClick = {
+                            navController.navigate("productSelect")
+                        },
+                        onRegisterSuccess = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
+
+                // 조합 등록 내 검색페이지
+                composable("productSelect") {
+                    ProductSelectScreen(
+                        navController = navController,
+                        onConfirm = { selectedProducts ->
+                            navController.previousBackStackEntry
+                                ?.savedStateHandle
+                                ?.set("selectedProducts", selectedProducts)
+                            navController.popBackStack()
+                        }
+                    )
+                }
+
             }
         }
     }
