@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.refit.app.R
 import com.refit.app.ui.composable.analysis.PhotoUploadButton
 import com.refit.app.ui.theme.MainPurple
@@ -43,7 +44,7 @@ import java.io.ByteArrayOutputStream
 
 
 @Composable
-fun AnalysisScreen() {
+fun AnalysisScreen(navController: NavHostController) {
     val context = LocalContext.current
     
     var showCamera by remember { mutableStateOf(false) }
@@ -68,9 +69,9 @@ fun AnalysisScreen() {
                 .padding(horizontal = 24.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
-            Spacer(Modifier.height(60.dp))
+            Spacer(Modifier.height(15.dp))
 
             // 제목
             Text(
@@ -166,7 +167,7 @@ fun AnalysisScreen() {
                 }
             }
 
-            Spacer(Modifier.height(50.dp))
+            Spacer(Modifier.height(30.dp))
 
             Box(
                 modifier = Modifier
@@ -195,13 +196,5 @@ fun AnalysisScreen() {
                 }
             )
         }
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PreviewAnalysisScreen() {
-    RefitTheme {
-        AnalysisScreen()
     }
 }

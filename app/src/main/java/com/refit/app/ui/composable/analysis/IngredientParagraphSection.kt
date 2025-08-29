@@ -11,12 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,24 +21,26 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 
-
+/** 단순하게(문단) 전용 섹션 */
 @Composable
-fun SummaryCard(summary: String, icon: @Composable (() -> Unit)? = null) {
+fun IngredientParagraphSection(
+    title: String,
+    titleColor: Color,
+    icon: @Composable () -> Unit,
+    text: String
+) {
     Column(Modifier.fillMaxWidth()) {
         Row(
-            Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+            Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            icon?.let {
-                Box(Modifier.size(22.dp), contentAlignment = Alignment.Center) { it() }
-                Spacer(Modifier.width(8.dp))
-            }
+            Box(Modifier.size(28.dp), contentAlignment = Alignment.Center) { icon() }
+            Spacer(Modifier.width(8.dp))
             Text(
-                text = "전체 요약",
-                color = MainPurple,
+                text = title,
+                color = titleColor,
                 fontFamily = Pretendard,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.ExtraBold
@@ -54,17 +51,18 @@ fun SummaryCard(summary: String, icon: @Composable (() -> Unit)? = null) {
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFF5F0FA))
-                .padding(16.dp)
+                .background(Color(0xFFF0F0F0))
+                .padding(14.dp)
         ) {
             Text(
-                text = summary.ifBlank { "요약 정보가 준비되지 않았어요." },
-                color = Color(0xFF8A8A8A),
+                text = text,
                 fontSize = 16.sp,
                 lineHeight = 20.sp,
                 fontFamily = Pretendard,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF8A8A8A)
             )
         }
+        Spacer(Modifier.height(18.dp))
     }
 }
