@@ -148,7 +148,10 @@ dependencies {
 
     // 찜 저장
     implementation("androidx.datastore:datastore-preferences:1.1.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+
+    // serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
 
     // 날씨
     implementation("com.google.android.gms:play-services-location:21.3.0")
