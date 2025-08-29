@@ -90,6 +90,7 @@ fun ProductShareBubble(
                     Text(
                         text = nickname,
                         fontFamily = Pretendard,
+                        fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(Modifier.height(4.dp))

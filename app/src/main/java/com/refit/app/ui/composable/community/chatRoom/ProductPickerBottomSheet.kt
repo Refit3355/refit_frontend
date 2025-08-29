@@ -1,18 +1,23 @@
 package com.refit.app.ui.composable.community.chatRoom
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import kotlinx.coroutines.delay
@@ -32,7 +37,9 @@ data class ProductSummary(
     val id: Long,
     val name: String,
     val imageUrl: String?,
-    val priceFormatted: String?
+    val priceFormatted: String?,
+    val discountRate: Int? = null,
+    val discountedPriceFormatted: String? = null
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,7 +47,6 @@ data class ProductSummary(
 fun ProductPickerBottomSheet(
     onClose: () -> Unit,
     onSelect: (Long) -> Unit,
-    // ✅ 실제 API와 연결: query, cursor -> 페이지
     loader: suspend (String, String?) -> ListPage<ProductSummary>,
     initialQuery: String = ""
 ) {
@@ -100,11 +106,13 @@ fun ProductPickerBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onClose,
-        sheetState = sheetState
+        sheetState = sheetState,
+        containerColor = Color.White
     ) {
         Column(
             Modifier
                 .fillMaxWidth()
+                .background(Color.White)
                 .navigationBarsPadding()
         ) {
             Text(
@@ -172,20 +180,68 @@ private fun ProductRow(item: ProductSummary, onClick: () -> Unit) {
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val shape = RoundedCornerShape(10.dp)
         Box(
             modifier = Modifier
                 .size(52.dp)
-                .background(Color(0xFFF2F2F2)),
+                .clip(shape)
+                .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f), shape)
+                .background(Color(0xFFF9F9F9)),
             contentAlignment = Alignment.Center
         ) {
-            AsyncImage(model = item.imageUrl, contentDescription = null, modifier = Modifier.fillMaxSize())
+            AsyncImage(
+                model = item.imageUrl,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize()
+            )
         }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text(item.name, style = MaterialTheme.typography.bodyMedium, maxLines = 2)
-            item.priceFormatted?.let {
-                Spacer(Modifier.height(4.dp))
-                Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+            val hasDiscount = (item.discountRate ?: 0) > 0 && !item.discountedPriceFormatted.isNullOrBlank()
+            if (hasDiscount) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // 할인율 칩
+                    Surface(
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Text(
+                            text = "${item.discountRate}%",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                        )
+                    }
+                    Spacer(Modifier.width(8.dp))
+
+                    // 할인가 (강조)
+                    Text(
+                        text = item.discountedPriceFormatted!!,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(Modifier.width(8.dp))
+
+                    // 정가 (취소선, 보조색)
+                    item.priceFormatted?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textDecoration = TextDecoration.LineThrough
+                        )
+                    }
+                }
+            } else {
+                // 할인 없을 때: 정가만
+                item.priceFormatted?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
         }
     }
