@@ -56,11 +56,11 @@ fun IngredientParagraphSection(
         ) {
             Text(
                 text = text,
-                fontSize = 14.sp,
+                fontSize = 16.sp,
                 lineHeight = 20.sp,
                 fontFamily = Pretendard,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF4B4B4B)
+                color = Color(0xFF8A8A8A)
             )
         }
         Spacer(Modifier.height(18.dp))

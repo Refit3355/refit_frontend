@@ -59,8 +59,8 @@ fun SummaryCard(summary: String, icon: @Composable (() -> Unit)? = null) {
         ) {
             Text(
                 text = summary.ifBlank { "요약 정보가 준비되지 않았어요." },
-                color = Color(0xFF4B4B4B),
-                fontSize = 14.sp,
+                color = Color(0xFF8A8A8A),
+                fontSize = 16.sp,
                 lineHeight = 20.sp,
                 fontFamily = Pretendard,
                 fontWeight = FontWeight.SemiBold
