@@ -18,6 +18,7 @@ fun ChatMessageDto.toDomain(): ChatMessage {
         productId = productId,
         message = message,
         profileUrl = profileUrl,
-        createdAt = odt
+        createdAt = odt,
+        product = product?.toDomain()
     )
 }

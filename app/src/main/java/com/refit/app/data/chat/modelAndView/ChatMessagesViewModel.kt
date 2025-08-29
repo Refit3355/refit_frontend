@@ -110,6 +110,11 @@ class ChatMessagesViewModel(
         socketRepo = null
     }
 
+    fun sendRealtimeProduct(categoryId: Long, productId: Long) {
+        val memberId = UserPrefs.getMemberId() ?: return
+        socketRepo?.sendMessage(categoryId, memberId, message = "[상품 공유]", productId = productId)
+    }
+
     override fun onCleared() {
         disconnectRealtime()
         super.onCleared()

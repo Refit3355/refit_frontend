@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.refit.app.data.chat.model.ChatMessage
@@ -39,6 +40,7 @@ fun OtherMessageBubble(
                 Text(
                     text = msg.nickname,
                     fontFamily = Pretendard,
+                    fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.height(4.dp))
@@ -67,6 +69,7 @@ fun OtherMessageBubble(
                     text = msg.createdAt.koreanTime(),
                     fontFamily = Pretendard,
                     fontSize = 12.sp,
+                    fontWeight = FontWeight(500),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

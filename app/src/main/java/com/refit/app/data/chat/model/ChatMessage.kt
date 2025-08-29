@@ -11,8 +11,6 @@ data class ChatMessage(
     val productId: Long?,
     val message: String,
     val profileUrl: String?,
-    val createdAt: OffsetDateTime
+    val createdAt: OffsetDateTime,
+    val product: ProductSnippet? = null
 )
-
-fun ChatMessage.formattedTime(): String =
-    DateTimeFormatter.ofPattern("HH:mm").format(createdAt)

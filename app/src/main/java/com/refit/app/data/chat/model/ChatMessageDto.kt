@@ -11,5 +11,6 @@ data class ChatMessageDto(
     val productId: Long?,
     val message: String,
     val profileUrl: String?,
-    val createdAt: String
+    val createdAt: String,
+    val product: ProductSnippetDto? = null
 )

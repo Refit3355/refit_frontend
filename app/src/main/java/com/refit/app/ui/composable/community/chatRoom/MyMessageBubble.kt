@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.refit.app.data.chat.model.ChatMessage
@@ -49,6 +50,8 @@ fun MyMessageBubble(msg: ChatMessage) {
                     text = msg.message,
                     fontFamily = Pretendard,
                     fontSize = 14.sp,
+                    fontWeight = FontWeight(500),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)
                 )
             }

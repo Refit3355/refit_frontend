@@ -22,8 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -38,6 +38,7 @@ fun ChatInputBar(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     onSend: () -> Unit,
+    onPickProduct: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focus = LocalFocusManager.current
@@ -102,6 +103,12 @@ fun ChatInputBar(
                     }
                 }
             )
+
+            // 상품 선택 버튼 - 전송 버튼 왼쪽에 배치 권장
+            IconButton(onClick = onPickProduct, modifier = Modifier.fillMaxHeight()) {
+                Icon(Icons.Rounded.Search, contentDescription = "상품 공유")
+            }
+            
             Box(
                 modifier = Modifier
                     .fillMaxHeight()

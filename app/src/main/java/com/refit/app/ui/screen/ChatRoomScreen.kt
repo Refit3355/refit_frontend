@@ -22,7 +22,13 @@ import com.refit.app.ui.composable.community.chatRoom.buildChatUiItems
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.TextFieldValue
+import com.refit.app.data.product.usecase.GetSearchProductsUseCase
 import com.refit.app.ui.composable.community.chatRoom.ChatInputBar
+import com.refit.app.ui.composable.community.chatRoom.ListPage
+import com.refit.app.ui.composable.community.chatRoom.ProductPickerBottomSheet
+import com.refit.app.ui.composable.community.chatRoom.ProductShareBubble
+import com.refit.app.ui.composable.community.chatRoom.ProductSummary
+import com.refit.app.ui.composable.community.chatRoom.koreanTime
 
 @Composable
 fun ChatRoomScreen(
@@ -38,6 +44,9 @@ fun ChatRoomScreen(
         mutableStateOf(TextFieldValue(""))
     }
 
+    // 상품 공유
+    var showPicker by remember { mutableStateOf(false) }
+    val searchUseCase = remember { GetSearchProductsUseCase() }
 
     // 초기 로드
     LaunchedEffect(categoryId) {
@@ -156,13 +165,28 @@ fun ChatRoomScreen(
                             }
 
                             is ChatUiItem.Message -> {
-                                if (item.isMine) {
-                                    MyMessageBubble(item.data)
-                                } else {
-                                    OtherMessageBubble(
-                                        msg = item.data,
-                                        showAvatarAndName = item.showAvatarAndName
+                                val msg = item.data
+                                if (msg.productId != null) {
+                                    // 상품 공유 메시지: 상품 버블로 렌더
+                                    ProductShareBubble(
+                                        product = msg.product,
+                                        mine = item.isMine,
+                                        showAvatarAndName = item.showAvatarAndName,
+                                        nickname = msg.nickname,
+                                        profileUrl = msg.profileUrl,
+                                        timeText = msg.createdAt.koreanTime(),
+                                        onOpenProduct = { pid -> navController.navigate("product/$pid") }
                                     )
+                                } else {
+                                    // 텍스트 메시지 기존 렌더
+                                    if (item.isMine) {
+                                        MyMessageBubble(msg)
+                                    } else {
+                                        OtherMessageBubble(
+                                            msg = msg,
+                                            showAvatarAndName = item.showAvatarAndName
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -198,8 +222,43 @@ fun ChatRoomScreen(
                             vm.sendRealtime(categoryId, text)
                             input = TextFieldValue("")
                         }
-                    }
+                    },
+                    onPickProduct = { showPicker = true }
                 )
+                if (showPicker) {
+                    ProductPickerBottomSheet(
+                        onClose = { showPicker = false },
+                        onSelect = { productId ->
+                            showPicker = false
+                            vm.sendRealtimeProduct(categoryId, productId)   // 상품 공유 WS 전송
+                        },
+                        loader = { q: String, cursor: String? ->
+                            val res = searchUseCase(
+                                query  = q,        // ""면 전체 조회
+                                cursor = cursor,   // 다음 페이지 커서
+                                limit  = 30,
+                                sort   = null      // 정렬 없음
+                            )
+                            res.fold(
+                                onSuccess = { page ->
+                                    ListPage(
+                                        items = page.items.map { p ->
+                                            ProductSummary(
+                                                id = p.id,
+                                                name = p.name,
+                                                imageUrl = p.image,
+                                                priceFormatted = formatWon(p.discountedPrice ?: p.price)
+                                            )
+                                        },
+                                        nextCursor = page.nextCursor,
+                                        hasNext = page.hasMore
+                                    )
+                                },
+                                onFailure = { ListPage(emptyList(), nextCursor = null, hasNext = false) }
+                            )
+                        }
+                    )
+                }
             }
         }
     }
