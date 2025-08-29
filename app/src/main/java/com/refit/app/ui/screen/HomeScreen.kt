@@ -193,7 +193,7 @@ fun HomeScreen(
 
         // ===== 커스텀 텍스트 FAB =====
         FloatingActionButton(
-            onClick = { navController.navigate("ingredient/result") },
+            onClick = { navController.navigate("ingredient") },
             shape = CircleShape,
             containerColor = MainPurple,
             contentColor = Color.White,
