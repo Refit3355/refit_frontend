@@ -34,23 +34,30 @@ fun SignupStep1Screen(
 
     LaunchedEffect(prefillNickname, prefillEmail) {
         if (!prefillNickname.isNullOrBlank() || !prefillEmail.isNullOrBlank()) {
-            // 1) 이메일만 프리필 (닉네임은 건드리지 않음)
             vm.prefillFromKakao(nickname = null, email = prefillEmail)
-            // 2) 카카오 닉네임을 '이름(memberName)' 필드에 넣기
             prefillNickname?.let { vm.onMemberName(it) }
         }
     }
 
-    Scaffold(
-        topBar = { SignupTopBar("회원가입", 1, 3, onBack) },
-        containerColor = Color.White
-    ) { pad ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+        LinearProgressIndicator(
+            progress = { 1f / 3f },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .height(4.dp),
+            color = MainPurple,
+            trackColor = Color(0xFFE5E5EA)
+        )
+
         val scroll = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
-                .padding(pad)
                 .padding(horizontal = 20.dp, vertical = 16.dp)
                 .verticalScroll(scroll)
         ) {
@@ -110,10 +117,17 @@ fun SignupStep1Screen(
             Button(
                 onClick = onNextOrSubmit,
                 enabled = vm.canProceed(mode),
-                modifier = Modifier.fillMaxWidth().height(56.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
                 shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MainPurple, contentColor = Color.White)
-            ) { Text("다음", fontFamily = Pretendard) }
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MainPurple,
+                    contentColor = Color.White
+                )
+            ) {
+                Text("다음", fontFamily = Pretendard)
+            }
         }
     }
 

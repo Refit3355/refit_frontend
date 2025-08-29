@@ -80,7 +80,7 @@ fun MainScreenWithBottomNav(
     val noBottomTabs = listOf("myfit/register", "myfit/edit")
 
     // 스플래시/인증 경로에서는 상단 및 하단 바 숨김 처리
-    val hideBars = currentRoute == "splash" || currentRoute.startsWith("auth/")
+    val hideBars = currentRoute == "splash" || currentRoute.startsWith("auth/login")
     Scaffold(
         topBar = {
             if (!hideBars) {
