@@ -41,6 +41,7 @@ import com.refit.app.data.home.modelAndView.HomeViewModel
 import com.refit.app.network.UserPrefs
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
+import com.refit.app.util.common.toTags
 import com.refit.app.util.home.getWeatherIcon
 import com.refit.app.util.home.highlightText
 
@@ -57,7 +58,6 @@ fun HomeScreen(
     val health = UserPrefs.getHealth()
 
     val allTags = health?.toTags().orEmpty()
-    val selectedTags = allTags.shuffled().take(3).sorted()
 
     LaunchedEffect(Unit) {
         vm.loadData(context)
@@ -84,7 +84,7 @@ fun HomeScreen(
             ) {
                 GreetingCard(
                     nickname = nickname ?: "사용자",
-                    tags = selectedTags
+                    tags = allTags
                 )
 
                 Spacer(Modifier.height(12.dp))
@@ -210,18 +210,6 @@ fun HomeScreen(
             )
         }
     }
-}
-
-fun HealthInfoDto.toTags(): List<String> {
-    val tags = mutableListOf<String>()
-    if (eyeHealth > 0) tags.add("#눈 건강")
-    if (fatigue > 0) tags.add("#피로 회복")
-    if (sleepStress > 0) tags.add("#수면/스트레스")
-    if (immuneCare > 0) tags.add("#면역 케어")
-    if (muscleHealth > 0) tags.add("#근육 건강")
-    if (gutHealth > 0) tags.add("#장 건강")
-    if (bloodCirculation > 0) tags.add("#혈액 순환")
-    return tags
 }
 
 

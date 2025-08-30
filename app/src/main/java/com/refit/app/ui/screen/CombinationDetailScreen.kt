@@ -37,13 +37,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.refit.app.data.cart.api.CartApi
-import com.refit.app.data.cart.model.CartAddBulkRequest
 import com.refit.app.data.cart.model.CartAddRequest
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
 import com.refit.app.data.cart.modelAndView.CartOpType
 import com.refit.app.data.cart.repository.CartRepository
 import com.refit.app.network.RetrofitInstance
-import com.refit.app.util.price.PriceUtil
+import com.refit.app.util.common.PriceUtil
 
 @Composable
 fun CombinationDetailScreen(

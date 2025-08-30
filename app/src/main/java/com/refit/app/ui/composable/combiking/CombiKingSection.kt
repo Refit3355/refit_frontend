@@ -234,7 +234,7 @@ fun CombiKingSection(
                     modifier = Modifier.size(32.dp)
                 )
             }
-            
+
             SnackbarHost(
                 hostState = snackbarHostState,
                 modifier = Modifier

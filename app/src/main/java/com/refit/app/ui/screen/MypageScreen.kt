@@ -51,8 +51,7 @@ fun MypageScreen(
             .verticalScroll(rememberScrollState())
     ) {
         val nickname = UserPrefs.getNickname()
-        val health = UserPrefs.getHealth()
-        val tags = health?.toTags().orEmpty().take(2)
+        val tags = UserPrefs.getTags()
 
         MypageProfileCard(
             nickname = nickname ?: "사용자",
