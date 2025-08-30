@@ -8,6 +8,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -63,14 +65,40 @@ fun RecentOrderSection(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "최근 주문 내역",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = Pretendard
-            )
-            TextButton(onClick = { onClickAll() }) {
-                Text("전체보기", fontFamily = Pretendard, color = MainPurple)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_list),
+                    contentDescription = "최근 주문 내역",
+                    tint = Color.Black,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = "최근 주문 내역",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Pretendard
+                )
+            }
+            TextButton(
+                onClick = { onClickAll() },
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        "전체보기",
+                        fontFamily = Pretendard,
+                        color = MainPurple
+                    )
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = "전체보기 이동",
+                        tint = MainPurple,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .padding(start = 2.dp)
+                    )
+                }
             }
         }
 

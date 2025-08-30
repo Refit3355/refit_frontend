@@ -52,7 +52,7 @@ fun GreetingCard(nickname: String, tags: List<String>) {
                 modifier = Modifier
                     .size(72.dp)
                     .clip(CircleShape)
-                    .border(0.5.dp, Color.Black, CircleShape)
+                    .border(2.dp, MainPurple, CircleShape)
                     .background(Color.White),
                 contentScale = ContentScale.Crop
             )
