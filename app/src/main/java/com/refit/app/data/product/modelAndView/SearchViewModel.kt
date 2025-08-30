@@ -86,7 +86,6 @@ class SearchViewModel(
 
     fun submitSearch() {
         val q = _state.value.query.trim()
-        if (q.isEmpty()) return
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null, items = emptyList(), nextCursor = null) }
             getSearchProducts(q, bhType = _state.value.bhType, cursor = null, limit = 20, sort = _state.value.sort)
@@ -111,7 +110,7 @@ class SearchViewModel(
 
     fun loadMore() {
         val s = _state.value
-        if (!s.hasMore || s.isLoading || s.query.isBlank()) return
+        if (!s.hasMore || s.isLoading) return
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
             getSearchProducts(s.query, bhType = s.bhType, cursor = s.nextCursor, limit = 20, sort = s.sort)

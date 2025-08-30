@@ -1,11 +1,13 @@
 package com.refit.app.ui.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -31,9 +33,11 @@ import com.refit.app.data.product.modelAndView.SearchViewModel
 import com.refit.app.data.product.modelAndView.SearchViewModelFactory
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductSelectScreen(
     navController: NavController,
@@ -46,9 +50,12 @@ fun ProductSelectScreen(
         factory = SearchViewModelFactory(SearchHistoryStore(context))
     )
 
-    // bhType을 ViewModel에 반영
     LaunchedEffect(bhType) {
         vm.updateBhType(bhType)
+    }
+
+    LaunchedEffect(Unit) {
+        vm.submitSearch()
     }
 
     val uiState by vm.state.collectAsState()
@@ -57,6 +64,22 @@ fun ProductSelectScreen(
 
     var selectedProducts by remember { mutableStateOf(listOf<Product>()) }
     val isValid = selectedProducts.size in 2..6
+
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+            .distinctUntilChanged()
+            .filterNotNull()
+            .collectLatest { lastIndex ->
+                if (lastIndex >= uiState.items.lastIndex &&
+                    uiState.hasMore &&
+                    !uiState.isLoading
+                ) {
+                    vm.loadMore()
+                }
+            }
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -78,16 +101,29 @@ fun ProductSelectScreen(
                     containerColor = if (isValid) MainPurple else Color.LightGray
                 )
             ) {
-                Text("선택완료", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(
+                    "선택완료",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    fontFamily = Pretendard
+                )
             }
         }
     ) { innerPadding ->
-        Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .padding(innerPadding)
+        ) {
 
             // 선택된 상품 미리보기
             if (selectedProducts.isNotEmpty()) {
                 LazyRow(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(selectedProducts) { product ->
@@ -120,7 +156,8 @@ fun ProductSelectScreen(
                                     text = product.name,
                                     fontSize = 10.sp,
                                     maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
+                                    overflow = TextOverflow.Ellipsis,
+                                    fontFamily = Pretendard
                                 )
                             }
                         }
@@ -133,19 +170,20 @@ fun ProductSelectScreen(
                 value = uiState.query,
                 onValueChange = {
                     vm.updateQuery(it)
-                    if (it.isNotBlank()) vm.submitSearch() else vm.enterSuggestMode()
+                    vm.submitSearch()
                 },
-                placeholder = { Text("상품명을 입력하세요.", fontSize = 14.sp) },
+                placeholder = { Text("상품명을 입력하세요.", fontSize = 14.sp, fontFamily = Pretendard) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "검색", tint = Color.Gray) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-                singleLine = true
+                    .clip(RoundedCornerShape(4.dp)),
+                singleLine = true,
             )
 
             // 검색 결과 리스트
             LazyColumn(
+                state = listState,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -195,6 +233,19 @@ fun ProductSelectScreen(
                             overflow = TextOverflow.Ellipsis,
                             fontFamily = Pretendard
                         )
+                    }
+                }
+
+                if (uiState.isLoading) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(color = MainPurple)
+                        }
                     }
                 }
             }

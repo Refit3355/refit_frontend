@@ -119,6 +119,8 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                     route.startsWith("sleepDetail") -> "수면 리포트"
                     route.startsWith("weatherDetail") -> "날씨 리포트"
                     route.startsWith("combinationDetail") -> "조합 상세"
+                    route.startsWith("combinationRegister") -> "조합 등록"
+                    route.startsWith("productSelect") -> "조합 등록"
                     else -> "Re:fit"
                 },
                 onBack = { nav.popBackStack() },

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.refit.app.data.local.combination.MyCombinationStore
 import com.refit.app.data.combination.modelAndView.CombinationViewModel
 import com.refit.app.data.combination.modelAndView.LikedCombinationViewModel
@@ -31,6 +32,7 @@ import com.refit.app.ui.theme.Pretendard
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import androidx.compose.ui.unit.LayoutDirection
 
 @Composable
 fun CombiKingSection(
@@ -45,6 +47,8 @@ fun CombiKingSection(
     val scope = rememberCoroutineScope()
     val likedVm: LikedCombinationViewModel = viewModel()
     val likedState by likedVm.state.collectAsState()
+
+    val snackbarHostState = remember { SnackbarHostState() }
 
     // 정렬 옵션
     var expanded by remember { mutableStateOf(false) }
@@ -71,138 +75,171 @@ fun CombiKingSection(
     // 리스트 상태
     val listState = rememberLazyListState()
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column {
-            // 상단 헤더
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // 좌측 "총 n개의 조합"
-                Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("총 ", fontSize = 14.sp, fontFamily = Pretendard)
-                    Text(
-                        "${state.totalCount}",
-                        color = MainPurple,
-                        fontSize = 14.sp,
-                        fontFamily = Pretendard
-                    )
-                    Text("개의 조합", fontSize = 14.sp, fontFamily = Pretendard)
-                }
+    val navBackStackEntry = navController.currentBackStackEntryAsState().value
+    val result = navBackStackEntry
+        ?.savedStateHandle
+        ?.getStateFlow<String?>("combination_result", null)
+        ?.collectAsState()
 
-                // 우측 정렬 드롭다운
-                Box {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.clickable { expanded = true }
-                    ) {
-                        Text(
-                            text = sortOptions.find { it.first == selectedSort }?.second ?: "정렬",
-                            fontSize = 14.sp,
-                            fontFamily = Pretendard,
-                            color = Color.Black
-                        )
-                        Icon(
-                            imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = "정렬",
-                            tint = Color.Black
-                        )
-                    }
-
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                        modifier = Modifier.background(Color.White)
-                    ) {
-                        sortOptions.forEach { (value, label) ->
-                            DropdownMenuItem(
-                                text = { Text(label) },
-                                onClick = {
-                                    selectedSort = value
-                                    expanded = false
-                                },
-                                colors = MenuDefaults.itemColors(textColor = Color.Black)
-                            )
-                        }
-                    }
-                }
+    LaunchedEffect(result?.value) {
+        result?.value?.let { message ->
+            scope.launch {
+                snackbarHostState.showSnackbar(message)
             }
-
-            // 조합 목록
-            LazyColumn(
-                state = listState,
-                contentPadding = PaddingValues(bottom = 80.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(state.combinations) { combination ->
-                    CombinationCard(
-                        combination = combination,
-                        isSaved = savedIds.contains(combination.combinationId),
-                        onToggleSave = { id ->
-                            scope.launch {
-                                val wasSaved = savedIds.contains(id)
-                                myCombinationStore.toggle(id)
-
-                                val updated = state.combinations.map {
-                                    if (it.combinationId == id) {
-                                        if (wasSaved) it.copy(likes = maxOf(it.likes - 1, 0))
-                                        else it.copy(likes = it.likes + 1)
-                                    } else it
-                                }
-                                vm.updateCombinations(updated)
-
-                                if (wasSaved) {
-                                    likedVm.dislikeCombination(id)
-                                } else {
-                                    likedVm.likeCombination(id)
-                                }
-                            }
-                        },
-                        onClick = { id ->
-                            navController.navigate("combinationDetail/$id")
-                        }
-                    )
-                }
-            }
+            navBackStackEntry?.savedStateHandle?.set("combination_result", null)
         }
+    }
 
-        // 첫 로딩 화면
-        if (state.isLoading) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        }
-
-        // 플로팅 버튼
+    Scaffold(
+        containerColor = Color.White
+    ) { innerPadding ->
         Box(
             modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-                .size(56.dp)
-                .clip(CircleShape)
-                .background(MainPurple)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = ripple(
-                        bounded = true,
-                        radius = 28.dp,
-                        color = Color.White
-                    )
-                ) {
-                    navController.navigate("combinationRegister")
-                },
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
+                .padding(
+                    start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
+                    end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
+                    top = 0.dp,
+                    bottom = 0.dp
+                )
         ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "생성 버튼",
-                tint = Color.White,
-                modifier = Modifier.size(32.dp)
+            Column {
+                // 상단 헤더
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("총 ", fontSize = 14.sp, fontFamily = Pretendard)
+                        Text(
+                            "${state.totalCount}",
+                            color = MainPurple,
+                            fontSize = 14.sp,
+                            fontFamily = Pretendard
+                        )
+                        Text("개의 조합", fontSize = 14.sp, fontFamily = Pretendard)
+                    }
+
+                    // 우측 정렬 드롭다운
+                    Box {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable { expanded = true }
+                        ) {
+                            Text(
+                                text = sortOptions.find { it.first == selectedSort }?.second ?: "정렬",
+                                fontSize = 14.sp,
+                                fontFamily = Pretendard,
+                                color = Color.Black
+                            )
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = "정렬",
+                                tint = Color.Black
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            modifier = Modifier.background(Color.White)
+                        ) {
+                            sortOptions.forEach { (value, label) ->
+                                DropdownMenuItem(
+                                    text = { Text(label) },
+                                    onClick = {
+                                        selectedSort = value
+                                        expanded = false
+                                    },
+                                    colors = MenuDefaults.itemColors(textColor = Color.Black)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // 조합 목록
+                LazyColumn(
+                    state = listState,
+                    contentPadding = PaddingValues(bottom = 80.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(state.combinations) { combination ->
+                        CombinationCard(
+                            combination = combination,
+                            isSaved = savedIds.contains(combination.combinationId),
+                            onToggleSave = { id ->
+                                scope.launch {
+                                    val wasSaved = savedIds.contains(id)
+                                    myCombinationStore.toggle(id)
+
+                                    val updated = state.combinations.map {
+                                        if (it.combinationId == id) {
+                                            if (wasSaved) it.copy(likes = maxOf(it.likes - 1, 0))
+                                            else it.copy(likes = it.likes + 1)
+                                        } else it
+                                    }
+                                    vm.updateCombinations(updated)
+
+                                    if (wasSaved) {
+                                        likedVm.dislikeCombination(id)
+                                    } else {
+                                        likedVm.likeCombination(id)
+                                    }
+                                }
+                            },
+                            onClick = { id ->
+                                navController.navigate("combinationDetail/$id")
+                            }
+                        )
+                    }
+                }
+            }
+
+            if (state.isLoading) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            // 등록 버튼
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(MainPurple)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = ripple(
+                            bounded = true,
+                            radius = 28.dp,
+                            color = Color.White
+                        )
+                    ) {
+                        navController.navigate("combinationRegister")
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "등록 버튼",
+                    tint = Color.White,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+            
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 0.dp)
             )
         }
     }
