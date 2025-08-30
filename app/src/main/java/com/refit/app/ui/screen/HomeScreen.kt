@@ -1,47 +1,38 @@
 package com.refit.app.ui.screen
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.google.gson.Gson
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.refit.app.R
-import com.refit.app.data.auth.model.HealthInfoDto
 import com.refit.app.ui.composable.home.GreetingCard
 import com.refit.app.ui.composable.home.HomeProductRow
 import com.refit.app.ui.composable.home.MetricRow
 import com.refit.app.ui.composable.home.SectionHeader
 import com.refit.app.data.health.model.MetricItem
-import com.refit.app.ui.fake.MemberDummy
 import com.refit.app.data.home.modelAndView.HomeViewModel
 import com.refit.app.network.UserPrefs
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
-import com.refit.app.util.common.toTags
 import com.refit.app.util.home.getWeatherIcon
 import com.refit.app.util.home.highlightText
 
@@ -53,14 +44,21 @@ fun HomeScreen(
     val scroll = rememberScrollState()
     val uiState by vm.uiState.collectAsState()
     val context = LocalContext.current
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
     val nickname = UserPrefs.getNickname()
-    val health = UserPrefs.getHealth()
+    val allTags = UserPrefs.getTags()
+    val sleepMinutes = uiState.sleepMinutes
 
-    val allTags = health?.toTags().orEmpty()
-
-    LaunchedEffect(Unit) {
-        vm.loadData(context)
+    // 홈 진입/이탈에 따라 polling 시작/중단
+    LaunchedEffect(currentRoute) {
+        if (currentRoute == "home") {
+            vm.loadData(context)
+            vm.startHealthPolling(context)
+        } else {
+            vm.stopHealthPolling()
+        }
     }
 
     Box(
@@ -73,7 +71,7 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scroll)
-                .padding(bottom = 100.dp) // FAB와 겹치지 않도록 여백
+                .padding(bottom = 100.dp)
         ) {
             // ===== 나만의 정보 섹션 =====
             Column(
@@ -101,9 +99,9 @@ fun HomeScreen(
                         ),
                         MetricItem(
                             "어제의 수면시간",
-                            uiState.sleepMinutes?.takeIf { it > 0 }?.let { vm.formatSleep(it) } ?: "--",
-                            "시간",
-                            R.drawable.jellbbo_sleep,
+                            sleepMinutes?.takeIf { it > 0 }?.let { vm.formatSleep(it) } ?: "--",
+                            unit = if (sleepMinutes != null && sleepMinutes > 0) "" else "시간",
+                            iconRes = R.drawable.jellbbo_sleep,
                             iconOffsetY = -22,
                             onClick = { navController.navigate("sleepDetail") }
                         ),
@@ -191,7 +189,7 @@ fun HomeScreen(
             Spacer(Modifier.height(16.dp))
         }
 
-        // ===== 커스텀 텍스트 FAB =====
+        // ===== 성분 분석 버튼 =====
         FloatingActionButton(
             onClick = { navController.navigate("ingredient") },
             shape = CircleShape,
@@ -211,5 +209,3 @@ fun HomeScreen(
         }
     }
 }
-
-
