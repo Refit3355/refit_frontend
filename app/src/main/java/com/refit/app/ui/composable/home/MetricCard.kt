@@ -65,7 +65,7 @@ fun MetricCard(item: MetricItem, modifier: Modifier = Modifier) {
                 Text(
                     text = "${item.value}${item.unit}",
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 16.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                         color = if (item.value != "--") MainPurple
                         else Color(0xFF6B6B6B)

@@ -99,8 +99,8 @@ fun HomeScreen(
                         ),
                         MetricItem(
                             "어제의 수면시간",
-                            sleepMinutes?.takeIf { it > 0 }?.let { vm.formatSleep(it) } ?: "--",
-                            unit = if (sleepMinutes != null && sleepMinutes > 0) "" else "시간",
+                            vm.formatSleep(sleepMinutes ?: 0),
+                            unit = "",
                             iconRes = R.drawable.jellbbo_sleep,
                             iconOffsetY = -22,
                             onClick = { navController.navigate("sleepDetail") }
