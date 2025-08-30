@@ -1,5 +1,6 @@
 package com.refit.app.ui.screen
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,7 +21,9 @@ import com.refit.app.ui.composable.community.chatRoom.MyMessageBubble
 import com.refit.app.ui.composable.community.chatRoom.OtherMessageBubble
 import com.refit.app.ui.composable.community.chatRoom.buildChatUiItems
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.TextFieldValue
 import com.refit.app.data.product.usecase.GetSearchProductsUseCase
 import com.refit.app.ui.composable.community.chatRoom.ChatInputBar
@@ -92,6 +95,7 @@ fun ChatRoomScreen(
     val isImeVisible = imeHeightPx > 0
     val inputBarHeight = 14.dp
     val extraGap = if (isImeVisible) 10.dp else 8.dp
+    val focus = LocalFocusManager.current
 
     LaunchedEffect(isImeVisible, uiItems.size) {
         if (uiItems.isNotEmpty()) {
@@ -134,7 +138,10 @@ fun ChatRoomScreen(
                     state = listState,
                     modifier = Modifier
                         .fillMaxSize()
-                        .weight(1f),
+                        .weight(1f)
+                        .pointerInput(Unit) {
+                            detectTapGestures(onTap = { focus.clearFocus() }) // 바깥 탭 → 포커스 해제
+                        },
                     contentPadding = PaddingValues(top = 8.dp)
                 ) {
                     items(

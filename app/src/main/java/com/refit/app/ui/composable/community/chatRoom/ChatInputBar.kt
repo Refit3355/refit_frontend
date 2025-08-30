@@ -75,7 +75,7 @@ fun ChatInputBar(
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                 keyboardActions = KeyboardActions(onSend = {
-                    if (canSend) { onSend(); focus.clearFocus() }
+                    if (canSend) { onSend() }
                 }),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 modifier = Modifier
@@ -116,7 +116,6 @@ fun ChatInputBar(
                     .background(MainPurple)
                     .clickable(enabled = canSend) {
                         onSend()
-                        focus.clearFocus()
                     },
                 contentAlignment = Alignment.Center
             ) {
