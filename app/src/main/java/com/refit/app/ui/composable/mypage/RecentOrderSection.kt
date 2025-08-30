@@ -1,10 +1,15 @@
 package com.refit.app.ui.composable.mypage
 
+import android.view.LayoutInflater
+import android.widget.TextView
+import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -24,8 +29,16 @@ import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavController
+import com.refit.app.R
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
 import com.refit.app.data.me.modelAndView.OrderViewModel
+import com.refit.app.util.order.OrderStatusMapper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -33,8 +46,14 @@ fun RecentOrderSection(
     order: OrderResponse,
     onClickAll: () -> Unit,
     vm: OrderViewModel,
-    cartVm: CartEditViewModel
+    cartVm: CartEditViewModel,
+    onCartChanged: () -> Unit,
+    navController: NavController,
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope
 ) {
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -46,14 +65,40 @@ fun RecentOrderSection(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "최근 주문 내역",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = Pretendard
-            )
-            TextButton(onClick = { onClickAll() }) {
-                Text("전체보기", fontFamily = Pretendard, color = MainPurple)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_list),
+                    contentDescription = "최근 주문 내역",
+                    tint = Color.Black,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = "최근 주문 내역",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Pretendard
+                )
+            }
+            TextButton(
+                onClick = { onClickAll() },
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        "전체보기",
+                        fontFamily = Pretendard,
+                        color = MainPurple
+                    )
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = "전체보기 이동",
+                        tint = MainPurple,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .padding(start = 2.dp)
+                    )
+                }
             }
         }
 
@@ -78,7 +123,7 @@ fun RecentOrderSection(
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            text = "주문번호 ${firstItem.orderNumber}",
+                            text = "주문번호 ${firstItem.orderCode}",
                             fontSize = 12.sp,
                             fontFamily = Pretendard,
                             color = Color.Gray
@@ -92,7 +137,10 @@ fun RecentOrderSection(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
+                            .padding(vertical = 8.dp)
+                            .clickable {
+                                navController.navigate("product/${item.productId}")
+                            },
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -105,17 +153,7 @@ fun RecentOrderSection(
                             Spacer(Modifier.width(12.dp))
                             Column {
                                 Text(
-                                    text = when (item.status) {
-                                        0 -> "결제완료"
-                                        1 -> "배송중"
-                                        2 -> "배송완료"
-                                        3 -> "취소완료"
-                                        4 -> "교환 신청중"
-                                        5 -> "교환 완료"
-                                        6 -> "반품 신청중"
-                                        7 -> "반품 완료"
-                                        else -> "알수없음"
-                                    },
+                                    text = OrderStatusMapper.getStatusText(item.status),
                                     color = MainPurple,
                                     fontSize = 12.sp,
                                     fontFamily = Pretendard,
@@ -155,18 +193,29 @@ fun RecentOrderSection(
                                 }
 
                                 // 결제완료 → 주문취소 버튼
-                                if (item.status == 0) {
+                                if (item.status == 1) {
+                                    var showCancelDialog by remember { mutableStateOf(false) }
+
+                                    if (showCancelDialog) {
+                                        CancelOrderReasonDialog(
+                                            orderItemId = item.orderItemId,
+                                            onDismiss = { showCancelDialog = false },
+                                            onConfirmCancel = { vm.requestCancel(it) }
+                                        )
+                                    }
+
                                     MyOrderActionButton(
                                         text = "주문 취소",
                                         modifier = Modifier
                                             .width(70.dp)
                                             .height(28.dp)
-                                            .padding(top = 6.dp)
+                                            .padding(top = 6.dp),
+                                        onClick = { showCancelDialog = true }
                                     )
                                 }
 
                                 // 배송완료 → 교환/반품 신청 버튼
-                                if (item.status == 2) {
+                                if (item.status == 6) {
                                     var showDialog by remember { mutableStateOf(false) }
 
                                     if (showDialog) {
@@ -189,16 +238,26 @@ fun RecentOrderSection(
                                 }
                             }
                         }
-                        IconButton(
-                            onClick = {
-                                cartVm.addOne(item.productId, 1)
-                            },
-                            modifier = Modifier.align(Alignment.CenterVertically)
+
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .size(40.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                                .clickable {
+                                    cartVm.addOne(item.productId, 1)
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("${item.productName}이 장바구니에 추가되었습니다.")
+                                    }
+                                },
+                            contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Default.ShoppingCart,
+                                painter = painterResource(R.drawable.ic_icon_bag),
                                 contentDescription = "장바구니 담기",
-                                tint = MainPurple
+                                tint = Color.Black,
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                     }

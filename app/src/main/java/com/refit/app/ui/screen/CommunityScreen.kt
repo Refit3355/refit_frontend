@@ -16,6 +16,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.refit.app.data.chat.modelAndView.ChatRoomsViewModel
 import com.refit.app.data.chat.modelAndView.ChatRoomsViewModelFactory
+import com.refit.app.ui.composable.combiking.CombiKingSection
 import com.refit.app.ui.composable.community.CategoryChips
 import com.refit.app.ui.composable.community.ChatRoomList
 import com.refit.app.ui.composable.community.CommunityCategory
@@ -66,13 +67,7 @@ fun CommunityScreen(navController: NavController) {
                     )
                 }
             }
-            CommunityTab.COMBI -> {
-                when (selectedCategory) {
-                    CommunityCategory.ALL -> Text("전체 조합왕")
-                    CommunityCategory.BEAUTY -> Text("뷰티 조합왕")
-                    CommunityCategory.HEALTH -> Text("헬스 조합왕")
-                }
-            }
+            CommunityTab.COMBI -> CombiKingSection(navController, selectedCategory)
         }
     }
 }
@@ -82,15 +77,6 @@ private fun GroupChatSection(navController: NavController) {
     // TODO: 카테고리별 실시간 그룹채팅 리스트/입장 UI 구성
     androidx.compose.material3.Text(
         text = "그룹채팅 탭입니다.",
-        modifier = Modifier.padding(16.dp)
-    )
-}
-
-@Composable
-private fun CombiKingSection(navController: NavController) {
-    // TODO: ‘조합왕’ 게시판/피드 UI 구성
-    androidx.compose.material3.Text(
-        text = "조합왕 탭입니다.",
         modifier = Modifier.padding(16.dp)
     )
 }

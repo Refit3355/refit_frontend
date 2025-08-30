@@ -1,10 +1,15 @@
 package com.refit.app.ui.composable.mypage
 
+import android.view.LayoutInflater
+import android.widget.TextView
+import android.widget.Toast
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.foundation.shape.RoundedCornerShape
+import com.refit.app.R
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -23,27 +28,34 @@ import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavController
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
+import com.refit.app.util.order.OrderStatusMapper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
-fun OrderItemRow(item: OrderItemDto, vm: OrderViewModel, cartVm: CartEditViewModel) {
+fun OrderItemRow(
+    item: OrderItemDto,
+    vm: OrderViewModel,
+    cartVm: CartEditViewModel,
+    onCartChanged: () -> Unit,
+    navController: NavController,
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope
+) {
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
     ) {
         // 상태 텍스트
-        val statusText = when (item.status) {
-            0 -> "결제완료"
-            1 -> "배송중"
-            2 -> "배송완료"
-            3 -> "취소완료"
-            4 -> "교환 신청중"
-            5 -> "교환 완료"
-            6 -> "반품 신청중"
-            7 -> "반품 완료"
-            else -> "알수없음"
-        }
+        val statusText = OrderStatusMapper.getStatusText(item.status)
 
         Text(
             text = statusText,
@@ -55,7 +67,11 @@ fun OrderItemRow(item: OrderItemDto, vm: OrderViewModel, cartVm: CartEditViewMod
         )
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    navController.navigate("product/${item.productId}")
+                },
             verticalAlignment = Alignment.CenterVertically
         ) {
             // 상품 이미지
@@ -103,18 +119,29 @@ fun OrderItemRow(item: OrderItemDto, vm: OrderViewModel, cartVm: CartEditViewMod
                 }
 
                 // 주문취소 버튼 (결제완료일 때만)
-                if (item.status == 0) {
+                if (item.status == 1) {
+                    var showCancelDialog by remember { mutableStateOf(false) }
+
+                    if (showCancelDialog) {
+                        CancelOrderReasonDialog(
+                            orderItemId = item.orderItemId,
+                            onDismiss = { showCancelDialog = false },
+                            onConfirmCancel = { vm.requestCancel(it) }
+                        )
+                    }
+
                     Spacer(Modifier.height(10.dp))
                     MyOrderActionButton(
                         text = "주문 취소",
                         modifier = Modifier
                             .width(80.dp)
-                            .height(24.dp)
+                            .height(24.dp),
+                        onClick = { showCancelDialog = true }
                     )
                 }
 
                 // 교환/반품 버튼 (배송완료일 때만)
-                if (item.status == 2) {
+                if (item.status == 6) {
                     var showDialog by remember { mutableStateOf(false) }
 
                     if (showDialog) {
@@ -136,15 +163,27 @@ fun OrderItemRow(item: OrderItemDto, vm: OrderViewModel, cartVm: CartEditViewMod
                 }
             }
 
-            IconButton(onClick = {
-                cartVm.addOne(item.productId, 1)
-            },
-                modifier = Modifier.align(Alignment.CenterVertically)
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                    .clickable {
+                        cartVm.addOne(item.productId, 1)
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "${item.productName}이 장바구니에 추가되었습니다."
+                            )
+                        }
+                    },
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.ShoppingCart,
-                    tint = MainPurple,
-                    contentDescription = "장바구니 담기"
+                    painter = painterResource(R.drawable.ic_icon_bag),
+                    contentDescription = "장바구니 담기",
+                    tint = Color.Black,
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }

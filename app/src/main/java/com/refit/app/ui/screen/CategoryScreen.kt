@@ -7,7 +7,9 @@ import com.refit.app.ui.composable.product.CategoryTabs
 import com.refit.app.ui.composable.product.Group
 import com.refit.app.ui.composable.product.GroupSegmented
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -15,10 +17,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -90,103 +94,127 @@ fun CategoryScreen(
         vm.loadFirstPage(sort = sortParam, group = groupParam, limit = 20, category = categoryId)
     }
 
-    Column(Modifier.fillMaxSize()) {
-        Spacer(Modifier.height(8.dp))
+    Box(Modifier.fillMaxSize()) {
 
-        // 1) 뷰티/헬스
-        GroupSegmented(
-            selected = selectedGroup,
-            onSelected = {
-                if (selectedGroup != it) {
-                    selectedGroup = it
-                    selectedCategoryIndex = 0
-                }
-            },
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(horizontal = 16.dp)
-                .widthIn(max = 300.dp)
-        )
+        // ===== 본문 =====
+        Column(Modifier.fillMaxSize()) {
+            Spacer(Modifier.height(8.dp))
 
-        Spacer(Modifier.height(12.dp))
-
-        // 2) 카테고리 탭
-        CategoryTabs(
-            tabs = categories.map { it.label },
-            selectedIndex = selectedCategoryIndex,
-            onSelect = { selectedCategoryIndex = it },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        // 3) 총 개수 + 정렬
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 28.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            val countText = buildAnnotatedString {
-                append("총 ")
-                withStyle(
-                    SpanStyle(
-                        color = MainPurple,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                ) {
-                    append("${state.totalCount}")
-                }
-                append("개의 상품")
-            }
-
-            Text(
-                countText,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontFamily = Pretendard,
-                    fontWeight = FontWeight.Medium,
-                    letterSpacing = 0.sp
-                )
+            // 1) 뷰티/헬스
+            GroupSegmented(
+                selected = selectedGroup,
+                onSelected = {
+                    if (selectedGroup != it) {
+                        selectedGroup = it
+                        selectedCategoryIndex = 0
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(horizontal = 16.dp)
+                    .widthIn(max = 300.dp)
             )
 
+            Spacer(Modifier.height(12.dp))
+
+            // 2) 카테고리 탭
+            CategoryTabs(
+                tabs = categories.map { it.label },
+                selectedIndex = selectedCategoryIndex,
+                onSelect = { selectedCategoryIndex = it },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            // 3) 총 개수 + 정렬
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .clickable { showSortSheet = true }
-                    .padding(horizontal = 8.dp, vertical = 6.dp)
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 28.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                val countText = buildAnnotatedString {
+                    append("총 ")
+                    withStyle(
+                        SpanStyle(
+                            color = MainPurple,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    ) { append("${state.totalCount}") }
+                    append("개의 상품")
+                }
+
                 Text(
-                    text = sortOptions[selectedSortIndex].first,
+                    countText,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontFamily = Pretendard,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
+                        letterSpacing = 0.sp
                     )
                 )
-                Spacer(Modifier.width(6.dp))
-                Image(
-                    painter = painterResource(id = R.drawable.ic_icon_sort),
-                    contentDescription = "정렬",
-                    modifier = Modifier.size(16.dp)
-                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable { showSortSheet = true }
+                        .padding(horizontal = 8.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = sortOptions[selectedSortIndex].first,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontFamily = Pretendard,
+                            fontWeight = FontWeight.Medium
+                        )
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_icon_sort),
+                        contentDescription = "정렬",
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
             }
+
+            // 4) 상품 그리드 (무한 스크롤 포함)
+            // FAB와 겹치지 않도록 아래 패딩 추가
+            ProductGrid(
+                navController = navController,
+                items = state.items,
+                isLoading = state.isLoading,
+                hasMore = state.hasMore,
+                error = state.error,
+                onLoadMore = { vm.loadNextPage() },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 8.dp, vertical = 8.dp)
+                    .padding(bottom = 100.dp)
+            )
         }
 
-
-        // 4) 상품 그리드 (무한 스크롤 포함)
-        ProductGrid(
-            navController = navController,
-            items = state.items,
-            isLoading = state.isLoading,
-            hasMore = state.hasMore,
-            error = state.error,
-            onLoadMore = { vm.loadNextPage() },
+        // ===== 오른쪽 하단 원형 텍스트 FAB =====
+        FloatingActionButton(
+            onClick = { navController.navigate("ingredient") },
+            shape = CircleShape,
+            containerColor = MainPurple,
+            contentColor = Color.White,
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 8.dp)
-        )
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+                .size(60.dp)
+        ) {
+            Text(
+                text = "성분\n분석",
+                fontSize = 15.sp,
+                textAlign = TextAlign.Center,
+                fontFamily = Pretendard,
+            )
+        }
     }
+
+    // 바텀시트는 다이얼로그 형태라 Box 밖/안 어디든 OK. 여기 두면 FAB 위에 자연스럽게 뜸.
     if (showSortSheet) {
         SortBottomSheet(
             options = sortOptions,

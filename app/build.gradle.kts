@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.services)
     alias(libs.plugins.kotlin.serialization)
 }
 
@@ -16,7 +17,7 @@ android {
             // 멀티-릴리즈 JAR 영역 전체 제외 (안드로이드에서 필요 없음)
             excludes += "META-INF/versions/**"
 
-            // (옵션) 흔한 충돌 메타데이터도 함께 제외
+            // 흔한 충돌 메타데이터도 함께 제외
             excludes += setOf(
                 "META-INF/DEPENDENCIES",
                 "META-INF/NOTICE*",
@@ -145,6 +146,19 @@ dependencies {
 
     // 웹소켓
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // 이미지 미리보기
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.7.3")
+    val cameraX = "1.3.4"
+    implementation("androidx.camera:camera-core:$cameraX")
+    implementation("androidx.camera:camera-camera2:$cameraX")
+    implementation("androidx.camera:camera-lifecycle:$cameraX")
+    implementation("androidx.camera:camera-view:$cameraX")
+
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
+    implementation("com.google.firebase:firebase-messaging")
+
 }
 
 configurations.all {

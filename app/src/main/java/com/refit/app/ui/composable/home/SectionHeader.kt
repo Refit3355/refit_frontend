@@ -1,9 +1,7 @@
 package com.refit.app.ui.composable.home
 
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
@@ -15,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun SectionHeader(
@@ -29,7 +28,9 @@ fun SectionHeader(
         // 제목
         Text(
             text = title,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontFamily = Pretendard
+            ),
             modifier = Modifier.weight(1f)
         )
 

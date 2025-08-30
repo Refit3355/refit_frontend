@@ -9,10 +9,11 @@ class GetSearchProductsUseCase(
 ) {
     suspend operator fun invoke(
         query: String,
+        bhType: String?,
         cursor: String?,
         limit: Int,
         sort: String?
-    ): Result<ProductsPage> = repo.searchProducts(query, cursor, limit, sort)
+    ): Result<ProductsPage> = repo.searchProducts(query, bhType, cursor, limit, sort)
         .map { res ->
             ProductsPage(
                 items = res.items.map { dto ->

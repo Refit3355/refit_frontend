@@ -11,24 +11,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.refit.app.data.local.wish.WishStore
+import androidx.navigation.NavController
+import com.refit.app.data.local.combination.MyCombinationStore
 import com.refit.app.data.combination.modelAndView.LikedCombinationViewModel
 import com.refit.app.ui.composable.combination.CombinationCard
+import com.refit.app.ui.theme.Pretendard
 import kotlinx.coroutines.launch
 
 @Composable
-fun LikedCombinationListScreen(vm: LikedCombinationViewModel = viewModel()) {
+fun LikedCombinationListScreen(
+    navController: NavController,
+    vm: LikedCombinationViewModel = viewModel()
+) {
     val state by vm.state.collectAsState()
 
     val context = LocalContext.current
-    val wishStore = remember { WishStore(context) }
-    val wishedIds by wishStore.wishedIds.collectAsState(initial = emptySet())
+    val myCombinationStore = remember { MyCombinationStore(context) }
+    val savedIds by myCombinationStore.savedIds.collectAsState(initial = emptySet())
     val scope = rememberCoroutineScope()
 
-    // SharedPreference에 저장된 combinationId 기반으로 조회
-    LaunchedEffect(wishedIds) {
-        if (wishedIds.isNotEmpty()) {
-            vm.loadLikedCombinations(wishedIds)
+    // MyCombinationStore에 저장된 combinationId 기반으로 조회
+    LaunchedEffect(savedIds) {
+        if (savedIds.isNotEmpty()) {
+            vm.loadLikedCombinations(savedIds)
         }
     }
 
@@ -50,21 +55,26 @@ fun LikedCombinationListScreen(vm: LikedCombinationViewModel = viewModel()) {
                 items(state.combinations) { combination ->
                     CombinationCard(
                         combination = combination,
-                        isSaved = wishedIds.contains(combination.combinationId),
+                        isSaved = savedIds.contains(combination.combinationId),
                         onToggleSave = { id ->
                             scope.launch {
-                                if (wishedIds.contains(id)) {
-                                    // 이미 저장된 상태라면 → 해제
+                                val wasSaved = savedIds.contains(id)
+
+                                // SharedPreference에서 제거
+                                myCombinationStore.toggle(id)
+
+                                // 서버에도 반영
+                                if (wasSaved) {
                                     vm.dislikeCombination(id)
                                 } else {
-                                    // 저장되지 않은 상태라면 → 등록
                                     vm.likeCombination(id)
                                 }
-
-                                wishStore.toggle(id)
                             }
                         },
-                        showSaveButton = true
+                        showSaveButton = true,
+                        onClick = { id ->
+                            navController.navigate("combinationDetail/$id")
+                        }
                     )
                 }
             }
