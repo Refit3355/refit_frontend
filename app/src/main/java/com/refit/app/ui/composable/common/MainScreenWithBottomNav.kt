@@ -390,7 +390,7 @@ fun MainScreenWithBottomNav(
                 }
 
                 // 내가 생성한 조합 목록
-                composable("created_combinations") { CreatedCombinationListScreen() }
+                composable("created_combinations") { CreatedCombinationListScreen(navController) }
 
                 // 조합 상세 페이지
                 composable(
