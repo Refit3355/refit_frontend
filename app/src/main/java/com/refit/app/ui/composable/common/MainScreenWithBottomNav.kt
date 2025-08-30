@@ -379,7 +379,7 @@ fun MainScreenWithBottomNav(
                 }
 
                 // 내가 저장한 조합 목록
-                composable("liked_combinations") { LikedCombinationListScreen() }
+                composable("liked_combinations") { LikedCombinationListScreen(navController) }
 
                 // 내 주문 내역
                 composable("orders") {
@@ -392,7 +392,6 @@ fun MainScreenWithBottomNav(
                 // 내가 생성한 조합 목록
                 composable("created_combinations") { CreatedCombinationListScreen() }
 
-                // 조합 상세 페이지
                 // 조합 상세 페이지
                 composable(
                     route = "combinationDetail/{combinationId}",

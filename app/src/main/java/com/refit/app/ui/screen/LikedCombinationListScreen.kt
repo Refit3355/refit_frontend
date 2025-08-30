@@ -11,13 +11,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.refit.app.data.local.combination.MyCombinationStore
 import com.refit.app.data.combination.modelAndView.LikedCombinationViewModel
 import com.refit.app.ui.composable.combination.CombinationCard
 import kotlinx.coroutines.launch
 
 @Composable
-fun LikedCombinationListScreen(vm: LikedCombinationViewModel = viewModel()) {
+fun LikedCombinationListScreen(
+    navController: NavController,
+    vm: LikedCombinationViewModel = viewModel()
+) {
     val state by vm.state.collectAsState()
 
     val context = LocalContext.current
@@ -66,7 +70,10 @@ fun LikedCombinationListScreen(vm: LikedCombinationViewModel = viewModel()) {
                                 }
                             }
                         },
-                        showSaveButton = true
+                        showSaveButton = true,
+                        onClick = { id ->
+                            navController.navigate("combinationDetail/$id")
+                        }
                     )
                 }
             }

@@ -1,6 +1,7 @@
 package com.refit.app.ui.composable.combination
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,12 +29,14 @@ fun CombinationCard(
     combination: CombinationDto,
     isSaved: Boolean,
     onToggleSave: (Long) -> Unit,
-    showSaveButton: Boolean = true
+    showSaveButton: Boolean = true,
+    onClick: (Long) -> Unit = {}
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp, horizontal = 12.dp),
+            .padding(vertical = 6.dp, horizontal = 12.dp)
+            .clickable { onClick(combination.combinationId) },
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F3FF)),
         shape = RoundedCornerShape(12.dp)
     ) {
