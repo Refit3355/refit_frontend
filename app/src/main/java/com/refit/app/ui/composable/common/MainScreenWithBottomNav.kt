@@ -49,6 +49,7 @@ import com.refit.app.data.auth.modelAndView.FormMode
 import com.refit.app.data.auth.modelAndView.KakaoFlowStore
 import com.refit.app.data.myfit.viewmodel.MyfitViewModel
 import com.refit.app.data.auth.modelAndView.SignupViewModel
+import com.refit.app.ui.screen.ChatRoomScreen
 import com.refit.app.data.product.model.Product
 import com.refit.app.ui.screen.AnalysisResultScreen
 import com.refit.app.ui.screen.AnalysisScreen
@@ -443,6 +444,21 @@ fun MainScreenWithBottomNav(
                     )
                 }
 
+                composable("created_combinations") { CreatedCombinationListScreen(navController) }
+
+                // 채팅방
+                composable(
+                    route = "chat/{categoryId}",
+                    arguments = listOf(
+                        navArgument("categoryId") { type = NavType.LongType }
+                    )
+                ) { backStackEntry ->
+                    val categoryId = backStackEntry.arguments!!.getLong("categoryId")
+                    ChatRoomScreen(
+                        navController = navController,
+                        categoryId    = categoryId
+                    )
+                }
             }
         }
     }

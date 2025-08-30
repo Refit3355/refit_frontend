@@ -46,11 +46,12 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                 showActions = true
             )
 
-        route in listOf("notifications", "cart", "myfit/register") || route.startsWith("myfit/edit") ->
+        route in listOf("notifications", "cart", "myfit/register") || route.startsWith("myfit/edit") || route.startsWith("chat") ->
             AppBarConfig.BackOnly(
                 title = if (route == "notifications") "알림함"
                 else if (route == "cart") "장바구니"
                 else if (route == "myfit/register") "상품 등록"
+                else if (route.startsWith("chat")) "그룹채팅"
                 else "상품 수정",
                 onBack = { nav.popBackStack() }
             )
