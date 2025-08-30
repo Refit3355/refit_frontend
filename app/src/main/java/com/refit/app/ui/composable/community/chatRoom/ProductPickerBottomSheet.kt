@@ -19,7 +19,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.refit.app.ui.theme.LightPurple
+import com.refit.app.ui.theme.MainPurple
+import com.refit.app.ui.theme.Pretendard
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -35,11 +39,11 @@ data class ListPage<T>(
 
 data class ProductSummary(
     val id: Long,
-    val name: String,
-    val imageUrl: String?,
-    val priceFormatted: String?,
+    val productName: String,
+    val thumbnailUrl: String?,
+    val price: String?,
     val discountRate: Int? = null,
-    val discountedPriceFormatted: String? = null
+    val discountedPrice: Int? = null
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -114,10 +118,13 @@ fun ProductPickerBottomSheet(
                 .fillMaxWidth()
                 .background(Color.White)
                 .navigationBarsPadding()
+                .padding(horizontal = 16.dp)
         ) {
             Text(
                 text = "상품 선택",
-                style = MaterialTheme.typography.titleMedium,
+                fontFamily = Pretendard,
+                fontSize = 16.sp,
+                fontWeight = FontWeight(500),
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
             )
 
@@ -127,11 +134,23 @@ fun ProductPickerBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                placeholder = { Text("상품명을 입력하세요") },
-                singleLine = true
+                placeholder = {
+                    Text(
+                        text ="상품명을 입력하세요",
+                        fontFamily = Pretendard,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight(500),
+                    ) },
+                singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = MainPurple,                               // 포커스 시 테두리
+                    unfocusedIndicatorColor = Color(0xFFE0E0E0),                // 비포커스 테두리
+                    unfocusedContainerColor = Color.White,
+                    focusedContainerColor = Color.White
+                )
             )
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(12.dp))
 
             if (isRefreshing && items.isEmpty()) {
                 Box(Modifier.fillMaxWidth().padding(20.dp), contentAlignment = Alignment.Center) {
@@ -190,59 +209,88 @@ private fun ProductRow(item: ProductSummary, onClick: () -> Unit) {
             contentAlignment = Alignment.Center
         ) {
             AsyncImage(
-                model = item.imageUrl,
+                model = item.thumbnailUrl,
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize()
             )
         }
+
         Spacer(Modifier.width(12.dp))
+
         Column(Modifier.weight(1f)) {
-            val hasDiscount = (item.discountRate ?: 0) > 0 && !item.discountedPriceFormatted.isNullOrBlank()
+            // 1) 상품명 추가
+            Text(
+                text = item.productName,
+                fontFamily = Pretendard,
+                fontSize = 14.sp,
+                fontWeight = FontWeight(500),
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            val hasDiscount = (item.discountRate ?: 0) > 0 && item.discountedPrice != null
+
             if (hasDiscount) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // 할인율 칩
+                    // 2) 할인율 칩
                     Surface(
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                        color = LightPurple,
+                        contentColor = Color.Black,
                         shape = RoundedCornerShape(6.dp)
                     ) {
                         Text(
                             text = "${item.discountRate}%",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
+                            fontFamily = Pretendard,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight(500),
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                         )
                     }
+
                     Spacer(Modifier.width(8.dp))
 
                     // 할인가 (강조)
-                    Text(
-                        text = item.discountedPriceFormatted!!,
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    item.discountedPrice?.let { dp ->
+                        Text(
+                            text = dp.toWon(),
+                            fontFamily = Pretendard,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight(500)
+                        )
+                    }
+
                     Spacer(Modifier.width(8.dp))
 
-                    // 정가 (취소선, 보조색)
-                    item.priceFormatted?.let {
+                    // 정가 (취소선)
+                    item.price?.let {
                         Text(
                             text = it,
-                            style = MaterialTheme.typography.labelSmall,
+                            fontFamily = Pretendard,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight(500),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textDecoration = TextDecoration.LineThrough
                         )
                     }
                 }
             } else {
-                // 할인 없을 때: 정가만
-                item.priceFormatted?.let {
+                // 할인 없음: 정가만
+                item.price?.let {
                     Text(
                         text = it,
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurface
+                        fontFamily = Pretendard,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight(500),
+                        color = Color.Black
                     )
                 }
             }
         }
     }
 }
+
+private fun Int.toWon(): String = "%,d원".format(this)
+private fun String?.toWonFromRaw(): String =
+    this?.toIntOrNull()?.let { "%,d원".format(it) } ?: ""
