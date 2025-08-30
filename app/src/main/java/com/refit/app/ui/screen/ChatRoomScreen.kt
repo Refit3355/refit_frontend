@@ -53,7 +53,8 @@ fun ChatRoomScreen(
         vm.loadInitial(categoryId, size = 20)              // 1) 초기 HTTP 로드
 
         // 에뮬레이터 ← PC 서버에 연결
-        val wsUrl = "ws://10.0.2.2:8080/ws-stomp"
+        // val wsUrl = "ws://10.0.2.2:8080/ws-stomp" // 로컬
+        val wsUrl = "wss://api.refit.today/ws-stomp" // 서버
         vm.connectRealtime(categoryId, wsUrl)
     }
 
@@ -245,9 +246,11 @@ fun ChatRoomScreen(
                                         items = page.items.map { p ->
                                             ProductSummary(
                                                 id = p.id,
-                                                name = p.name,
-                                                imageUrl = p.image,
-                                                priceFormatted = formatWon(p.discountedPrice ?: p.price)
+                                                productName = p.name,
+                                                thumbnailUrl = p.image,
+                                                price = formatWon(p.price),
+                                                discountRate = p.discountRate,
+                                                discountedPrice = p.discountedPrice
                                             )
                                         },
                                         nextCursor = page.nextCursor,
