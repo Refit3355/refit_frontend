@@ -1,4 +1,4 @@
-package com.refit.app.util.price
+package com.refit.app.util.common
 
 object PriceUtil {
     fun formatPrice(value: Long): String {

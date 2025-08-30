@@ -10,11 +10,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.refit.app.data.me.modelAndView.MyCombinationViewModel
 import com.refit.app.ui.composable.combination.CombinationCard
 
 @Composable
-fun CreatedCombinationListScreen(vm: MyCombinationViewModel = viewModel()) {
+fun CreatedCombinationListScreen(
+    navController: NavController,
+    vm: MyCombinationViewModel = viewModel()
+) {
     val state by vm.state.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -41,7 +45,10 @@ fun CreatedCombinationListScreen(vm: MyCombinationViewModel = viewModel()) {
                         combination = combination,
                         isSaved = false,
                         onToggleSave = {},
-                        showSaveButton = false
+                        showSaveButton = false,
+                        onClick = { id ->
+                            navController.navigate("combinationDetail/$id")
+                        }
                     )
                 }
             }

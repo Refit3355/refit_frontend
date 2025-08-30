@@ -8,6 +8,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -30,10 +32,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavController
 import com.refit.app.R
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
 import com.refit.app.data.me.modelAndView.OrderViewModel
 import com.refit.app.util.order.OrderStatusMapper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -42,6 +47,10 @@ fun RecentOrderSection(
     onClickAll: () -> Unit,
     vm: OrderViewModel,
     cartVm: CartEditViewModel,
+    onCartChanged: () -> Unit,
+    navController: NavController,
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope
 ) {
     val context = LocalContext.current
 
@@ -56,14 +65,40 @@ fun RecentOrderSection(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "최근 주문 내역",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = Pretendard
-            )
-            TextButton(onClick = { onClickAll() }) {
-                Text("전체보기", fontFamily = Pretendard, color = MainPurple)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_list),
+                    contentDescription = "최근 주문 내역",
+                    tint = Color.Black,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = "최근 주문 내역",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Pretendard
+                )
+            }
+            TextButton(
+                onClick = { onClickAll() },
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        "전체보기",
+                        fontFamily = Pretendard,
+                        color = MainPurple
+                    )
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = "전체보기 이동",
+                        tint = MainPurple,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .padding(start = 2.dp)
+                    )
+                }
             }
         }
 
@@ -102,7 +137,10 @@ fun RecentOrderSection(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
+                            .padding(vertical = 8.dp)
+                            .clickable {
+                                navController.navigate("product/${item.productId}")
+                            },
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -209,17 +247,8 @@ fun RecentOrderSection(
                                 .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
                                 .clickable {
                                     cartVm.addOne(item.productId, 1)
-
-                                    val inflater = LayoutInflater.from(context)
-                                    val layout = inflater.inflate(R.layout.custom_toast, null)
-
-                                    val textView = layout.findViewById<TextView>(R.id.toastText)
-                                    textView.text = "${item.productName}이 장바구니에 추가되었습니다."
-
-                                    Toast(context).apply {
-                                        duration = Toast.LENGTH_SHORT
-                                        view = layout
-                                        show()
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("${item.productName}이 장바구니에 추가되었습니다.")
                                     }
                                 },
                             contentAlignment = Alignment.Center

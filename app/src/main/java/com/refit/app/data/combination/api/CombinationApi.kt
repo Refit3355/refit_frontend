@@ -4,6 +4,8 @@ import com.refit.app.data.combination.model.CombinationDetailResponse
 import com.refit.app.data.combination.model.CombinationLikeResponse
 import com.refit.app.data.combination.model.LikedCombinationRequest
 import com.refit.app.data.combination.model.CombinationsResponse
+import com.refit.app.data.combination.model.CreateCombinationRequest
+import com.refit.app.data.combination.model.CreateCombinationResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
@@ -38,4 +40,10 @@ interface CombinationApi {
     suspend fun getCombinationDetail(
         @Path("id") id: Long
     ): CombinationDetailResponse
+
+    @POST("combinations/create")
+    @Headers("Requires-Auth: true")
+    suspend fun createCombination(
+        @Body req: CreateCombinationRequest
+    ): CreateCombinationResponse
 }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ListAlt
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Save
@@ -14,12 +15,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.refit.app.data.push.PushRegistrar
 import com.refit.app.data.push.repository.NotificationRepository
-import com.refit.app.network.RetrofitInstance
 import com.refit.app.network.TokenManager
 import com.refit.app.network.UserPrefs
 import com.refit.app.ui.theme.MainPurple
@@ -41,7 +42,7 @@ fun MypageMenuSection(navController: NavController) {
         ) {
             Icon(Icons.Default.Favorite, contentDescription = null, tint = MainPurple)
             Spacer(Modifier.width(12.dp))
-            Text("찜 목록", fontSize = 16.sp, fontFamily = Pretendard, color = MainPurple)
+            Text("찜 목록", fontSize = 16.sp, fontWeight = FontWeight.Medium, fontFamily = Pretendard, color = MainPurple)
         }
 
         Spacer(Modifier.height(4.dp))
@@ -55,9 +56,19 @@ fun MypageMenuSection(navController: NavController) {
                 .clickable { navController.navigate("liked_combinations") }
                 .padding(vertical = 12.dp)
         ) {
-            Icon(Icons.Default.Save, contentDescription = null, tint = MainPurple)
+            Icon(
+                imageVector = Icons.Filled.Bookmark,
+                contentDescription = null,
+                tint = MainPurple
+            )
             Spacer(Modifier.width(12.dp))
-            Text("저장한 조합 목록", fontSize = 16.sp, fontFamily = Pretendard, color = MainPurple)
+            Text(
+                "저장한 조합 목록",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = Pretendard,
+                color = MainPurple
+            )
         }
 
         Spacer(Modifier.height(4.dp))
@@ -72,7 +83,7 @@ fun MypageMenuSection(navController: NavController) {
         ) {
             Icon(Icons.AutoMirrored.Filled.ListAlt, contentDescription = null, tint = MainPurple)
             Spacer(Modifier.width(12.dp))
-            Text("내가 생성한 조합", fontSize = 16.sp, fontFamily = Pretendard, color = MainPurple)
+            Text("내가 생성한 조합", fontSize = 16.sp, fontWeight = FontWeight.Medium, fontFamily = Pretendard, color = MainPurple)
         }
 
         Spacer(Modifier.height(4.dp))
@@ -105,7 +116,7 @@ fun MypageMenuSection(navController: NavController) {
         ) {
             Icon(Icons.Default.Logout, contentDescription = null, tint = MainPurple)
             Spacer(Modifier.width(12.dp))
-            Text("로그아웃", fontSize = 16.sp, fontFamily = Pretendard, color = MainPurple)
+            Text("로그아웃", fontSize = 16.sp, fontWeight = FontWeight.Medium, fontFamily = Pretendard, color = MainPurple)
         }
 
         Spacer(Modifier.height(4.dp))
