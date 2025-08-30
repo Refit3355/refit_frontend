@@ -151,7 +151,7 @@ fun CombiKingSection(
                         ) {
                             sortOptions.forEach { (value, label) ->
                                 DropdownMenuItem(
-                                    text = { Text(label) },
+                                    text = { Text(label, fontFamily = Pretendard) },
                                     onClick = {
                                         selectedSort = value
                                         expanded = false

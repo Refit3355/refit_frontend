@@ -55,7 +55,7 @@ fun ExchangeReturnReasonDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp)
-                .border(3.dp, Color.Black, RoundedCornerShape(16.dp))
+                .border(3.dp, Color.White, RoundedCornerShape(16.dp))
         ) {
             Column(
                 modifier = Modifier

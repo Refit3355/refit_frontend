@@ -27,6 +27,7 @@ import com.refit.app.ui.theme.MainPurple
 import androidx.compose.foundation.border
 import coil.compose.AsyncImage
 import com.refit.app.network.UserPrefs
+import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun GreetingCard(nickname: String, tags: List<String>) {
@@ -83,6 +84,7 @@ fun GreetingCard(nickname: String, tags: List<String>) {
                         }
                     },
                     fontSize = 16.sp,
+                    fontFamily = Pretendard,
                     lineHeight = 22.sp
                 )
 

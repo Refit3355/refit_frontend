@@ -121,10 +121,22 @@ fun HomeScreen(
 
             MaterialTheme(
                 typography = MaterialTheme.typography.copy(
-                    titleMedium = MaterialTheme.typography.titleMedium.copy(color = Color.Black),
-                    bodyMedium  = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
-                    bodyLarge   = MaterialTheme.typography.bodyLarge.copy(color = Color.Black),
-                    labelMedium = MaterialTheme.typography.labelMedium.copy(color = Color.Gray)
+                    titleMedium = MaterialTheme.typography.titleMedium.copy(
+                        color = Color.Black,
+                        fontFamily = Pretendard
+                    ),
+                    bodyMedium  = MaterialTheme.typography.bodyMedium.copy(
+                        color = Color.Black,
+                        fontFamily = Pretendard
+                    ),
+                    bodyLarge   = MaterialTheme.typography.bodyLarge.copy(
+                        color = Color.Black,
+                        fontFamily = Pretendard
+                    ),
+                    labelMedium = MaterialTheme.typography.labelMedium.copy(
+                        color = Color.Gray,
+                        fontFamily = Pretendard
+                    )
                 )
             ) {
                 // === 걸음수 기반 섹션 ===

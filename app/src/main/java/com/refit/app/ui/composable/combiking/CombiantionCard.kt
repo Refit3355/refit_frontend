@@ -69,6 +69,7 @@ fun CombinationCard(
                     Text(
                         PriceUtil.formatPrice(combination.discountedTotalPrice),
                         fontSize = 16.sp,
+                        fontFamily = Pretendard,
                         color = MainPurple,
                         fontWeight = FontWeight.Bold
                     )
@@ -76,6 +77,7 @@ fun CombinationCard(
                     Text(
                         PriceUtil.formatPrice(combination.originalTotalPrice),
                         fontSize = 14.sp,
+                        fontFamily = Pretendard,
                         color = Color.Gray,
                         textDecoration = TextDecoration.LineThrough
                     )
@@ -140,6 +142,7 @@ fun CombinationCard(
                 Text(
                     text = "${combination.likes}",
                     fontSize = 12.sp,
+                    fontFamily = Pretendard,
                     fontWeight = FontWeight.Bold,
                     color = MainPurple
                 )

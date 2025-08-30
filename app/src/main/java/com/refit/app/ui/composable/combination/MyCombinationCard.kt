@@ -78,6 +78,7 @@ fun CombinationCard(
                     Text(
                         text = "${combination.discountedTotalPrice}원",
                         fontSize = 16.sp,
+                        fontFamily = Pretendard,
                         color = MainPurple,
                         fontWeight = FontWeight.Bold
                     )
@@ -85,6 +86,7 @@ fun CombinationCard(
                     Text(
                         text = "${combination.originalTotalPrice}원",
                         fontSize = 14.sp,
+                        fontFamily = Pretendard,
                         color = Color.Gray,
                         textDecoration = TextDecoration.LineThrough
                     )
@@ -192,6 +194,7 @@ fun CombinationCard(
                     Text(
                         text = "저장수: ${combination.likes ?: 0}",
                         fontSize = 12.sp,
+                        fontFamily = Pretendard,
                         fontWeight = FontWeight.Bold,
                         color = MainPurple,
                     )

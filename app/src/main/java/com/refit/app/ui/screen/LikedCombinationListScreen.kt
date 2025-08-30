@@ -15,6 +15,7 @@ import androidx.navigation.NavController
 import com.refit.app.data.local.combination.MyCombinationStore
 import com.refit.app.data.combination.modelAndView.LikedCombinationViewModel
 import com.refit.app.ui.composable.combination.CombinationCard
+import com.refit.app.ui.theme.Pretendard
 import kotlinx.coroutines.launch
 
 @Composable

@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.refit.app.data.health.model.MetricItem
 import com.refit.app.ui.theme.MainPurple
+import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun MetricCard(item: MetricItem, modifier: Modifier = Modifier) {
@@ -52,6 +53,7 @@ fun MetricCard(item: MetricItem, modifier: Modifier = Modifier) {
                     text = item.title,
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontSize = 12.sp,
+                        fontFamily = Pretendard,
                         color = Color(0xFF6B6B6B)
                     ),
                     textAlign = TextAlign.Center,
@@ -66,6 +68,7 @@ fun MetricCard(item: MetricItem, modifier: Modifier = Modifier) {
                     text = "${item.value}${item.unit}",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontSize = 15.sp,
+                        fontFamily = Pretendard,
                         fontWeight = FontWeight.Bold,
                         color = if (item.value != "--") MainPurple
                         else Color(0xFF6B6B6B)

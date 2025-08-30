@@ -43,6 +43,7 @@ import com.refit.app.data.cart.modelAndView.CartOpType
 import com.refit.app.data.cart.repository.CartRepository
 import com.refit.app.network.RetrofitInstance
 import com.refit.app.util.common.PriceUtil
+import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun CombinationDetailScreen(
@@ -131,7 +132,7 @@ fun CombinationDetailScreen(
                         )
                     }
                     Spacer(Modifier.height(2.dp))
-                    Text("저장", fontSize = 12.sp, lineHeight = 12.sp, color = Color.Gray)
+                    Text("저장", fontSize = 12.sp, lineHeight = 12.sp, color = Color.Gray, fontFamily = Pretendard)
                 }
 
                 // 장바구니 버튼
@@ -161,7 +162,7 @@ fun CombinationDetailScreen(
                         brush = androidx.compose.ui.graphics.SolidColor(MainPurple)
                     )
                 ) {
-                    Text("장바구니")
+                    Text("장바구니", fontFamily = Pretendard)
                 }
 
                 // 구매하기 버튼
@@ -171,7 +172,7 @@ fun CombinationDetailScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = MainPurple),
                     shape = RoundedCornerShape(4.dp)
                 ) {
-                    Text("구매하기", color = Color.White)
+                    Text("구매하기", color = Color.White, fontFamily = Pretendard)
                 }
             }
         }
@@ -232,15 +233,16 @@ fun CombinationDetailScreen(
                                 )
                                 Spacer(Modifier.width(6.dp))
                                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                                    Text(product.brandName ?: "", fontSize = 10.sp, lineHeight = 10.sp, color = Color.Black, maxLines = 1)
-                                    Text(product.productName, fontSize = 11.sp, lineHeight = 11.sp, fontWeight = FontWeight.Bold, color = Color.Black, maxLines = 1)
+                                    Text(product.brandName ?: "", fontSize = 10.sp, lineHeight = 10.sp, color = Color.Black, maxLines = 1, fontFamily = Pretendard)
+                                    Text(product.productName, fontSize = 11.sp, lineHeight = 11.sp, fontWeight = FontWeight.Bold, color = Color.Black, maxLines = 1, fontFamily = Pretendard)
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(
                                             "${product.discountRate}%",
                                             color = Color.Red,
                                             fontSize = 11.sp,
                                             lineHeight = 11.sp,
-                                            fontWeight = FontWeight.Bold
+                                            fontWeight = FontWeight.Bold,
+                                            fontFamily = Pretendard
                                         )
                                         Spacer(Modifier.width(2.dp))
                                         Text(
@@ -248,7 +250,8 @@ fun CombinationDetailScreen(
                                             fontSize = 11.sp,
                                             lineHeight = 11.sp,
                                             fontWeight = FontWeight.Medium,
-                                            color = Color.Black
+                                            color = Color.Black,
+                                            fontFamily = Pretendard
                                         )
                                     }
                                 }
@@ -266,11 +269,11 @@ fun CombinationDetailScreen(
                             modifier = Modifier.size(24.dp).clip(RoundedCornerShape(50)).background(Color.White)
                         )
                         Spacer(Modifier.width(6.dp))
-                        Text(detail.nickname, style = MaterialTheme.typography.bodySmall, color = Color.Black)
+                        Text(detail.nickname, style = MaterialTheme.typography.bodySmall, color = Color.Black, fontFamily = Pretendard)
                     }
 
                     Spacer(Modifier.height(8.dp))
-                    Text(detail.combinationName, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium, color = Color.Black)
+                    Text(detail.combinationName, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium, color = Color.Black, fontFamily = Pretendard)
                     Spacer(Modifier.height(8.dp))
 
                     Row(verticalAlignment = Alignment.Bottom) {
@@ -278,7 +281,8 @@ fun CombinationDetailScreen(
                             PriceUtil.formatPrice(detail.discountedTotalPrice),
                             fontWeight = FontWeight.Bold,
                             color = Color.Black,
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontFamily = Pretendard
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(
@@ -286,14 +290,15 @@ fun CombinationDetailScreen(
                             style = MaterialTheme.typography.bodySmall.copy(
                                 textDecoration = TextDecoration.LineThrough
                             ),
-                            color = Color.Gray
+                            color = Color.Gray,
+                            fontFamily = Pretendard
                         )
                     }
 
                     Spacer(Modifier.height(16.dp))
                     HorizontalDivider(thickness = 1.dp, color = Color(0xFFE0E0E0))
                     Spacer(Modifier.height(12.dp))
-                    Text(detail.combinationDescription, color = Color.Black)
+                    Text(detail.combinationDescription, color = Color.Black, fontFamily = Pretendard)
                 }
             }
         }
