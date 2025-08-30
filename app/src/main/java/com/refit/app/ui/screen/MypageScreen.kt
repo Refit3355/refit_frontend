@@ -23,7 +23,14 @@ import com.refit.app.ui.composable.mypage.RecentOrderSection
 import com.refit.app.data.me.modelAndView.OrderViewModel
 import com.refit.app.network.RetrofitInstance
 import androidx.compose.foundation.ScrollState
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.Alignment
 
 @Composable
 fun MypageScreen(
@@ -36,9 +43,10 @@ fun MypageScreen(
     val repo = remember { CartRepository(api) }
     val badgeVm = remember { CartBadgeViewModel(repo) }
     val cartVm = remember { CartEditViewModel(repo, badgeVm) }
-    val scrollState = rememberSaveable(saver = ScrollState.Saver) {
-        ScrollState(0)
-    }
+    val scrollState = rememberSaveable(saver = ScrollState.Saver) { ScrollState(0) }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         vm.loadOrders()
@@ -49,38 +57,56 @@ fun MypageScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-    ) {
-        val nickname = UserPrefs.getNickname()
-        val tags = UserPrefs.getTags()
-
-        MypageProfileCard(
-            nickname = nickname ?: "사용자",
-            tags = tags,
-            onEditClick = { navController.navigate("account/health/edit") },
-            onArrowClick = { navController.navigate("account/edit") }
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        // 최신 주문 1건
-        state.orders?.recentOrder
-            ?.maxByOrNull { order -> order.items.maxOfOrNull { it.createdAt } ?: "" }
-            ?.let { latestOrder ->
-                RecentOrderSection(
-                    order = latestOrder,
-                    onClickAll = { navController.navigate("orders") },
-                    vm = vm,
-                    cartVm = cartVm,
-                    onCartChanged = onCartChanged,
-                    navController = navController
+    Scaffold(
+        containerColor = Color.White
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .padding(
+                    start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                    end   = padding.calculateEndPadding(LayoutDirection.Ltr)
                 )
+                .fillMaxSize()
+        ) {
+            Column(
+                modifier = Modifier.verticalScroll(scrollState)
+            ) {
+                val nickname = UserPrefs.getNickname()
+                val tags = UserPrefs.getTags()
+
+                MypageProfileCard(
+                    nickname = nickname ?: "사용자",
+                    tags = tags,
+                    onEditClick = { navController.navigate("account/health/edit") },
+                    onArrowClick = { navController.navigate("account/edit") }
+                )
+
                 Spacer(Modifier.height(12.dp))
+
+                state.orders?.recentOrder
+                    ?.maxByOrNull { order -> order.items.maxOfOrNull { it.createdAt } ?: "" }
+                    ?.let { latestOrder ->
+                        RecentOrderSection(
+                            order = latestOrder,
+                            onClickAll = { navController.navigate("orders") },
+                            vm = vm,
+                            cartVm = cartVm,
+                            onCartChanged = onCartChanged,
+                            navController = navController,
+                            snackbarHostState = snackbarHostState,
+                            scope = scope
+                        )
+                        Spacer(Modifier.height(12.dp))
+                    }
+
+                MypageMenuSection(navController = navController)
             }
 
-        MypageMenuSection(navController = navController)
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+            )
+        }
     }
 }

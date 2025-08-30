@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.refit.app.R
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +34,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
 import com.refit.app.util.order.OrderStatusMapper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun OrderItemRow(
@@ -40,7 +43,9 @@ fun OrderItemRow(
     vm: OrderViewModel,
     cartVm: CartEditViewModel,
     onCartChanged: () -> Unit,
-    navController: NavController
+    navController: NavController,
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope
 ) {
     val context = LocalContext.current
 
@@ -166,16 +171,10 @@ fun OrderItemRow(
                     .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
                     .clickable {
                         cartVm.addOne(item.productId, 1)
-
-                        val inflater = LayoutInflater.from(context)
-                        val layout = inflater.inflate(R.layout.custom_toast, null)
-                        val textView = layout.findViewById<TextView>(R.id.toastText)
-                        textView.text = "${item.productName}이 장바구니에 추가되었습니다."
-
-                        Toast(context).apply {
-                            duration = Toast.LENGTH_SHORT
-                            view = layout
-                            show()
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "${item.productName}이 장바구니에 추가되었습니다."
+                            )
                         }
                     },
                 contentAlignment = Alignment.Center

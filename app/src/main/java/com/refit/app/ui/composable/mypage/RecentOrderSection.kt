@@ -35,6 +35,8 @@ import com.refit.app.R
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
 import com.refit.app.data.me.modelAndView.OrderViewModel
 import com.refit.app.util.order.OrderStatusMapper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -44,7 +46,9 @@ fun RecentOrderSection(
     vm: OrderViewModel,
     cartVm: CartEditViewModel,
     onCartChanged: () -> Unit,
-    navController: NavController
+    navController: NavController,
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope
 ) {
     val context = LocalContext.current
 
@@ -215,14 +219,8 @@ fun RecentOrderSection(
                                 .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
                                 .clickable {
                                     cartVm.addOne(item.productId, 1)
-                                    val inflater = LayoutInflater.from(context)
-                                    val layout = inflater.inflate(R.layout.custom_toast, null)
-                                    val textView = layout.findViewById<TextView>(R.id.toastText)
-                                    textView.text = "${item.productName}이 장바구니에 추가되었습니다."
-                                    Toast(context).apply {
-                                        duration = Toast.LENGTH_SHORT
-                                        view = layout
-                                        show()
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("${item.productName}이 장바구니에 추가되었습니다.")
                                     }
                                 },
                             contentAlignment = Alignment.Center
