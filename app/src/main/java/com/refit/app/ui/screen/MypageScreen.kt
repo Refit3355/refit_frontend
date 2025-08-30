@@ -1,7 +1,6 @@
 package com.refit.app.ui.screen
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,6 +22,8 @@ import com.refit.app.ui.composable.mypage.MypageProfileCard
 import com.refit.app.ui.composable.mypage.RecentOrderSection
 import com.refit.app.data.me.modelAndView.OrderViewModel
 import com.refit.app.network.RetrofitInstance
+import androidx.compose.foundation.ScrollState
+import androidx.compose.runtime.saveable.rememberSaveable
 
 @Composable
 fun MypageScreen(
@@ -35,6 +36,9 @@ fun MypageScreen(
     val repo = remember { CartRepository(api) }
     val badgeVm = remember { CartBadgeViewModel(repo) }
     val cartVm = remember { CartEditViewModel(repo, badgeVm) }
+    val scrollState = rememberSaveable(saver = ScrollState.Saver) {
+        ScrollState(0)
+    }
 
     LaunchedEffect(Unit) {
         vm.loadOrders()
@@ -48,7 +52,7 @@ fun MypageScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scrollState)
     ) {
         val nickname = UserPrefs.getNickname()
         val tags = UserPrefs.getTags()
@@ -71,7 +75,8 @@ fun MypageScreen(
                     onClickAll = { navController.navigate("orders") },
                     vm = vm,
                     cartVm = cartVm,
-                    onCartChanged = onCartChanged
+                    onCartChanged = onCartChanged,
+                    navController = navController
                 )
                 Spacer(Modifier.height(12.dp))
             }

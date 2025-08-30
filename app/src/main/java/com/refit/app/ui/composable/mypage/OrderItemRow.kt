@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavController
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
 import com.refit.app.util.order.OrderStatusMapper
 
@@ -38,7 +39,8 @@ fun OrderItemRow(
     item: OrderItemDto,
     vm: OrderViewModel,
     cartVm: CartEditViewModel,
-    onCartChanged: () -> Unit
+    onCartChanged: () -> Unit,
+    navController: NavController
 ) {
     val context = LocalContext.current
 
@@ -60,7 +62,11 @@ fun OrderItemRow(
         )
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    navController.navigate("product/${item.productId}")
+                },
             verticalAlignment = Alignment.CenterVertically
         ) {
             // 상품 이미지

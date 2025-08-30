@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavController
 import com.refit.app.R
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
 import com.refit.app.data.me.modelAndView.OrderViewModel
@@ -42,7 +43,8 @@ fun RecentOrderSection(
     onClickAll: () -> Unit,
     vm: OrderViewModel,
     cartVm: CartEditViewModel,
-    onCartChanged: () -> Unit
+    onCartChanged: () -> Unit,
+    navController: NavController
 ) {
     val context = LocalContext.current
 
@@ -103,7 +105,10 @@ fun RecentOrderSection(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
+                            .padding(vertical = 8.dp)
+                            .clickable {
+                                navController.navigate("product/${item.productId}")
+                            },
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {

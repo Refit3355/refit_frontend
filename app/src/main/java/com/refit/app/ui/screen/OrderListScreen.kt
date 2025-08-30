@@ -3,10 +3,12 @@ package com.refit.app.ui.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,6 +40,10 @@ fun OrderListScreen(
     val badgeVm = remember { CartBadgeViewModel(repo) }
     val cartVm = remember { CartEditViewModel(repo, badgeVm) }
 
+    val listState = rememberSaveable(saver = LazyListState.Saver) {
+        LazyListState()
+    }
+
     LaunchedEffect(Unit) {
         vm.loadOrders()
         cartVm.opEvents.collect { ev ->
@@ -54,6 +60,7 @@ fun OrderListScreen(
 
         state.orders != null -> {
             LazyColumn(
+                state = listState,
                 modifier = Modifier
                     .fillMaxSize()
                     .background(LightPurple),
@@ -92,7 +99,7 @@ fun OrderListScreen(
                             }
 
                             order.items.forEach { item ->
-                                OrderItemRow(item, vm, cartVm, onCartChanged)
+                                OrderItemRow(item, vm, cartVm, onCartChanged, navController)
                                 Spacer(Modifier.height(12.dp))
                             }
                         }
