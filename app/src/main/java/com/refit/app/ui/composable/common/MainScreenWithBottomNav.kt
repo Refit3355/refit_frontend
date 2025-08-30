@@ -444,7 +444,7 @@ fun MainScreenWithBottomNav(
                     )
                 }
 
-                composable("created_combinations") { CreatedCombinationListScreen() }
+                composable("created_combinations") { CreatedCombinationListScreen(navController) }
 
                 // 채팅방
                 composable(

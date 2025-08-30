@@ -243,6 +243,7 @@ fun ChatRoomScreen(
                         loader = { q: String, cursor: String? ->
                             val res = searchUseCase(
                                 query  = q,        // ""면 전체 조회
+                                bhType = null,
                                 cursor = cursor,   // 다음 페이지 커서
                                 limit  = 30,
                                 sort   = null      // 정렬 없음

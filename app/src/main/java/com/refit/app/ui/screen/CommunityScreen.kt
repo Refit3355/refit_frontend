@@ -71,12 +71,3 @@ fun CommunityScreen(navController: NavController) {
         }
     }
 }
-
-@Composable
-private fun GroupChatSection(navController: NavController) {
-    // TODO: 카테고리별 실시간 그룹채팅 리스트/입장 UI 구성
-    androidx.compose.material3.Text(
-        text = "그룹채팅 탭입니다.",
-        modifier = Modifier.padding(16.dp)
-    )
-}
