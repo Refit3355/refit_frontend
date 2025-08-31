@@ -6,7 +6,11 @@ data class DraftOrderResponse(
     val orderSummary: String,
     val totalAmount: Long,
     val items: List<OrderItemSummary>,
-    val shipping: ShippingInfo
+    val shipping: ShippingInfo,
+    val quantity: Int,
+    val deliveryFee: Long,
+    val goodsAmount: Long,
+    val discount: Long
 )
 
 data class OrderItemSummary(
