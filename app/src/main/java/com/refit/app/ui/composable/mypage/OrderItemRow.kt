@@ -113,17 +113,19 @@ fun OrderItemRow(
                     if (showCancelDialog) {
                         CancelOrderReasonDialog(
                             orderItemId = item.orderItemId,
+                            unitPrice = item.price,
+                            maxQty = item.quantity,
                             onDismiss = { showCancelDialog = false },
-                            onConfirmCancel = { vm.requestCancel(it) }
+                            onConfirmCancel = { id, reason, count ->
+                                vm.requestCancel(id, item.price, count, reason)
+                            }
                         )
                     }
 
                     Spacer(Modifier.height(10.dp))
                     MyOrderActionButton(
                         text = "주문 취소",
-                        modifier = Modifier
-                            .width(80.dp)
-                            .height(24.dp),
+                        modifier = Modifier.width(80.dp).height(24.dp),
                         onClick = { showCancelDialog = true }
                     )
                 }

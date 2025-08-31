@@ -19,8 +19,11 @@ import com.refit.app.data.cart.api.CartApi
 import com.refit.app.data.cart.modelAndView.CartBadgeViewModel
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
 import com.refit.app.data.cart.repository.CartRepository
+import com.refit.app.data.me.modelAndView.OrderUiEvent
 import com.refit.app.data.me.modelAndView.OrderViewModel
 import com.refit.app.network.RetrofitInstance
+import com.refit.app.ui.composable.mypage.CancelSuccessDialog
+import com.refit.app.ui.composable.mypage.PartialCancelErrorDialog
 import com.refit.app.ui.composable.mypage.OrderItemRow
 import com.refit.app.ui.theme.LightPurple
 import com.refit.app.ui.theme.Pretendard
@@ -36,8 +39,24 @@ fun OrderListScreen(
     val badgeVm = remember { CartBadgeViewModel(repo) }
     val cartVm = remember { CartEditViewModel(repo, badgeVm) }
 
+    var showPartialCancelError by remember { mutableStateOf(false) }
+    var showCancelSuccess by remember { mutableStateOf(false) }
+    var cancelSuccessMessage by remember { mutableStateOf("결제 취소 신청되었습니다.") }
+
+
     LaunchedEffect(Unit) {
         vm.loadOrders()
+        vm.uiEvent.collect { ev ->
+            when (ev) {
+                is OrderUiEvent.PartialCancelFailed -> {
+                    showPartialCancelError = true
+                }
+                is OrderUiEvent.CancelRequestSucceeded -> {
+                    cancelSuccessMessage = ev.message.ifBlank { "결제 취소 신청되었습니다." }
+                    showCancelSuccess = true
+                }
+            }
+        }
     }
 
     when {
@@ -94,4 +113,21 @@ fun OrderListScreen(
             }
         }
     }
+
+    // 에러 모달
+    PartialCancelErrorDialog(
+        visible = showPartialCancelError,
+        onConfirm = { showPartialCancelError = false }
+    )
+
+    //  성공 모달
+    CancelSuccessDialog(
+        visible = showCancelSuccess,
+        message = cancelSuccessMessage,
+        onConfirm = {
+            showCancelSuccess = false
+            // 필요하면 목록 갱신
+            vm.loadOrders()
+        }
+    )
 }
