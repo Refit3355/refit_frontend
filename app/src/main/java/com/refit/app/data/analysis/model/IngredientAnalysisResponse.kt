@@ -9,3 +9,15 @@ data class IngredientAnalysisResponse(
     val riskyIngredients: List<String>,
     val summary: String
 )
+
+data class FullAnalysisResponse(
+    val memberName: String,
+    val matchRate: Int,
+    val risky: List<String>,
+    val caution: List<String>,
+    val safe: List<String>,
+    val riskyText: String,
+    val cautionText: String,
+    val safeText: String,
+    val summary: String
+)
