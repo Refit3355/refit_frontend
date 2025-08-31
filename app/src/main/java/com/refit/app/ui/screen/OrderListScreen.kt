@@ -31,6 +31,7 @@ import com.refit.app.ui.composable.mypage.PartialCancelErrorDialog
 import com.refit.app.ui.composable.mypage.OrderItemRow
 import com.refit.app.ui.theme.LightPurple
 import com.refit.app.ui.theme.Pretendard
+import kotlinx.coroutines.launch
 
 @Composable
 fun OrderListScreen(
@@ -55,19 +56,25 @@ fun OrderListScreen(
 
     LaunchedEffect(Unit) {
         vm.loadOrders()
-        cartVm.opEvents.collect { ev ->
-            if (ev.type == CartOpType.ADD_ONE && ev.success) {
-                onCartChanged()
+
+        launch {
+            cartVm.opEvents.collect { ev ->
+                if (ev.type == CartOpType.ADD_ONE && ev.success) {
+                    onCartChanged()
+                }
             }
         }
-        vm.uiEvent.collect { ev ->
-            when (ev) {
-                is OrderUiEvent.PartialCancelFailed -> {
-                    showPartialCancelError = true
-                }
-                is OrderUiEvent.CancelRequestSucceeded -> {
-                    cancelSuccessMessage = ev.message.ifBlank { "결제 취소 신청되었습니다." }
-                    showCancelSuccess = true
+
+        launch {
+            vm.uiEvent.collect { ev ->
+                when (ev) {
+                    is OrderUiEvent.PartialCancelFailed -> {
+                        showPartialCancelError = true
+                    }
+                    is OrderUiEvent.CancelRequestSucceeded -> {
+                        cancelSuccessMessage = ev.message.ifBlank { "결제 취소 신청되었습니다." }
+                        showCancelSuccess = true
+                    }
                 }
             }
         }
