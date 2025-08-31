@@ -7,17 +7,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.refit.app.data.chat.model.ChatMessage
 import com.refit.app.data.chat.repository.ChatSocketRepository
+import com.refit.app.data.chat.repository.StompState
 import com.refit.app.data.chat.usecase.GetChatMessagesPageUseCase
 import com.refit.app.network.TokenManager
 import com.refit.app.network.UserPrefs
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 data class ChatMessagesUiState(
     val isInitialLoading: Boolean = false,
     val isLoadingOlder: Boolean = false,
     val error: String? = null,
-    val messages: List<ChatMessage> = emptyList(), // 오래된 -> 최신순(오름차순)으로 유지
+    val messages: List<ChatMessage> = emptyList(),
     val nextCursor: String? = null,
     val hasNext: Boolean = false
 )
@@ -32,6 +38,11 @@ class ChatMessagesViewModel(
     private var loadJob: Job? = null
     private var socketRepo: ChatSocketRepository? = null
 
+    // VM 외부에서 awaitConnected()로 사용할 불린 플로우
+    private val _connected = MutableStateFlow(false)
+    val connected = _connected.asStateFlow()
+
+    private var currentCategoryId: Long? = null
 
     fun loadInitial(categoryId: Long, size: Int = 20) {
         loadJob?.cancel()
@@ -39,7 +50,6 @@ class ChatMessagesViewModel(
             uiState = ChatMessagesUiState(isInitialLoading = true)
             runCatching { getPage(categoryId, size, null) }
                 .onSuccess { page ->
-                    // 서버는 최신->오래된(내림차순)일 가능성 높음 ⇒ 오름차순으로 뒤집어 보관
                     val ascending = page.items.sortedBy { it.createdAt }
                     uiState = uiState.copy(
                         isInitialLoading = false,
@@ -62,7 +72,6 @@ class ChatMessagesViewModel(
             uiState = uiState.copy(isLoadingOlder = true)
             runCatching { getPage(categoryId, size, cursor) }
                 .onSuccess { page ->
-                    // 새로 받아온 "과거" 데이터를 오름차순으로 정렬 후 앞에 붙임
                     val newAsc = page.items.sortedBy { it.createdAt }
                     val merged = newAsc + uiState.messages
                     uiState = uiState.copy(
@@ -78,8 +87,17 @@ class ChatMessagesViewModel(
         }
     }
 
-    fun connectRealtime(categoryId: Long, wsUrl: String) {
-        if (socketRepo != null) return
+    fun connectRealtime(categoryId: Long, wsUrl: String, force: Boolean = false) {
+        // 카테고리가 바뀌면 재연결
+        if (!force && socketRepo != null && currentCategoryId == categoryId) return
+        if (socketRepo != null) {
+            socketRepo?.disconnect()
+            socketRepo = null
+        }
+        currentCategoryId = categoryId
+
+        _connected.value = false
+
         socketRepo = ChatSocketRepository(
             wsUrl = wsUrl,
             connectHeadersProvider = {
@@ -90,29 +108,49 @@ class ChatMessagesViewModel(
                 }
             }
         ).also { repo ->
+            // 1) 수신 메시지 UI 반영
             viewModelScope.launch {
                 repo.incoming.collect { msg ->
-                    // 수신 → 리스트 뒤에 붙여 최신 반영
                     uiState = uiState.copy(messages = uiState.messages + msg)
                 }
             }
+            // 2) STOMP 상태 → CONNECTED일 때만 true로 전환
+            viewModelScope.launch {
+                repo.state.collect { st ->
+                    _connected.value = (st == StompState.CONNECTED)
+                }
+            }
+            // 3) 실제 연결 + 구독
             repo.connectAndSubscribe(categoryId)
         }
     }
+
+    suspend fun awaitConnected(timeoutMs: Long = 5_000): Boolean =
+        withTimeoutOrNull(timeoutMs) {
+            connected.filter { it }.first()
+            true
+        } ?: false
 
     fun sendRealtime(categoryId: Long, text: String) {
         val memberId = UserPrefs.getMemberId() ?: return
         socketRepo?.sendMessage(categoryId, memberId, text)
     }
 
+    fun sendRealtimeProduct(categoryId: Long, productId: Long) {
+        val memberId = UserPrefs.getMemberId() ?: return
+        socketRepo?.sendMessage(
+            categoryId = categoryId,
+            memberId = memberId,
+            message = "[상품 공유]",
+            productId = productId
+        )
+    }
+
     fun disconnectRealtime() {
         socketRepo?.disconnect()
         socketRepo = null
-    }
-
-    fun sendRealtimeProduct(categoryId: Long, productId: Long) {
-        val memberId = UserPrefs.getMemberId() ?: return
-        socketRepo?.sendMessage(categoryId, memberId, message = "[상품 공유]", productId = productId)
+        currentCategoryId = null
+        _connected.value = false
     }
 
     override fun onCleared() {
