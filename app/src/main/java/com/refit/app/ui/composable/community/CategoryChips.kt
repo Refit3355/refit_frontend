@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.refit.app.ui.theme.MainPurple
@@ -38,9 +39,10 @@ fun CategoryChips(
                 Text(
                     text = category.label,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
-                    color = if (isSelected) Color.White else Color.Black,
+                    color = if (isSelected) Color.White else Color.Gray,
                     fontSize = 15.sp,
-                    fontFamily = Pretendard
+                    fontFamily = Pretendard,
+                    fontWeight = FontWeight(500)
                 )
             }
         }

@@ -10,11 +10,10 @@ import com.refit.app.data.health.HealthRepo
 import com.refit.app.data.product.model.Product
 import com.refit.app.data.product.repository.RecommendationRepository
 import com.refit.app.network.weather.WeatherRetrofit
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.util.*
 
 class HomeViewModel : ViewModel() {
 
@@ -34,23 +33,27 @@ class HomeViewModel : ViewModel() {
 
     private val recommendationRepo = RecommendationRepository()
 
+    private var pollingJob: Job? = null
+
     fun loadData(ctx: Context) {
-        loadHealth(ctx)
+        loadHealth(ctx)     // 최초 1회 로드
         loadWeather(ctx)
         loadProducts()
     }
 
+    // === Health Connect 데이터 읽기 ===
     private fun loadHealth(ctx: Context) {
         viewModelScope.launch {
             val client = HealthRepo.client(ctx)
             val granted = client.permissionController.getGrantedPermissions()
             if (granted.containsAll(HealthRepo.readPerms)) {
-                val rows = HealthRepo.readDailyAll(ctx, days = 1)
-                if (rows.isNotEmpty()) {
+                val rows = HealthRepo.readDailyAll(ctx, days = 2)
+                if (rows.size >= 2) {
                     val today = rows.last()
+                    val yesterday = rows[rows.size - 2]
                     _uiState.value = _uiState.value.copy(
-                        steps = today.steps,
-                        sleepMinutes = today.sleepMinutes
+                        steps = today.steps,                  // 걸음수는 오늘
+                        sleepMinutes = yesterday.sleepMinutes // 수면시간은 어제
                     )
                 }
             } else {
@@ -62,6 +65,25 @@ class HomeViewModel : ViewModel() {
         }
     }
 
+    // === Health 데이터 Polling ===
+    fun startHealthPolling(ctx: Context, intervalMs: Long = 60_000L) {
+        // 이미 실행중이면 새로 안만듦
+        if (pollingJob?.isActive == true) return
+
+        pollingJob = viewModelScope.launch {
+            while (isActive) {
+                loadHealth(ctx)
+                delay(intervalMs)
+            }
+        }
+    }
+
+    fun stopHealthPolling() {
+        pollingJob?.cancel()
+        pollingJob = null
+    }
+
+    // === 날씨 데이터 로드 ===
     private fun loadWeather(ctx: Context) {
         viewModelScope.launch {
             val loc = getCurrentLocation(ctx)
@@ -96,12 +118,18 @@ class HomeViewModel : ViewModel() {
         }
     }
 
+    // === 수면시간 포맷 ===
     fun formatSleep(minutes: Long): String {
-        val h = minutes / 60
-        val m = minutes % 60
-        return if (minutes == 0L) "--" else String.format(Locale.getDefault(), "%d시간 %d분", h, m)
+        return if (minutes <= 0) {
+            "-- 시간"
+        } else {
+            val h = minutes / 60
+            val m = minutes % 60
+            "${h}시간 ${m}분"
+        }
     }
 
+    // === 추천상품 로드 ===
     private fun loadProducts() {
         viewModelScope.launch {
             val stepProducts = recommendationRepo.fetchRecommendations(0, 10).getOrElse { emptyList() }

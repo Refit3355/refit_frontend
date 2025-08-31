@@ -35,11 +35,16 @@ import com.refit.app.ui.theme.MainPurple
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.refit.app.data.cart.api.CartApi
-import com.refit.app.data.cart.model.CartAddBulkRequest
 import com.refit.app.data.cart.model.CartAddRequest
+import com.refit.app.data.cart.modelAndView.CartEditViewModel
+import com.refit.app.data.cart.modelAndView.CartOpType
+import com.refit.app.data.cart.repository.CartRepository
 import com.refit.app.network.RetrofitInstance
-import com.refit.app.util.price.PriceUtil
+import com.refit.app.util.common.PriceUtil
+import com.refit.app.ui.theme.Pretendard
 import com.refit.app.data.order.model.DraftOrderRequest
 import com.refit.app.data.order.model.encodeDraftOrderRequest
 import com.refit.app.data.order.model.OrderSource
@@ -48,7 +53,8 @@ import com.refit.app.data.order.model.OrderSource
 fun CombinationDetailScreen(
     navController: NavController,
     combinationId: Long,
-    vm: CombinationDetailViewModel = viewModel()
+    vm: CombinationDetailViewModel = viewModel(),
+    onCartChanged: () -> Unit = {}
 ) {
     val state by vm.state.collectAsState()
     val pagerState = rememberPagerState { state.detail?.products?.size ?: 0 }
@@ -60,6 +66,10 @@ fun CombinationDetailScreen(
 
     val scope = rememberCoroutineScope()
     val cartApi = remember { RetrofitInstance.create(CartApi::class.java) }
+    val repo = remember { CartRepository(cartApi) }
+    val editVm: CartEditViewModel = viewModel(
+        factory = viewModelFactory { initializer { CartEditViewModel(repo, badgeVm = null) } }
+    )
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(pagerState.pageCount) {
@@ -74,6 +84,19 @@ fun CombinationDetailScreen(
 
     LaunchedEffect(combinationId) {
         vm.loadCombinationDetail(combinationId)
+    }
+
+    LaunchedEffect(Unit) {
+        editVm.opEvents.collect { ev ->
+            if (ev.type == CartOpType.ADD_BULK) {
+                if (ev.success) {
+                    snackbarHostState.showSnackbar("장바구니에 담겼습니다.")
+                    onCartChanged()
+                } else {
+                    snackbarHostState.showSnackbar(ev.message ?: "장바구니 추가 실패")
+                }
+            }
+        }
     }
 
     Scaffold(
@@ -113,7 +136,7 @@ fun CombinationDetailScreen(
                         )
                     }
                     Spacer(Modifier.height(2.dp))
-                    Text("저장", fontSize = 12.sp, lineHeight = 12.sp, color = Color.Gray)
+                    Text("저장", fontSize = 12.sp, lineHeight = 12.sp, color = Color.Gray, fontFamily = Pretendard)
                 }
 
                 // 장바구니 버튼
@@ -127,8 +150,7 @@ fun CombinationDetailScreen(
                                 } ?: emptyList()
 
                                 if (items.isNotEmpty()) {
-                                    cartApi.addCartItemsBulk(CartAddBulkRequest(items))
-                                    snackbarHostState.showSnackbar("장바구니에 담겼습니다.")
+                                    editVm.addBulk(items)
                                 }
                             } catch (e: Exception) {
                                 snackbarHostState.showSnackbar("장바구니 추가 실패: ${e.message}")
@@ -144,7 +166,7 @@ fun CombinationDetailScreen(
                         brush = androidx.compose.ui.graphics.SolidColor(MainPurple)
                     )
                 ) {
-                    Text("장바구니")
+                    Text("장바구니", fontFamily = Pretendard)
                 }
 
                 // 구매하기 버튼
@@ -163,7 +185,7 @@ fun CombinationDetailScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = MainPurple),
                     shape = RoundedCornerShape(4.dp)
                 ) {
-                    Text("구매하기", color = Color.White)
+                    Text("구매하기", color = Color.White, fontFamily = Pretendard)
                 }
             }
         }
@@ -224,15 +246,16 @@ fun CombinationDetailScreen(
                                 )
                                 Spacer(Modifier.width(6.dp))
                                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                                    Text(product.brandName ?: "", fontSize = 10.sp, lineHeight = 10.sp, color = Color.Black, maxLines = 1)
-                                    Text(product.productName, fontSize = 11.sp, lineHeight = 11.sp, fontWeight = FontWeight.Bold, color = Color.Black, maxLines = 1)
+                                    Text(product.brandName ?: "", fontSize = 10.sp, lineHeight = 10.sp, color = Color.Black, maxLines = 1, fontFamily = Pretendard)
+                                    Text(product.productName, fontSize = 11.sp, lineHeight = 11.sp, fontWeight = FontWeight.Bold, color = Color.Black, maxLines = 1, fontFamily = Pretendard)
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(
                                             "${product.discountRate}%",
                                             color = Color.Red,
                                             fontSize = 11.sp,
                                             lineHeight = 11.sp,
-                                            fontWeight = FontWeight.Bold
+                                            fontWeight = FontWeight.Bold,
+                                            fontFamily = Pretendard
                                         )
                                         Spacer(Modifier.width(2.dp))
                                         Text(
@@ -240,7 +263,8 @@ fun CombinationDetailScreen(
                                             fontSize = 11.sp,
                                             lineHeight = 11.sp,
                                             fontWeight = FontWeight.Medium,
-                                            color = Color.Black
+                                            color = Color.Black,
+                                            fontFamily = Pretendard
                                         )
                                     }
                                 }
@@ -258,11 +282,11 @@ fun CombinationDetailScreen(
                             modifier = Modifier.size(24.dp).clip(RoundedCornerShape(50)).background(Color.White)
                         )
                         Spacer(Modifier.width(6.dp))
-                        Text(detail.nickname, style = MaterialTheme.typography.bodySmall, color = Color.Black)
+                        Text(detail.nickname, style = MaterialTheme.typography.bodySmall, color = Color.Black, fontFamily = Pretendard)
                     }
 
                     Spacer(Modifier.height(8.dp))
-                    Text(detail.combinationName, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium, color = Color.Black)
+                    Text(detail.combinationName, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium, color = Color.Black, fontFamily = Pretendard)
                     Spacer(Modifier.height(8.dp))
 
                     Row(verticalAlignment = Alignment.Bottom) {
@@ -270,7 +294,8 @@ fun CombinationDetailScreen(
                             PriceUtil.formatPrice(detail.discountedTotalPrice),
                             fontWeight = FontWeight.Bold,
                             color = Color.Black,
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontFamily = Pretendard
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(
@@ -278,14 +303,15 @@ fun CombinationDetailScreen(
                             style = MaterialTheme.typography.bodySmall.copy(
                                 textDecoration = TextDecoration.LineThrough
                             ),
-                            color = Color.Gray
+                            color = Color.Gray,
+                            fontFamily = Pretendard
                         )
                     }
 
                     Spacer(Modifier.height(16.dp))
                     HorizontalDivider(thickness = 1.dp, color = Color(0xFFE0E0E0))
                     Spacer(Modifier.height(12.dp))
-                    Text(detail.combinationDescription, color = Color.Black)
+                    Text(detail.combinationDescription, color = Color.Black, fontFamily = Pretendard)
                 }
             }
         }

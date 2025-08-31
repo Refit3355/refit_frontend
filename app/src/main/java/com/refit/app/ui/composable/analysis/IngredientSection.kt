@@ -1,5 +1,6 @@
 package com.refit.app.ui.composable.analysis
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -18,10 +19,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import com.refit.app.ui.theme.Pretendard
 
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun IngredientSection(
     title: String,
@@ -29,24 +36,46 @@ fun IngredientSection(
     icon: @Composable () -> Unit,
     chips: List<String>
 ) {
-    Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
-        Row {
-            icon(); Spacer(Modifier.width(8.dp))
-            Text(title, color = titleColor, fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+    Column(Modifier.fillMaxWidth()) {
+        Row(
+            Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(28.dp),
+                contentAlignment = Alignment.Center
+            ) { icon() }
+
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = title,
+                color = titleColor,
+                fontFamily = Pretendard,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.ExtraBold
+            )
         }
-        Spacer(Modifier.height(8.dp))
-        Surface(color = Color(0xFFF2F3F5), shape = RoundedCornerShape(16.dp)) {
+
+        Box(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(0xFFF0F0F0))
+                .padding(horizontal = 12.dp, vertical = 12.dp)
+        ) {
             FlowRow(
-                modifier = Modifier.padding(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                chips.forEach { IngredientChip(it) }
                 if (chips.isEmpty()) {
-                    Text("해당되는 성분이 없어요", color = Color.Gray, modifier = Modifier.padding(4.dp))
-                } else {
-                    chips.forEach { IngredientChip(it) }
+                    Text("해당되는 성분이 없어요", color = Color(0xFF9E9E9E))
                 }
             }
         }
+        Spacer(Modifier.height(18.dp))
     }
 }
+

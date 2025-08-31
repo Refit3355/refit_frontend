@@ -29,6 +29,7 @@ interface ProductApi {
     @Headers("Requires-Auth: true")
     suspend fun searchProducts(
         @Query("q") q: String,
+        @Query("bhType") bhType: String? = null,
         @Query("cursor") cursor: String? = null,
         @Query("limit") limit: Int = 20,
         @Query("sort") sort: String? = null

@@ -47,13 +47,15 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
             )
 
         route in listOf("notifications", "cart", "myfit/register") || route.startsWith("myfit/edit")
-                || route.startsWith("checkout/orderSheet") || route.startsWith("tossPay") ->
+                || route.startsWith("checkout/orderSheet") || route.startsWith("tossPay")
+                || route.startsWith("chat") ->
             AppBarConfig.BackOnly(
                 title = if (route == "notifications") "알림함"
                 else if (route == "cart") "장바구니"
                 else if (route == "myfit/register") "상품 등록"
                 else if (route.startsWith("checkout/orderSheet")) "주문/결제"
                 else if (route.startsWith("myfit/edit")) "상품 수정"
+                else if (route.startsWith("chat")) "그룹채팅"
                 else "결제",
                 onBack = { nav.popBackStack() }
             )
@@ -93,9 +95,27 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                 onBack = { nav.popBackStack() }
             )
 
+        route == "ingredient" ->
+            AppBarConfig.BackWithActions(
+                title = "성분 분석",
+                onBack = { nav.popBackStack() },
+                onAlarmClick = { nav.navigate("notifications") },
+                onCartClick  = { nav.navigate("cart") },
+                showActions = true
+            )
+        route == "ingredient/result" ->
+            AppBarConfig.BackWithActions(
+                title = "분석 결과",
+                onBack = { nav.popBackStack() },
+                onAlarmClick = { nav.navigate("notifications") },
+                onCartClick  = { nav.navigate("cart") },
+                showActions = true
+            )
+
         else ->
             AppBarConfig.BackWithActions(
                 title = when {
+                    route.startsWith("productSelect") -> "조합 등록"
                     route.startsWith("product") -> "상품 상세"
                     route.startsWith("wish") -> "찜 목록"
                     route.startsWith("liked_combinations") -> "저장한 조합 목록"
@@ -105,6 +125,7 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                     route.startsWith("sleepDetail") -> "수면 리포트"
                     route.startsWith("weatherDetail") -> "날씨 리포트"
                     route.startsWith("combinationDetail") -> "조합 상세"
+                    route.startsWith("combinationRegister") -> "조합 등록"
                     else -> "Re:fit"
                 },
                 onBack = { nav.popBackStack() },

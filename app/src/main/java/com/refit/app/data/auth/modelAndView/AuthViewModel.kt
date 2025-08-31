@@ -71,6 +71,7 @@ class AuthViewModel : ViewModel() {
                     hair     = data?.hair,
                     skin     = data?.skin
                 )
+                UserPrefs.setProfileUrl(data?.profileImageUrl)
 
                 // access가 비어있어도(예외상황) refresh로 재발급 로직을 이후에 돌릴 수 있으니 성공 처리
                 loggedIn = true

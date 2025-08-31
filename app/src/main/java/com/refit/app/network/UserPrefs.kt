@@ -6,6 +6,7 @@ import com.google.gson.Gson
 import com.refit.app.data.auth.model.HairInfoDto
 import com.refit.app.data.auth.model.HealthInfoDto
 import com.refit.app.data.auth.model.SkinInfoDto
+import com.refit.app.util.common.toTags
 
 object UserPrefs {
     private const val PREFS_NAME = "refit_user_prefs"
@@ -100,5 +101,16 @@ object UserPrefs {
         else prefs.getString(KEY_PROFILE_URL, null)
             ?.takeIf { it.isNotBlank() }
             ?: DEFAULT_PROFILE_URL
+
+    fun getTags(): List<String> {
+        val tags = mutableListOf<String>()
+
+        // 순서 고정: Skin → Hair → Health
+        getSkin()?.toTags()?.let { tags.addAll(it) }
+        getHair()?.toTags()?.let { tags.addAll(it) }
+        getHealth()?.toTags()?.let { tags.addAll(it) }
+
+        return tags
+    }
 
 }

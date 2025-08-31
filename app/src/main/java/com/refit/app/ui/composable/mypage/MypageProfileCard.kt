@@ -130,6 +130,7 @@ fun MypageProfileCard(
                 Text(
                     text = nickname,
                     fontFamily = Pretendard,
+                    fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp,
                     color = Color.Black
                 )
