@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -142,6 +143,9 @@ dependencies {
     // 카카오 로그인
     implementation("com.kakao.sdk:v2-all:2.20.6")
     implementation("com.kakao.sdk:v2-user:2.20.6")
+
+    // 웹소켓
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // 이미지 미리보기
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.7.3")

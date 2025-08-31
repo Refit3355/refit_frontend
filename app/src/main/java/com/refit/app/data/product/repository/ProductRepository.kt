@@ -30,15 +30,17 @@ class ProductRepository(
             images = res.images.map { ProductImage(it.id, it.url, it.order) }
         )
     }
-    
+
     suspend fun searchProducts(
         query: String,
+        bhType: String?,
         cursor: String?,
         limit: Int,
         sort: String?
     ): Result<ProductListResponse> = runCatching {
-        api.searchProducts(q = query, cursor = cursor, limit = limit, sort = sort)
+        api.searchProducts(q = query, bhType = bhType, cursor = cursor, limit = limit, sort = sort)
     }
+
 
     suspend fun fetchPopularProducts(limit: Int): Result<List<ProductDto>> = runCatching {
         api.getPopularProducts(limit)

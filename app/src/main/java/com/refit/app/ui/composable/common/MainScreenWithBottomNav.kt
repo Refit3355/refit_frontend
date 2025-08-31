@@ -49,17 +49,20 @@ import com.refit.app.data.auth.modelAndView.FormMode
 import com.refit.app.data.auth.modelAndView.KakaoFlowStore
 import com.refit.app.data.myfit.viewmodel.MyfitViewModel
 import com.refit.app.data.auth.modelAndView.SignupViewModel
+import com.refit.app.ui.screen.ChatRoomScreen
+import com.refit.app.data.product.model.Product
 import com.refit.app.ui.screen.AnalysisResultScreen
 import com.refit.app.ui.screen.AnalysisScreen
 import com.refit.app.ui.screen.AnalysisUiState
 import com.refit.app.ui.screen.CombinationDetailScreen
+import com.refit.app.ui.screen.CombinationRegisterScreen
 import com.refit.app.ui.screen.CreatedCombinationListScreen
 import com.refit.app.ui.screen.LikedCombinationListScreen
 import com.refit.app.ui.screen.MypageScreen
 import com.refit.app.ui.screen.OrderListScreen
 import com.refit.app.ui.screen.EditBasicInfoScreen
 import com.refit.app.ui.screen.HealthEditScreen
-import com.refit.app.ui.screen.SignupFlowScreen
+import com.refit.app.ui.screen.ProductSelectScreen
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -272,7 +275,12 @@ fun MainScreenWithBottomNav(
                 composable("category") { CategoryScreen(navController) }
                 composable("myfit") { MyfitScreen(navController = navController) }
                 composable("community") { CommunityScreen(navController) }
-                composable("my") { MypageScreen(navController) }
+                composable("my") {
+                    MypageScreen(
+                        navController = navController,
+                        onCartChanged = onCartChanged
+                    )
+                }
 
                 // 성분 분석
                 composable("ingredient") { AnalysisScreen(navController) }
@@ -372,13 +380,18 @@ fun MainScreenWithBottomNav(
                 }
 
                 // 내가 저장한 조합 목록
-                composable("liked_combinations") { LikedCombinationListScreen() }
+                composable("liked_combinations") { LikedCombinationListScreen(navController) }
 
                 // 내 주문 내역
-                composable("orders") { OrderListScreen(navController) }
+                composable("orders") {
+                    OrderListScreen(
+                        navController = navController,
+                        onCartChanged = onCartChanged
+                    )
+                }
 
                 // 내가 생성한 조합 목록
-                composable("created_combinations") { CreatedCombinationListScreen() }
+                composable("created_combinations") { CreatedCombinationListScreen(navController) }
 
                 // 조합 상세 페이지
                 composable(
@@ -388,7 +401,62 @@ fun MainScreenWithBottomNav(
                     val combinationId = backStackEntry.arguments?.getLong("combinationId") ?: return@composable
                     CombinationDetailScreen(
                         navController = navController,
-                        combinationId = combinationId
+                        combinationId = combinationId,
+                        onCartChanged = onCartChanged
+                    )
+                }
+
+                // 조합 등록 페이지
+                composable("combinationRegister") { backStackEntry ->
+                    val selectedProducts =
+                        backStackEntry.savedStateHandle
+                            .getStateFlow("selectedProducts", emptyList<Product>())
+                            .collectAsState().value
+
+                    CombinationRegisterScreen(
+                        navController = navController,
+                        selectedProducts = selectedProducts,
+                        onSearchClick = { bh ->
+                            navController.navigate("productSelect/$bh")
+                        },
+                        onRegisterSuccess = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
+
+                // 조합 등록 내 검색페이지
+                composable(
+                    route = "productSelect/{bhType}",
+                    arguments = listOf(navArgument("bhType") { nullable = true })
+                ) { backStackEntry ->
+                    val bhType = backStackEntry.arguments?.getString("bhType")
+
+                    ProductSelectScreen(
+                        navController = navController,
+                        bhType = bhType,
+                        onConfirm = { selectedProducts ->
+                            navController.previousBackStackEntry
+                                ?.savedStateHandle
+                                ?.set("selectedProducts", selectedProducts)
+                            navController.popBackStack()
+                        }
+                    )
+                }
+
+                composable("created_combinations") { CreatedCombinationListScreen(navController) }
+
+                // 채팅방
+                composable(
+                    route = "chat/{categoryId}",
+                    arguments = listOf(
+                        navArgument("categoryId") { type = NavType.LongType }
+                    )
+                ) { backStackEntry ->
+                    val categoryId = backStackEntry.arguments!!.getLong("categoryId")
+                    ChatRoomScreen(
+                        navController = navController,
+                        categoryId    = categoryId
                     )
                 }
             }

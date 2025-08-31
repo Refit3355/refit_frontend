@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.text.font.FontWeight
+import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun HashtagChip(text: String) {
@@ -22,6 +23,7 @@ fun HashtagChip(text: String) {
             text = text,
             color = Color(0xFF7A3EFF),
             fontSize = 12.sp,
+            fontFamily = Pretendard,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(horizontal = 10.dp)
         )
