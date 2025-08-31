@@ -26,6 +26,10 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 import com.refit.app.data.local.wish.WishViewModel
+import com.refit.app.data.order.model.DraftOrderRequest
+import com.refit.app.data.order.model.OrderLineItem
+import com.refit.app.data.order.model.OrderSource
+import com.refit.app.data.order.model.encodeDraftOrderRequest
 import com.refit.app.network.RetrofitInstance
 import com.refit.app.ui.composable.product.ChatRoomPickerBottomSheet
 
@@ -148,8 +152,14 @@ fun ProductDetailScreen(
                         editVm.addOne(productId.toLong(), qty)
                     } else {
                         // 바로구매 플로우(주문 화면 이동 등)
-//                        navController.navigate("order/confirm?productId=$productId&qty=$qty")
-//                        showSheet = false
+                        val payload = encodeDraftOrderRequest(
+                            DraftOrderRequest(
+                                source = OrderSource.DIRECT,
+                                lines = listOf(OrderLineItem(productId = productId.toLong(), quantity = qty))
+                            )
+                        )
+                        navController.navigate("checkout/orderSheet?payload=$payload")
+
                     }
                 },
                 onDismiss = { showSheet = false }

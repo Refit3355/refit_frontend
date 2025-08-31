@@ -22,6 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
+import android.net.Uri
 import com.refit.app.R
 import com.refit.app.data.cart.api.CartApi
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
@@ -35,6 +36,11 @@ import com.refit.app.ui.composable.cart.OrderBottomBar
 import com.refit.app.ui.theme.LightPurple
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
+import com.refit.app.data.order.model.DraftOrderRequest
+import com.refit.app.data.order.model.OrderLineItem
+import com.refit.app.data.order.model.OrderSource
+import com.refit.app.data.order.model.encodeDraftOrderRequest
+import com.refit.app.data.order.flow.CheckoutFlowStore
 
 @Composable
 fun CartScreen(
@@ -99,7 +105,24 @@ fun CartScreen(
                 total = total,
                 enabled = subTotal > 0L,
                 onClick = {
-                    // TODO: 주문 처리 로직 (선택 항목/총액 전달 등)
+                    val selectedItems = items.filter { it.cartId in selected }
+                    val lines = listVm.toOrderLines(selected)
+
+                    // 방어 로직: 혹시 enabled 조건과 다른 경로로 눌리는 경우
+                    if (lines.isEmpty()) return@OrderBottomBar
+
+                    CheckoutFlowStore.setSelected(selected.toList())   // 선택한 cartId 들 임시 저장
+
+                    val draft = DraftOrderRequest(
+                        source = OrderSource.CART,
+                        lines  = lines
+                    )
+
+                    // JSON 직렬화 + 쿼리스트링 안전하게 인코딩
+                    val payload = encodeDraftOrderRequest(draft)
+                    val encoded = Uri.encode(payload)
+
+                    navController.navigate("checkout/orderSheet?payload=$encoded")
                 }
             )
         }
