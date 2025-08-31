@@ -1,5 +1,6 @@
 package com.refit.app.ui.composable.common
 
+import android.app.Application
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -45,6 +46,9 @@ import com.refit.app.ui.screen.SignupStep3Screen
 import com.refit.app.ui.screen.SplashScreen
 import com.refit.app.ui.screen.WishScreen
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
+import com.refit.app.data.analysis.modelAndView.AnalysisViewModel
+import com.refit.app.data.analysis.modelAndView.AnalysisViewModelFactory
 import com.refit.app.data.auth.modelAndView.FormMode
 import com.refit.app.data.auth.modelAndView.KakaoFlowStore
 import com.refit.app.data.myfit.viewmodel.MyfitViewModel
@@ -282,20 +286,27 @@ fun MainScreenWithBottomNav(
                     )
                 }
 
-                // 성분 분석
-                composable("ingredient") { AnalysisScreen(navController) }
-                // 성분 분석 결과
-                composable("ingredient/result") {
-                    // 임시! API에서 받아와 처리할 예정!
-                    val demo = AnalysisUiState(
-                        memberName = "외식고기",
-                        matchRate = 72,
-                        risky = listOf("파라벤", "포름알데히드", "트리클로산"),
-                        caution = listOf("프탈레이트", "벤조페논"),
-                        safe = listOf("글리세린", "히알루론산", "세라마이드", "나이아신아마이드", "토코페롤"),
-                        summary = "자극 가능 성분이 일부 포함되어 있으나 보습/장벽 강화 성분도 풍부합니다. 민감 피부는 국소 테스트 후 사용을 권장합니다."
-                    )
-                    AnalysisResultScreen(ui = demo)
+                // 성분 분석 (부모 라우트에 VM 스코프 고정)
+                composable("ingredient") { backStackEntry ->
+                    val app = LocalContext.current.applicationContext as Application
+
+                    val parentEntry = remember(backStackEntry) { backStackEntry }
+                    val vm: AnalysisViewModel =
+                        viewModel(parentEntry, factory = AnalysisViewModelFactory(app))
+
+                    AnalysisScreen(navController = navController, vm = vm)
+                }
+
+                composable("ingredient/result") { backStackEntry ->
+                    val app = LocalContext.current.applicationContext as Application
+                    val parentEntry = remember(backStackEntry) {
+                        // 아래 라우트가 백스택에 남아 있으므로 이 엔트리를 통해 같은 VM 인스턴스를 재사용
+                        navController.getBackStackEntry("ingredient")
+                    }
+                    val vm: AnalysisViewModel =
+                        viewModel(parentEntry, factory = AnalysisViewModelFactory(app))
+
+                    AnalysisResultScreen(ui = vm.ui.value)
                 }
 
                 // 검색/알림/장바구니
