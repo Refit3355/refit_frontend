@@ -7,27 +7,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.refit.app.R
 import com.refit.app.ui.composable.auth.ChipGroupMulti
 import com.refit.app.ui.composable.auth.ChipGroupSingle
 import com.refit.app.ui.composable.auth.SectionHeader
-import com.refit.app.ui.composable.auth.SignupTopBar
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 
@@ -54,73 +42,36 @@ fun SignupStep2Screen(
 ) {
     val scroll = rememberScrollState()
 
-    Scaffold(
-        topBar = {
-            SignupTopBar(
-                title = "회원가입",
-                stepIndex = 2,
-                stepCount = 3,
-                onBack = onBack
-            )
-        },
-        bottomBar = {
-            Button(
-                onClick = onNextOrSubmit, // ← 상위 컨테이너에서 로직 처리
-                enabled = submitEnabled,
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+        // 상단 진행바
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.TopCenter)
+        ) {
+            LinearProgressIndicator(
+                progress = { 2f / 3f },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 16.dp)
-                    .navigationBarsPadding()
-                    .height(60.dp),
-                shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MainPurple,
-                    contentColor = Color.White,
-                    disabledContainerColor = MainPurple.copy(alpha = 0.4f),
-                    disabledContentColor = Color.White
-                )
-            ) { Text(
-                text = "가입하기",
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = Pretendard,
-                )
-            ) }
-        },
-        containerColor = Color.White
-    ) { pad ->
+                    .padding(horizontal = 16.dp)
+                    .height(4.dp),
+                color = MainPurple,
+                trackColor = Color(0xFFE5E5EA)
+            )
+        }
+
+        // 본문 스크롤
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
-                .padding(pad)
-                .padding(horizontal = 20.dp, vertical = 16.dp)
-                .verticalScroll(scroll),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+                .verticalScroll(scroll)
+                .padding(horizontal = 20.dp)
+                .padding(top = 12.dp)
         ) {
-            val headerTextStyle = MaterialTheme.typography.titleMedium.copy(
-                fontSize = 18.sp,
-                lineHeight = 26.sp
-            )
-            val autoIconSize = with(LocalDensity.current) { headerTextStyle.fontSize.toDp() }
-            Text(
-                text = buildAnnotatedString {
-                    append("더 ")
-                    withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
-                        append("정확한 정보")
-                    }
-                    append("를 드리기 위해,\n사용자님을 조금 더 알고 싶어요!")
-                },
-                style = headerTextStyle,
-                color = Color(0xFF4A4A4A),
-                fontSize = 18.sp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = autoIconSize),
-                textAlign = TextAlign.Start,
-                fontFamily = Pretendard
-            )
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -181,7 +132,35 @@ fun SignupStep2Screen(
                 }
             }
 
-            Spacer(Modifier.height(8.dp))
+            // 스크롤 내용이 버튼에 가리지 않도록 여유
+            Spacer(Modifier.height(100.dp))
+        }
+
+        // 하단 고정 CTA 버튼
+        Button(
+            onClick = onNextOrSubmit,
+            enabled = submitEnabled,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 16.dp)
+                .navigationBarsPadding()
+                .height(60.dp),
+            shape = RoundedCornerShape(10.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MainPurple,
+                contentColor = Color.White,
+                disabledContainerColor = MainPurple.copy(alpha = 0.4f),
+                disabledContentColor = Color.White
+            )
+        ) {
+            Text(
+                text = "가입하기",
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Pretendard
+                )
+            )
         }
     }
 }

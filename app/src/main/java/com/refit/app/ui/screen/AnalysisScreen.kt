@@ -1,19 +1,6 @@
 package com.refit.app.ui.screen
 
-import android.content.ContentValues
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.ImageFormat
-import android.graphics.Matrix
-import android.graphics.Rect
-import android.graphics.YuvImage
-import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.core.ImageProxy
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -36,19 +23,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.refit.app.R
+import com.refit.app.data.analysis.modelAndView.AnalysisViewModel
+import com.refit.app.data.analysis.modelAndView.rememberAnalysisViewModel
 import com.refit.app.ui.composable.analysis.PhotoUploadButton
+import com.refit.app.ui.composable.analysis.LoadingOverlay
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
-import com.refit.app.ui.theme.RefitTheme
-import java.io.ByteArrayOutputStream
-
 
 @Composable
-fun AnalysisScreen(navController: NavHostController) {
+fun AnalysisScreen(
+    navController: NavHostController,
+    vm: AnalysisViewModel
+) {
     val context = LocalContext.current
-    
+    val ui = vm.ui.value
+
     var showCamera by remember { mutableStateOf(false) }
     var previewBytes by remember { mutableStateOf<ByteArray?>(null) }
+    var selected by remember { mutableStateOf("뷰티") } // "뷰티" | "헬스"
 
     Box(
         modifier = Modifier
@@ -73,7 +65,6 @@ fun AnalysisScreen(navController: NavHostController) {
         ) {
             Spacer(Modifier.height(15.dp))
 
-            // 제목
             Text(
                 text = "사진 한 장으로,\n나에게 맞는 성분 확인하기",
                 color = Color(0xFF6A1B9A),
@@ -107,8 +98,6 @@ fun AnalysisScreen(navController: NavHostController) {
 
             Spacer(Modifier.height(12.dp))
 
-            // 뷰티 or 헬스 선택
-            var selected by remember { mutableStateOf("뷰티") }
             Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -117,7 +106,12 @@ fun AnalysisScreen(navController: NavHostController) {
                     onClick = { selected = "뷰티" },
                     shape = RoundedCornerShape(24.dp),
                     border = ButtonDefaults.outlinedButtonBorder.copy(
-                        brush = Brush.linearGradient(listOf(if (selected == "뷰티") MainPurple else Color.Gray, if (selected == "뷰티") MainPurple else Color.Gray))
+                        brush = Brush.linearGradient(
+                            listOf(
+                                if (selected == "뷰티") MainPurple else Color.Gray,
+                                if (selected == "뷰티") MainPurple else Color.Gray
+                            )
+                        )
                     ),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = if (selected == "뷰티") MainPurple.copy(alpha = 0.1f) else Color.Transparent,
@@ -129,7 +123,12 @@ fun AnalysisScreen(navController: NavHostController) {
                     onClick = { selected = "헬스" },
                     shape = RoundedCornerShape(24.dp),
                     border = ButtonDefaults.outlinedButtonBorder.copy(
-                        brush = Brush.linearGradient(listOf(if (selected == "헬스") MainPurple else Color.Gray, if (selected == "헬스") MainPurple else Color.Gray))
+                        brush = Brush.linearGradient(
+                            listOf(
+                                if (selected == "헬스") MainPurple else Color.Gray,
+                                if (selected == "헬스") MainPurple else Color.Gray
+                            )
+                        )
                     ),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = if (selected == "헬스") MainPurple.copy(alpha = 0.1f) else Color.Transparent,
@@ -140,12 +139,13 @@ fun AnalysisScreen(navController: NavHostController) {
 
             Spacer(Modifier.height(24.dp))
 
-            // 갤러리 or 내부 카메라 연결
             PhotoUploadButton(
                 onPickFromGallery = { uri ->
-                    // 미리보기용 - 임시
-                    previewBytes = uri?.let { u ->
-                        context.contentResolver.openInputStream(u)?.use { it.readBytes() }
+                    if (uri != null) {
+                        // 미리보기
+                        previewBytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                        // 즉시 분석
+                        vm.analyzeFromUri(uri, selected)
                     }
                 },
                 onOpenInAppCamera = { showCamera = true }
@@ -153,7 +153,6 @@ fun AnalysisScreen(navController: NavHostController) {
 
             Spacer(Modifier.height(20.dp))
 
-            // 미리보기 - 임시
             previewBytes?.let { bytes ->
                 val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                 if (bmp != null) {
@@ -183,18 +182,38 @@ fun AnalysisScreen(navController: NavHostController) {
             }
 
             Spacer(Modifier.height(16.dp))
+
+            // 응답이 준비되면 결과 페이지로 이동 (launchSingleTop 방지 옵션)
+            if (!ui.loading && ui.error == null && ui.summary.isNotBlank()) {
+                LaunchedEffect(ui.summary) {
+                    navController.navigate("ingredient/result") {
+                        launchSingleTop = true
+                    }
+                }
+            }
         }
 
-        // 내부 카메라
         if (showCamera) {
             InAppCameraScreen(
                 onCancel = { showCamera = false },
                 onCroppedBytes = { bytes ->
-                    // TODO: 여기서 bytes를 API로 업로드
-                    previewBytes = bytes // 미리보기 업데이트 - 임시!
+                    previewBytes = bytes
                     showCamera = false
+                    vm.analyzeFromBytes(bytes, selected)
                 }
             )
         }
+
+        LoadingOverlay(
+            visible = ui.loading,
+            message = "AI가 성분을 분석 중… 최대 1분 소요될 수 있어요"
+        )
     }
+}
+
+/* 미리보기 용, VM 주입이 없어서 화면만 그림 */
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+private fun AnalysisScreenPreview() {
+    // 단순 UI 프리뷰만 필요하면 여긴 비워둬도 됨.
 }
