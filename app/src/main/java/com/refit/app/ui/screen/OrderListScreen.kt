@@ -23,11 +23,16 @@ import com.refit.app.data.cart.modelAndView.CartBadgeViewModel
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
 import com.refit.app.data.cart.modelAndView.CartOpType
 import com.refit.app.data.cart.repository.CartRepository
+import com.refit.app.data.me.modelAndView.OrderUiEvent
 import com.refit.app.data.me.modelAndView.OrderViewModel
 import com.refit.app.network.RetrofitInstance
+import com.refit.app.ui.composable.mypage.CancelSuccessDialog
+import com.refit.app.ui.composable.mypage.PartialCancelErrorDialog
 import com.refit.app.ui.composable.mypage.OrderItemRow
 import com.refit.app.ui.theme.LightPurple
 import com.refit.app.ui.theme.Pretendard
+import kotlinx.coroutines.launch
+
 @Composable
 fun OrderListScreen(
     navController: NavController,
@@ -45,11 +50,32 @@ fun OrderListScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    var showPartialCancelError by remember { mutableStateOf(false) }
+    var showCancelSuccess by remember { mutableStateOf(false) }
+    var cancelSuccessMessage by remember { mutableStateOf("결제 취소 신청되었습니다.") }
+
     LaunchedEffect(Unit) {
         vm.loadOrders()
-        cartVm.opEvents.collect { ev ->
-            if (ev.type == CartOpType.ADD_ONE && ev.success) {
-                onCartChanged()
+
+        launch {
+            cartVm.opEvents.collect { ev ->
+                if (ev.type == CartOpType.ADD_ONE && ev.success) {
+                    onCartChanged()
+                }
+            }
+        }
+
+        launch {
+            vm.uiEvent.collect { ev ->
+                when (ev) {
+                    is OrderUiEvent.PartialCancelFailed -> {
+                        showPartialCancelError = true
+                    }
+                    is OrderUiEvent.CancelRequestSucceeded -> {
+                        cancelSuccessMessage = ev.message.ifBlank { "결제 취소 신청되었습니다." }
+                        showCancelSuccess = true
+                    }
+                }
             }
         }
     }
@@ -116,4 +142,21 @@ fun OrderListScreen(
                 .align(Alignment.BottomCenter)
         )
     }
+
+    // 에러 모달
+    PartialCancelErrorDialog(
+        visible = showPartialCancelError,
+        onConfirm = { showPartialCancelError = false }
+    )
+
+    //  성공 모달
+    CancelSuccessDialog(
+        visible = showCancelSuccess,
+        message = cancelSuccessMessage,
+        onConfirm = {
+            showCancelSuccess = false
+            // 필요하면 목록 갱신
+            vm.loadOrders()
+        }
+    )
 }

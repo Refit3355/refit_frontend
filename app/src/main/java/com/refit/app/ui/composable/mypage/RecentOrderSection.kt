@@ -197,18 +197,43 @@ fun RecentOrderSection(
                                     var showCancelDialog by remember { mutableStateOf(false) }
 
                                     if (showCancelDialog) {
+                                        // 남은 취소 가능 수량 계산
+                                        // item.canceledCount 가 없다면 아래 remainQty는 item.quantity 로 둠
+                                        val remainQty = run {
+                                            val canceled = try {
+                                                @Suppress("UNUSED_VARIABLE")
+                                                (item::class.java.getDeclaredField("canceledCount")
+                                                    .apply { isAccessible = true }
+                                                    .get(item) as? Int) ?: 0
+                                            } catch (_: Exception) {
+                                                0
+                                            }
+                                            val q = item.quantity - canceled
+                                            if (q < 1) 1 else q
+                                        }
+
                                         CancelOrderReasonDialog(
                                             orderItemId = item.orderItemId,
+                                            unitPrice = item.price,
+                                            maxQty = remainQty,
                                             onDismiss = { showCancelDialog = false },
-                                            onConfirmCancel = { vm.requestCancel(it) }
+                                            onConfirmCancel = { id, reason, count ->
+                                                //  cancelAmount = unitPrice * count 으로 요청
+                                                vm.requestCancel(
+                                                    orderItemId = id,
+                                                    unitPrice = item.price,
+                                                    count = count,
+                                                    reason = reason
+                                                )
+                                            }
                                         )
                                     }
 
                                     MyOrderActionButton(
                                         text = "주문 취소",
                                         modifier = Modifier
-                                            .width(70.dp)
-                                            .height(28.dp)
+                                            .width(90.dp)
+                                            .height(30.dp)
                                             .padding(top = 6.dp),
                                         onClick = { showCancelDialog = true }
                                     )

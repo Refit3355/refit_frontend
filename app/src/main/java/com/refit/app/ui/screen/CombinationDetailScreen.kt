@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import android.net.Uri
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.refit.app.data.combination.modelAndView.CombinationDetailViewModel
@@ -44,6 +45,9 @@ import com.refit.app.data.cart.repository.CartRepository
 import com.refit.app.network.RetrofitInstance
 import com.refit.app.util.common.PriceUtil
 import com.refit.app.ui.theme.Pretendard
+import com.refit.app.data.order.model.DraftOrderRequest
+import com.refit.app.data.order.model.encodeDraftOrderRequest
+import com.refit.app.data.order.model.OrderSource
 
 @Composable
 fun CombinationDetailScreen(
@@ -168,7 +172,16 @@ fun CombinationDetailScreen(
                 // 구매하기 버튼
                 Button(
                     modifier = Modifier.weight(1f).height(48.dp),
-                    onClick = { /* TODO: 구매하기 완료시 연동 */ },
+                    onClick = {
+                        val draft = DraftOrderRequest(
+                            source = OrderSource.COMBINATION,
+                            combinationId = combinationId
+                        )
+                        val payload = encodeDraftOrderRequest(draft)
+                        val encoded = Uri.encode(payload)
+
+                        navController.navigate("checkout/orderSheet?payload=$encoded")
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = MainPurple),
                     shape = RoundedCornerShape(4.dp)
                 ) {

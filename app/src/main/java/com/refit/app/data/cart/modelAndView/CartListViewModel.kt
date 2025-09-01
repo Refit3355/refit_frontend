@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.refit.app.data.order.model.OrderLineItem
 
 class CartListViewModel(
     private val repo: CartRepository
@@ -46,5 +47,19 @@ class CartListViewModel(
 
     fun removeLocal(cartId: Long) {
         _items.update { list -> list.filterNot { it.cartId == cartId } }
+    }
+
+    fun toOrderLines(selectedCartIds: Set<Long>): List<OrderLineItem> {
+        if (selectedCartIds.isEmpty()) return emptyList()
+        return _items.value
+            .asSequence()
+            .filter { it.cartId in selectedCartIds }
+            .map { item ->
+                OrderLineItem(
+                    productId = item.id.toLong(), // 또는 item.productId.toLong()
+                    quantity = item.cartCnt
+                )
+            }
+            .toList()
     }
 }

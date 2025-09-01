@@ -5,9 +5,11 @@ import com.refit.app.data.combination.model.CombinationsResponse
 import com.refit.app.data.me.model.LikeProductDto
 import com.refit.app.data.me.model.LikeRequest
 import com.refit.app.data.me.model.OrdersResponse
+import com.refit.app.data.me.model.PartialCancelRequestDto
 import com.refit.app.data.me.model.UpdateOrderStatusResponse
 import com.refit.app.data.product.model.Product
 import com.refit.app.network.RetrofitInstance
+import java.util.UUID
 
 private fun LikeProductDto.toDomain() = Product(
     id = id,
@@ -49,11 +51,28 @@ class MeRepository(
         meApi.requestReturn(orderItemId)
     }
 
-    // TODO: 주문 취소 API
-    suspend fun requestCancel(orderItemId: Long): Result<UpdateOrderStatusResponse> = runCatching {
-        // 임시로 성공 응답 반환 (백엔드 연동 후 수정)
+    // 주문 취소 API
+    suspend fun requestCancel(
+        orderItemId: Long,
+        unitPrice: Int,
+        count: Int,
+        reason: String
+    ): Result<UpdateOrderStatusResponse> = runCatching {
+        require(count >= 1) { "취소 수량은 1 이상이어야 합니다." }
+        val amount = unitPrice * count
+        val idemp = UUID.randomUUID().toString()
+
+        val res = meApi.cancelOrderItem(
+            orderItemId = orderItemId,
+            req = PartialCancelRequestDto(
+                cancelReason = reason,
+                cancelAmount = amount,
+                idempotencyKey = idemp
+            )
+        )
+        // UI는 UpdateOrderStatusResponse를 사용 중이라 변환
         UpdateOrderStatusResponse(
-            message = "주문 취소 처리 완료"
+            message = "주문 취소 신청되었습니다\n• 환불 금액 : ${res.canceledAmount}원"
         )
     }
 

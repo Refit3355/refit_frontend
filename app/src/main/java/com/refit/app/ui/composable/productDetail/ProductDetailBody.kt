@@ -4,16 +4,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +35,7 @@ import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import coil.size.Dimension
 import coil.size.Size
+import com.refit.app.R
 import com.refit.app.data.product.model.ProductDetail
 import com.refit.app.ui.screen.formatRecommended
 import com.refit.app.ui.theme.Pretendard
@@ -37,7 +43,8 @@ import com.refit.app.ui.theme.Pretendard
 @Composable
 fun ProductDetailBody(
     detail: ProductDetail,
-    contentPadding: PaddingValues
+    contentPadding: PaddingValues,
+    onShare: () -> Unit
 ) {
     val bottom = contentPadding.calculateBottomPadding()
 
@@ -65,27 +72,43 @@ fun ProductDetailBody(
 
         // 2) 브랜드 / 상품명
         item {
-            Column(Modifier.padding(horizontal = 20.dp)) {
-                Text(
-                    text = detail.brand,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontFamily = Pretendard,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 16.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    text = detail.name,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontFamily = Pretendard,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 20.sp
+            Row(
+                modifier = Modifier.padding(horizontal = 20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        text = detail.brand,
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontFamily = Pretendard,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 16.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                     )
-                )
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = detail.name,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontFamily = Pretendard,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 20.sp
+                        )
+                    )
+                }
+
+                // 우측 공유 버튼
+                IconButton(onClick = onShare) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_icon_chat),
+                        contentDescription = "공유",
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.size(34.dp)
+                    )
+                }
             }
         }
+
 
         item { Spacer(Modifier.height(12.dp)) }
 

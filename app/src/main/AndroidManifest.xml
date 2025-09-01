@@ -27,6 +27,17 @@
         <package android:name="com.google.android.apps.healthdata" />
     </queries>
 
+    <queries>
+        <package android:name="com.kakao.talk" />
+        <package android:name="viva.republica.toss" />
+        <package android:name="com.hyundaicard.appcard" />
+        <package android:name="com.kbcard.kbkookmincard" />
+        <package android:name="com.shcard.smartpay" />
+        <package android:name="com.lotte.lottesmartpay" />
+        <package android:name="nh.smart.allonepay" />
+        <package android:name="com.wooricard.wpay" />
+    </queries>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -60,6 +71,22 @@
             <!-- 헬스 권한 라쇼날 -->
             <intent-filter>
                 <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
+
+            <!-- Toss 결제 성공 콜백 -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="refitapp" android:host="pay" android:path="/success"/>
+            </intent-filter>
+
+            <!-- Toss 결제 실패 콜백 -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="refitapp" android:host="pay" android:path="/fail"/>
             </intent-filter>
 
             <!-- 알림 딥링크: app://notification -->
@@ -114,6 +141,7 @@
             android:exported="true"
             android:targetActivity=".MainActivity"
             android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
                 <category android:name="android.intent.category.HEALTH_PERMISSIONS" />

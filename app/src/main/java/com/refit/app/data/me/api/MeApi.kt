@@ -4,6 +4,8 @@ import com.refit.app.data.combination.model.CombinationsResponse
 import com.refit.app.data.me.model.LikeRequest
 import com.refit.app.data.me.model.LikeResponse
 import com.refit.app.data.me.model.OrdersResponse
+import com.refit.app.data.me.model.PartialCancelRequestDto
+import com.refit.app.data.me.model.PartialCancelResponseDto
 import com.refit.app.data.me.model.ProfileImageResponse
 import com.refit.app.data.me.model.UpdateOrderStatusResponse
 import okhttp3.MultipartBody
@@ -43,4 +45,10 @@ interface MeApi {
     @Headers("Requires-Auth: true")
     suspend fun requestReturn(@Path("orderItemId") orderItemId: Long): UpdateOrderStatusResponse
 
+    @POST("/payments/{orderItemId}/cancel")
+    @Headers("Requires-Auth: true")
+    suspend fun cancelOrderItem(
+        @Path("orderItemId") orderItemId: Long,
+        @Body req: PartialCancelRequestDto
+    ): PartialCancelResponseDto
 }

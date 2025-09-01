@@ -11,5 +11,6 @@ data class LoginResponse(
     val health: HealthInfoDto?,
     val hair: HairInfoDto?,
     val skin: SkinInfoDto?,
+    val profileImageUrl: String?,
     val refreshToken: String?
 )

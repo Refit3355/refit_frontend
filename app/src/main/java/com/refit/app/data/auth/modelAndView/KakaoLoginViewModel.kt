@@ -101,6 +101,7 @@ class KakaoLoginViewModel : ViewModel() {
                         hair     = data.hair,
                         skin     = data.skin
                     )
+                    UserPrefs.setProfileUrl(data.profileImageUrl)
                     onLoggedIn()
                 }
             } catch (t: Throwable) {
@@ -145,6 +146,7 @@ class KakaoLoginViewModel : ViewModel() {
                     hair     = data.hair,
                     skin     = data.skin
                 )
+                UserPrefs.setProfileUrl(data.profileImageUrl)
                 onSuccessLogin()
             } catch (t: Throwable) {
                 onError(t.message ?: "카카오 회원가입 중 오류")

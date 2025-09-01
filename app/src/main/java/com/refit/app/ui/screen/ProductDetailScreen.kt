@@ -16,6 +16,8 @@ import com.refit.app.data.cart.api.CartApi
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
 import com.refit.app.data.cart.modelAndView.CartOpType
 import com.refit.app.data.cart.repository.CartRepository
+import com.refit.app.data.chat.modelAndView.ChatMessagesViewModel
+import com.refit.app.data.chat.modelAndView.ChatMessagesViewModelFactory
 import com.refit.app.data.product.modelAndView.ProductDetailViewModel
 import com.refit.app.ui.composable.productDetail.DetailBottomBar
 import com.refit.app.ui.composable.productDetail.OrderBottomSheet
@@ -24,7 +26,12 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 import com.refit.app.data.local.wish.WishViewModel
+import com.refit.app.data.order.model.DraftOrderRequest
+import com.refit.app.data.order.model.OrderLineItem
+import com.refit.app.data.order.model.OrderSource
+import com.refit.app.data.order.model.encodeDraftOrderRequest
 import com.refit.app.network.RetrofitInstance
+import com.refit.app.ui.composable.product.ChatRoomPickerBottomSheet
 
 
 enum class SheetMode { CART, BUY }
@@ -47,6 +54,9 @@ fun ProductDetailScreen(
     val wishVm: WishViewModel = viewModel()
     val wishedIds by wishVm.wishedIds.collectAsStateWithLifecycle()
     val isWished = remember(productId, wishedIds) { (productId.toLong() in wishedIds) }
+    var showShareSheet by rememberSaveable { mutableStateOf(false) }
+
+    val chatVm: ChatMessagesViewModel = viewModel(factory = ChatMessagesViewModelFactory)
 
     LaunchedEffect(productId) { vm.load(productId) }
 
@@ -123,7 +133,8 @@ fun ProductDetailScreen(
             }
             state.data != null -> ProductDetailBody(
                 detail = state.data!!,
-                contentPadding = innerPadding
+                contentPadding = innerPadding,
+                onShare = { showShareSheet = true }
             )
         }
 
@@ -141,11 +152,45 @@ fun ProductDetailScreen(
                         editVm.addOne(productId.toLong(), qty)
                     } else {
                         // 바로구매 플로우(주문 화면 이동 등)
-//                        navController.navigate("order/confirm?productId=$productId&qty=$qty")
-//                        showSheet = false
+                        val payload = encodeDraftOrderRequest(
+                            DraftOrderRequest(
+                                source = OrderSource.DIRECT,
+                                lines = listOf(OrderLineItem(productId = productId.toLong(), quantity = qty))
+                            )
+                        )
+                        navController.navigate("checkout/orderSheet?payload=$payload")
+
                     }
                 },
                 onDismiss = { showSheet = false }
+            )
+        }
+
+        if (showShareSheet) {
+            ChatRoomPickerBottomSheet(
+                onDismiss = { showShareSheet = false },
+                onSelect = { roomId ->
+                    val wsUrl = "wss://api.refit.today/ws-stomp"
+
+                    scope.launch {
+                        chatVm.connectRealtime(roomId, wsUrl)
+                        val ok = chatVm.awaitConnected()
+                        if (ok) {
+                            chatVm.sendRealtimeProduct(roomId, productId.toLong())
+                            val result = snackbarHostState.showSnackbar(
+                                message = "채팅방으로 공유했어요.",
+                                actionLabel = "바로가기",
+                                withDismissAction = true
+                            )
+                            if (result == SnackbarResult.ActionPerformed) {
+                                navController.navigate("chat/$roomId")
+                            }
+                        } else {
+                            snackbarHostState.showSnackbar("연결 실패로 공유하지 못했어요.")
+                        }
+                        showShareSheet = false
+                    }
+                }
             )
         }
     }
