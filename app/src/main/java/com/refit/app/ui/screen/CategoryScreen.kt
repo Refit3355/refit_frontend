@@ -8,7 +8,6 @@ import com.refit.app.ui.composable.product.Group
 import com.refit.app.ui.composable.product.GroupSegmented
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -19,7 +18,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -99,20 +97,45 @@ fun CategoryScreen(
         contentWindowInsets = WindowInsets(0),
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate("ingredient") },
-                shape = CircleShape,
-                containerColor = MainPurple,
-                contentColor = Color.White,
-                modifier = Modifier
-                    .size(60.dp)
+            // ===== 플로팅 버튼 스택 =====
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.End
             ) {
-                Text(
-                    text = "성분\n분석",
-                    fontSize = 15.sp,
-                    textAlign = TextAlign.Center,
-                    fontFamily = Pretendard
-                )
+                // 1) 챗봇 버튼
+                FloatingActionButton(
+                    onClick = { navController.navigate("chatbot") },
+                    shape = CircleShape,
+                    containerColor = Color.White,
+                    contentColor = MainPurple,
+                    elevation = FloatingActionButtonDefaults.elevation(
+                        defaultElevation = 6.dp,
+                        pressedElevation = 8.dp
+                    ),
+                    modifier = Modifier.size(60.dp)
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_jellbbo_chatbot_floating),
+                        contentDescription = "챗봇",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+
+                // 2) 성분 분석 버튼
+                FloatingActionButton(
+                    onClick = { navController.navigate("ingredient") },
+                    shape = CircleShape,
+                    containerColor = MainPurple,
+                    contentColor = Color.White,
+                    modifier = Modifier.size(60.dp)
+                ) {
+                    Text(
+                        text = "성분\n분석",
+                        fontSize = 15.sp,
+                        textAlign = TextAlign.Center,
+                        fontFamily = Pretendard,
+                    )
+                }
             }
         }
     ) { innerPadding ->

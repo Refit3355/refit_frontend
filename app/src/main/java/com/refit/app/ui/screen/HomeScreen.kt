@@ -1,12 +1,13 @@
 package com.refit.app.ui.screen
 
-import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,11 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.refit.app.R
@@ -34,7 +35,6 @@ import com.refit.app.data.home.modelAndView.HomeViewModel
 import com.refit.app.network.UserPrefs
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
-import com.refit.app.network.TokenManager
 import com.refit.app.util.home.getWeatherIcon
 import com.refit.app.util.home.highlightText
 
@@ -203,23 +203,48 @@ fun HomeScreen(
             Spacer(Modifier.height(16.dp))
         }
 
-        // ===== 성분 분석 버튼 =====
-        FloatingActionButton(
-            onClick = { navController.navigate("ingredient") },
-            shape = CircleShape,
-            containerColor = MainPurple,
-            contentColor = Color.White,
+        // ===== 플로팅 버튼 스택 =====
+        Column(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp)
-                .size(60.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.End
         ) {
-            Text(
-                text = "성분\n분석",
-                fontSize = 15.sp,
-                textAlign = TextAlign.Center,
-                fontFamily = Pretendard,
-            )
+            // 1) 챗봇 버튼
+            FloatingActionButton(
+                onClick = { navController.navigate("chatbot") },
+                shape = CircleShape,
+                containerColor = Color.White,
+                contentColor = MainPurple,
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 6.dp,
+                    pressedElevation = 8.dp
+                ),
+                modifier = Modifier.size(60.dp)
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_jellbbo_chatbot_floating), // 배경 투명 PNG
+                    contentDescription = "챗봇",
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            // 2) 성분 분석 버튼
+            FloatingActionButton(
+                onClick = { navController.navigate("ingredient") },
+                shape = CircleShape,
+                containerColor = MainPurple,
+                contentColor = Color.White,
+                modifier = Modifier.size(60.dp)
+            ) {
+                Text(
+                    text = "성분\n분석",
+                    fontSize = 15.sp,
+                    textAlign = TextAlign.Center,
+                    fontFamily = Pretendard,
+                )
+            }
         }
     }
 }
