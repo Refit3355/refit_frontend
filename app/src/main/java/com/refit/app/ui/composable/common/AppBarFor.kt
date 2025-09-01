@@ -83,6 +83,12 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                 onBack = { nav.popBackStack() }
             )
 
+        route.startsWith("auth/signup") ->
+            AppBarConfig.BackOnly(
+                title = "회원가입",
+                onBack = { nav.popBackStack() }
+            )
+
         route == "account/edit" ->
             AppBarConfig.BackOnly(
                 title = "기본 정보 수정",

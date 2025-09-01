@@ -3,25 +3,14 @@ package com.refit.app.ui.screen
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -37,10 +26,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.refit.app.R
-import com.refit.app.ui.composable.auth.SignupTopBar
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
-import kotlinx.coroutines.MainScope
 
 @Composable
 fun SignupStep3Screen(
@@ -50,44 +37,35 @@ fun SignupStep3Screen(
     @DrawableRes illustrationRes: Int? = null
 ) {
     val displayName = nickname?.takeIf { it.isNotBlank() } ?: "리핏"
-
     val scroll = rememberScrollState()
 
-    Scaffold(
-        topBar = {
-            SignupTopBar(
-                title = "회원가입",
-                stepIndex = 3,
-                stepCount = 3,
-                onBack = onBack
-            )
-        },
-        bottomBar = {
-            Button(
-                onClick = onLogin,
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.TopCenter)
+        ) {
+            LinearProgressIndicator(
+                progress = { 3f / 3f },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 16.dp)
-                    .navigationBarsPadding()
-                    .height(60.dp),
-                shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MainPurple,
-                    contentColor = Color.White
-                )
-            ) {
-                Text("로그인", fontSize = 18.sp, fontWeight = FontWeight.Bold, fontFamily = Pretendard)
-            }
-        },
-        containerColor = Color.White
-    ) { pad ->
+                    .padding(horizontal = 16.dp)
+                    .height(4.dp),
+                color = MainPurple,
+                trackColor = Color(0xFFE5E5EA)
+            )
+        }
+        // 본문 스크롤
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
-                .padding(pad)
+                .verticalScroll(scroll)
                 .padding(horizontal = 20.dp)
-                .verticalScroll(scroll),
+                .padding(top = 12.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Spacer(Modifier.height(12.dp))
@@ -123,10 +101,8 @@ fun SignupStep3Screen(
                 fontFamily = Pretendard,
             )
 
-
-
             Image(
-                painter = painterResource(id = R.drawable.ic_signup_success),
+                painter = painterResource(id = illustrationRes ?: R.drawable.ic_signup_success),
                 contentDescription = null,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
@@ -136,7 +112,26 @@ fun SignupStep3Screen(
                 contentScale = ContentScale.Fit
             )
 
-            Spacer(Modifier.height(12.dp))
+            // 스크롤 내용이 버튼에 가리지 않도록 여유
+            Spacer(Modifier.height(100.dp))
+        }
+
+        // 하단 고정 CTA 버튼
+        Button(
+            onClick = onLogin,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 16.dp)
+                .navigationBarsPadding()
+                .height(60.dp),
+            shape = RoundedCornerShape(10.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MainPurple,
+                contentColor = Color.White
+            )
+        ) {
+            Text("로그인", fontSize = 18.sp, fontWeight = FontWeight.Bold, fontFamily = Pretendard)
         }
     }
 }
