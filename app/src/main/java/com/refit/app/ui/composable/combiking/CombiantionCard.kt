@@ -93,7 +93,10 @@ fun CombinationCard(
 
                     images.take(4).forEachIndexed { index, url ->
                         Box(
-                            modifier = Modifier.size(size).clip(shape),
+                            modifier = Modifier
+                                .size(size)
+                                .clip(shape)
+                                .background(Color.White, shape),
                             contentAlignment = Alignment.Center
                         ) {
                             AsyncImage(
