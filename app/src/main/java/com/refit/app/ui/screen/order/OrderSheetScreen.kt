@@ -38,7 +38,6 @@ import androidx.compose.foundation.layout.FlowRow
 fun OrderSheetScreen(
     navController: NavController,
     draftReq: DraftOrderRequest,
-    clientKey: String,
     successUrl: String = "refitapp://pay/success",
     failUrl: String = "refitapp://pay/fail"
 ) {
@@ -78,7 +77,6 @@ fun OrderSheetScreen(
                                             "&orderName=${encode(d.orderSummary)}" +
                                             "&amount=${d.totalAmount}" +
                                             "&method=${ui.selectedMethod}" +
-                                            "&clientKey=$clientKey" +
                                             "&successUrl=${encode(successUrl)}" +
                                             "&failUrl=${encode(failUrl)}"
                                 )
@@ -286,8 +284,6 @@ private fun SectionItems(items: List<OrderItemSummary>) {
 private fun SectionPayMethod(selected: String, onSelect: (String) -> Unit) {
     val options = listOf(
         "CARD" to "신용카드",
-        "TRANSFER" to "계좌이체",
-        "MOBILE_PHONE" to "휴대폰결제",
         "VIRTUAL_ACCOUNT" to "가상계좌"
     )
 
