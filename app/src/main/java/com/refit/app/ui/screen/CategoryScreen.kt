@@ -7,10 +7,7 @@ import com.refit.app.ui.composable.product.CategoryTabs
 import com.refit.app.ui.composable.product.Group
 import com.refit.app.ui.composable.product.GroupSegmented
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -23,10 +20,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -34,6 +31,9 @@ import com.refit.app.R
 import com.refit.app.data.product.modelAndView.ProductListViewModel
 import com.refit.app.ui.composable.product.ProductGrid
 import com.refit.app.ui.composable.product.SortBottomSheet
+import com.refit.app.ui.composable.product.floating.SpeedDialButton
+import com.refit.app.ui.composable.product.floating.SpeedDialItem
+import com.refit.app.ui.composable.product.floating.SpeedDialMenu
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 
@@ -85,6 +85,8 @@ fun CategoryScreen(
         if (selectedGroup == Group.BEAUTY) beautyCats else healthCats
     }
 
+    var isFabMenuOpen by remember { mutableStateOf(false) }
+
     LaunchedEffect(selectedGroup, selectedCategoryIndex, selectedSortIndex) {
         val groupParam = selectedGroup.param
         val sortParam = sortOptions[selectedSortIndex].second
@@ -97,137 +99,128 @@ fun CategoryScreen(
         contentWindowInsets = WindowInsets(0),
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
-            // ===== 플로팅 버튼 스택 =====
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalAlignment = Alignment.End
-            ) {
-                // 1) 챗봇 버튼
-                FloatingActionButton(
-                    onClick = { navController.navigate("chatbot") },
-                    shape = CircleShape,
-                    containerColor = Color.White,
-                    contentColor = MainPurple,
-                    elevation = FloatingActionButtonDefaults.elevation(
-                        defaultElevation = 6.dp,
-                        pressedElevation = 8.dp
-                    ),
-                    modifier = Modifier.size(60.dp)
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_jellbbo_chatbot_floating),
-                        contentDescription = "챗봇",
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-
-                // 2) 성분 분석 버튼
-                FloatingActionButton(
-                    onClick = { navController.navigate("ingredient") },
-                    shape = CircleShape,
-                    containerColor = MainPurple,
-                    contentColor = Color.White,
-                    modifier = Modifier.size(60.dp)
-                ) {
-                    Text(
-                        text = "성분\n분석",
-                        fontSize = 15.sp,
-                        textAlign = TextAlign.Center,
-                        fontFamily = Pretendard,
-                    )
-                }
-            }
+            // FAB 뒤로 펼쳐지는 메뉴 (오버레이)
+            SpeedDialButton(
+                isOpen = isFabMenuOpen,
+                onToggle = { isFabMenuOpen = !isFabMenuOpen },
+                iconRes = R.drawable.ic_jellbbo_chatbot_floating,
+                openBgColor = Color.White,
+                closeIconTint = MainPurple
+            )
         }
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            Spacer(Modifier.height(8.dp))
-
-            GroupSegmented(
-                selected = selectedGroup,
-                onSelected = {
-                    if (selectedGroup != it) {
-                        selectedGroup = it
-                        selectedCategoryIndex = 0
-                    }
-                },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(horizontal = 16.dp)
-                    .widthIn(max = 300.dp)
-            )
-
-            Spacer(Modifier.height(12.dp))
-
-            CategoryTabs(
-                tabs = categories.map { it.label },
-                selectedIndex = selectedCategoryIndex,
-                onSelect = { selectedCategoryIndex = it },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 28.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    buildAnnotatedString {
-                        append("총 ")
-                        withStyle(
-                            SpanStyle(
-                                color = MainPurple,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        ) { append("${state.totalCount}") }
-                        append("개의 상품")
-                    },
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontFamily = Pretendard,
-                        fontWeight = FontWeight.Medium,
-                        letterSpacing = 0.sp
-                    )
-                )
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .clickable { showSortSheet = true }
-                        .padding(horizontal = 8.dp, vertical = 6.dp)
-                ) {
-                    Text(
-                        text = sortOptions[selectedSortIndex].first,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontFamily = Pretendard,
-                            fontWeight = FontWeight.Medium
-                        )
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_icon_sort),
-                        contentDescription = "정렬",
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
-            }
-
-            ProductGrid(
-                navController = navController,
-                items = state.items,
-                isLoading = state.isLoading,
-                hasMore = state.hasMore,
-                error = state.error,
-                onLoadMore = { vm.loadNextPage() },
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 8.dp, vertical = 8.dp)
+                    .padding(innerPadding)
+            ) {
+                Spacer(Modifier.height(8.dp))
+
+                GroupSegmented(
+                    selected = selectedGroup,
+                    onSelected = {
+                        if (selectedGroup != it) {
+                            selectedGroup = it
+                            selectedCategoryIndex = 0
+                        }
+                    },
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(horizontal = 16.dp)
+                        .widthIn(max = 300.dp)
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                CategoryTabs(
+                    tabs = categories.map { it.label },
+                    selectedIndex = selectedCategoryIndex,
+                    onSelect = { selectedCategoryIndex = it },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 28.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        buildAnnotatedString {
+                            append("총 ")
+                            withStyle(
+                                SpanStyle(
+                                    color = MainPurple,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            ) { append("${state.totalCount}") }
+                            append("개의 상품")
+                        },
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontFamily = Pretendard,
+                            fontWeight = FontWeight.Medium,
+                            letterSpacing = 0.sp
+                        )
+                    )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clickable { showSortSheet = true }
+                            .padding(horizontal = 8.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = sortOptions[selectedSortIndex].first,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontFamily = Pretendard,
+                                fontWeight = FontWeight.Medium
+                            )
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_icon_sort),
+                            contentDescription = "정렬",
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+
+                ProductGrid(
+                    navController = navController,
+                    items = state.items,
+                    isLoading = state.isLoading,
+                    hasMore = state.hasMore,
+                    error = state.error,
+                    onLoadMore = { vm.loadNextPage() },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 8.dp, vertical = 8.dp)
+                )
+            }
+            SpeedDialMenu(
+                isOpen = isFabMenuOpen,
+                onDismiss = { isFabMenuOpen = false },
+                items = listOf(
+                    SpeedDialItem("성분 분석", R.drawable.ic_floating_search) {
+                        navController.navigate("ingredient")
+                    },
+                    SpeedDialItem("챗봇 연결", R.drawable.ic_floating_bot) {
+                        navController.navigate("chatbot")
+                    }
+                ),
+                endPadding = 16.dp,
+                bottomPaddingFromFab = 96.dp,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .zIndex(1f)
             )
         }
     }
