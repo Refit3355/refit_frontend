@@ -9,8 +9,11 @@ import com.refit.app.ui.composable.product.GroupSegmented
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -44,7 +47,6 @@ fun CategoryScreen(
     val state by vm.state.collectAsStateWithLifecycle()
     var showSortSheet by remember { mutableStateOf(false) }
 
-    // ===== 상태 =====
     var selectedGroup by rememberSaveable { mutableStateOf(Group.BEAUTY) }
     var selectedCategoryIndex by rememberSaveable { mutableStateOf(0) }
     var selectedSortIndex by rememberSaveable { mutableStateOf(0) }
@@ -58,7 +60,6 @@ fun CategoryScreen(
         )
     }
 
-    // 카테고리 목록
     val beautyCats = remember {
         listOf(
             Cat("전체", null),
@@ -86,7 +87,6 @@ fun CategoryScreen(
         if (selectedGroup == Group.BEAUTY) beautyCats else healthCats
     }
 
-    // 데이터 로딩
     LaunchedEffect(selectedGroup, selectedCategoryIndex, selectedSortIndex) {
         val groupParam = selectedGroup.param
         val sortParam = sortOptions[selectedSortIndex].second
@@ -94,13 +94,35 @@ fun CategoryScreen(
         vm.loadFirstPage(sort = sortParam, group = groupParam, limit = 20, category = categoryId)
     }
 
-    Box(Modifier.fillMaxSize()) {
-
-        // ===== 본문 =====
-        Column(Modifier.fillMaxSize()) {
+    Scaffold(
+        containerColor = Color.Transparent,
+        contentWindowInsets = WindowInsets(0),
+        floatingActionButtonPosition = FabPosition.End,
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { navController.navigate("ingredient") },
+                shape = CircleShape,
+                containerColor = MainPurple,
+                contentColor = Color.White,
+                modifier = Modifier
+                    .size(60.dp)
+            ) {
+                Text(
+                    text = "성분\n분석",
+                    fontSize = 15.sp,
+                    textAlign = TextAlign.Center,
+                    fontFamily = Pretendard
+                )
+            }
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
             Spacer(Modifier.height(8.dp))
 
-            // 1) 뷰티/헬스
             GroupSegmented(
                 selected = selectedGroup,
                 onSelected = {
@@ -117,7 +139,6 @@ fun CategoryScreen(
 
             Spacer(Modifier.height(12.dp))
 
-            // 2) 카테고리 탭
             CategoryTabs(
                 tabs = categories.map { it.label },
                 selectedIndex = selectedCategoryIndex,
@@ -127,7 +148,6 @@ fun CategoryScreen(
 
             Spacer(Modifier.height(8.dp))
 
-            // 3) 총 개수 + 정렬
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -135,19 +155,17 @@ fun CategoryScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val countText = buildAnnotatedString {
-                    append("총 ")
-                    withStyle(
-                        SpanStyle(
-                            color = MainPurple,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    ) { append("${state.totalCount}") }
-                    append("개의 상품")
-                }
-
                 Text(
-                    countText,
+                    buildAnnotatedString {
+                        append("총 ")
+                        withStyle(
+                            SpanStyle(
+                                color = MainPurple,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        ) { append("${state.totalCount}") }
+                        append("개의 상품")
+                    },
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontFamily = Pretendard,
                         fontWeight = FontWeight.Medium,
@@ -158,7 +176,6 @@ fun CategoryScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
                         .clickable { showSortSheet = true }
                         .padding(horizontal = 8.dp, vertical = 6.dp)
                 ) {
@@ -178,8 +195,6 @@ fun CategoryScreen(
                 }
             }
 
-            // 4) 상품 그리드 (무한 스크롤 포함)
-            // FAB와 겹치지 않도록 아래 패딩 추가
             ProductGrid(
                 navController = navController,
                 items = state.items,
@@ -190,31 +205,10 @@ fun CategoryScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 8.dp, vertical = 8.dp)
-                    .padding(bottom = 100.dp)
-            )
-        }
-
-        // ===== 오른쪽 하단 원형 텍스트 FAB =====
-        FloatingActionButton(
-            onClick = { navController.navigate("ingredient") },
-            shape = CircleShape,
-            containerColor = MainPurple,
-            contentColor = Color.White,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-                .size(60.dp)
-        ) {
-            Text(
-                text = "성분\n분석",
-                fontSize = 15.sp,
-                textAlign = TextAlign.Center,
-                fontFamily = Pretendard,
             )
         }
     }
 
-    // 바텀시트는 다이얼로그 형태라 Box 밖/안 어디든 OK. 여기 두면 FAB 위에 자연스럽게 뜸.
     if (showSortSheet) {
         SortBottomSheet(
             options = sortOptions,
