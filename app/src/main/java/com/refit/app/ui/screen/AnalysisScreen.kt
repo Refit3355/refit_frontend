@@ -139,7 +139,6 @@ fun AnalysisScreen(
             PhotoUploadButton(
                 onPickFromGallery = { uri ->
                     if (uri != null) {
-                        previewBytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
                         vm.analyzeFromUri(uri, selected)
                     }
                 },
@@ -183,7 +182,6 @@ fun AnalysisScreen(
             InAppCameraScreen(
                 onCancel = { showCamera = false },
                 onCroppedBytes = { bytes ->
-                    previewBytes = bytes
                     showCamera = false
                     vm.analyzeFromBytes(bytes, selected)
                 }
