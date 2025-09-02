@@ -132,10 +132,11 @@ class HomeViewModel : ViewModel() {
     // === 추천상품 로드 ===
     private fun loadProducts() {
         viewModelScope.launch {
-            val stepProducts = recommendationRepo.fetchRecommendations(0, 10).getOrElse { emptyList() }
-            val sleepProducts = recommendationRepo.fetchRecommendations(1, 10).getOrElse { emptyList() }
-            val weatherProducts = recommendationRepo.fetchRecommendations(2, 10).getOrElse { emptyList() }
-            val rhythmProducts = recommendationRepo.fetchRecommendations(3, 10).getOrElse { emptyList() }
+            val stepProducts = recommendationRepo.fetchRecommendations(0, 100).getOrElse { emptyList() }
+            val sleepProducts = recommendationRepo.fetchRecommendations(1, 100).getOrElse { emptyList() }
+            val weatherProducts = recommendationRepo.fetchRecommendations(2, 100).getOrElse { emptyList() }
+            val rhythmProducts = recommendationRepo.fetchRecommendations(3, 100).getOrElse { emptyList() }
+
             _uiState.value = _uiState.value.copy(
                 stepProducts = stepProducts,
                 sleepProducts = sleepProducts,

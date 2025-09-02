@@ -118,10 +118,21 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                 showActions = true
             )
 
+        route.startsWith("productSelect") ->
+            AppBarConfig.BackOnly(
+                title = "조합 등록",
+                onBack = { nav.popBackStack() }
+            )
+
+        route.startsWith("combinationRegister") ->
+            AppBarConfig.BackOnly(
+                title = "조합 등록",
+                onBack = { nav.popBackStack() }
+            )
+
         else ->
             AppBarConfig.BackWithActions(
                 title = when {
-                    route.startsWith("productSelect") -> "조합 등록"
                     route.startsWith("product") -> "상품 상세"
                     route.startsWith("wish") -> "찜 목록"
                     route.startsWith("liked_combinations") -> "저장한 조합 목록"
@@ -131,7 +142,6 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                     route.startsWith("sleepDetail") -> "수면 리포트"
                     route.startsWith("weatherDetail") -> "날씨 리포트"
                     route.startsWith("combinationDetail") -> "조합 상세"
-                    route.startsWith("combinationRegister") -> "조합 등록"
                     else -> "Re:fit"
                 },
                 onBack = { nav.popBackStack() },

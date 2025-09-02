@@ -11,24 +11,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.refit.app.R
-import com.refit.app.data.product.modelAndView.RecommendationViewModel
+import com.refit.app.data.product.model.Product
 import com.refit.app.ui.composable.product.ProductGrid
 import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun RecommendationScreen(
     navController: NavController,
-    type: Int,
-    vm: RecommendationViewModel = viewModel()
+    type: Int
 ) {
-    val state by vm.state.collectAsStateWithLifecycle()
-
-    LaunchedEffect(type) {
-        vm.loadRecommendations(type, 20)
+    val products = remember {
+        navController.previousBackStackEntry
+            ?.savedStateHandle
+            ?.get<List<Product>>("recommendation_items")
+            ?: emptyList()
     }
 
     val (bannerRes, bannerText) = when (type) {
@@ -79,10 +77,10 @@ fun RecommendationScreen(
         // 상품 그리드
         ProductGrid(
             navController = navController,
-            items = state.items,
-            isLoading = state.isLoading,
+            items = products,
+            isLoading = false,
             hasMore = false,
-            error = state.error,
+            error = null,
             onLoadMore = {},
             modifier = Modifier
                 .fillMaxSize()
