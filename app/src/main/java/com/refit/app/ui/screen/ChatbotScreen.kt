@@ -4,10 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -17,10 +14,17 @@ import androidx.navigation.NavController
 import com.refit.app.network.UserPrefs
 import com.refit.app.ui.composable.chatbot.BotTemplateBubble
 import com.refit.app.ui.composable.chatbot.OverviewCarouselMessage
+import com.refit.app.ui.composable.chatbot.TimeStampKST
+import com.refit.app.ui.composable.chatbot.UserBubble
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+
+sealed class ChatItem {
+    data class Bot(val templateId: String, val at: Long = System.currentTimeMillis()) : ChatItem()
+    data class User(val text: String,      val at: Long = System.currentTimeMillis()) : ChatItem()
+}
 
 @Composable
 fun ChatbotScreen(
@@ -45,15 +49,15 @@ fun ChatbotScreen(
     }
 
     // 템플릿 id 스택(말풍선 목록)
-    var stack by rememberSaveable { mutableStateOf(listOf(startTemplateId)) }
+    val messages = remember { mutableStateListOf<ChatItem>(ChatItem.Bot(startTemplateId)) }
 
     // 리스트 상태
     val listState = rememberLazyListState()
     var firstScrollDone by remember { mutableStateOf(false) }
 
     // 새 아이템이 추가될 때마다 아래로 스크롤
-    LaunchedEffect(stack.size) {
-        if (stack.isEmpty()) return@LaunchedEffect
+    LaunchedEffect(messages.size) {
+        if (messages.isEmpty()) return@LaunchedEffect
         val lastIndex = (listState.layoutInfo.totalItemsCount - 1).coerceAtLeast(0)
         if (!firstScrollDone) {
             // 최초 진입은 즉시 이동(점프)
@@ -78,38 +82,48 @@ fun ChatbotScreen(
             horizontalAlignment = Alignment.Start,
             contentPadding = PaddingValues(top = 8.dp, bottom = 80.dp)
         ) {
-            items(stack.size) { i ->
-                val id = stack[i]
+            items(messages.size) { i ->
+                val id = messages[i]
 
-                // 1) 템플릿 말풍선
-                BotTemplateBubble(
-                    templateId = id,
-                    variables = mapOf("nickname" to nickname),
-                    onNext = { nextId ->
-                        // greeting 리셋 등 기존 로직 유지
-                        if (nextId == "greeting") stack = listOf("greeting")
-                        else stack = stack + nextId
-                    },
-                    onDeeplink = onDeeplink
-                )
+                when (val item = messages[i]) {
+                    is ChatItem.Bot -> {
+                        // 1) 템플릿 말풍선
+                        BotTemplateBubble(
+                            templateId = item.templateId,
+                            variables = mapOf("nickname" to nickname),
+                            onUserReply = { userText ->
+                                messages += ChatItem.User(userText)
+                            },
+                            onNext = { nextId ->
+                                if (nextId == "greeting") {
+                                    messages.clear()
+                                    messages += ChatItem.Bot("greeting")
+                                } else {
+                                    messages += ChatItem.Bot(nextId)
+                                }
+                            },
+                            onDeeplink = onDeeplink
+                        )
 
-                // 2) service_overview일 때만 “별도 아이템”으로 캐러셀 추가
-                if (id == "service_overview") {
-                    Spacer(Modifier.height(10.dp))
-                    OverviewCarouselMessage(
-                        onNext = { next -> stack = stack + next },
-                        resetKey = i
-                    )
+                        // 2) service_overview일 때만 “별도 아이템”으로 캐러셀 추가
+                        if (item.templateId == "service_overview") {
+                            Spacer(Modifier.height(10.dp))
+                            OverviewCarouselMessage(
+                                onNext = { next -> messages += ChatItem.Bot(next) },
+                                onUserReply = { label -> messages += ChatItem.User(label) },
+                                resetKey = i
+                            )
+                        }
+                        TimeStampKST(at = item.at, alignStart = true)
+                    }
+
+                    is ChatItem.User -> {
+                        UserBubble(text = item.text)
+                        TimeStampKST(at = item.at, alignStart = false)
+                    }
                 }
-                Text(
-                    text = timeText,
-                    color = Color(0x99000000),
-                    style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier.padding(start = 62.dp, top = 2.dp, bottom = 4.dp)
-                )
             }
-        }
 
-        // TODO: 하단 입력창(텍스트필드/전송)
+        } // TODO: 하단 입력창(텍스트필드/전송)
     }
 }

@@ -37,6 +37,7 @@ data class CarouselCard(
 @Composable
 fun ServiceOverviewCarousel(
     onNext: (String) -> Unit,
+    onUserReply: (String) -> Unit,
     resetKey: Any
 ) {
     // (맞춤형 추천, 마이핏) / (매칭률, 성분 분석) / (그룹채팅, 조합왕)
@@ -153,7 +154,10 @@ fun ServiceOverviewCarousel(
                         card.actions.forEach { a ->
                             ChatChoiceChip( // 기존 세로형 칩 재사용
                                 label = a.label,
-                                onClick = { onNext(a.next) }
+                                onClick = {
+                                    onUserReply(a.label)  // 유저 말풍선
+                                    onNext(a.next)        // 이어서 봇 템플릿
+                                }
                             )
                         }
                     }

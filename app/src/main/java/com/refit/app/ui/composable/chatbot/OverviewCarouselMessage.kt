@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun OverviewCarouselMessage(
     onNext: (String) -> Unit,
+    onUserReply: (String) -> Unit,
     resetKey: Any
 ) {
     // 말풍선과 구분되는 “별도 메시지 블록” 느낌의 래퍼 (배경=투명, 여백만)
@@ -16,6 +17,6 @@ fun OverviewCarouselMessage(
         .fillMaxWidth()
         .padding(start = 46.dp, end = 12.dp, bottom = 6.dp)
     ) {
-        ServiceOverviewCarousel(onNext = onNext, resetKey = resetKey)
+        ServiceOverviewCarousel(onNext = onNext, onUserReply = onUserReply, resetKey = resetKey)
     }
 }

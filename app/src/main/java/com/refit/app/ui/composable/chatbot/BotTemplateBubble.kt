@@ -25,6 +25,7 @@ import com.refit.app.ui.theme.Pretendard
 fun BotTemplateBubble(
     templateId: String,
     variables: Map<String, String> = emptyMap(),
+    onUserReply: (String) -> Unit = {},
     onNext: (String) -> Unit = {},
     onDeeplink: (String) -> Unit = {}
 ) {
@@ -93,6 +94,7 @@ fun BotTemplateBubble(
                                     ChatChoiceChip(
                                         label = chip.label.interpolate(variables),
                                         onClick = {
+                                            onUserReply(chip.label.interpolate(variables))
                                             when {
                                                 chip.next != null -> onNext(chip.next)
                                                 chip.deeplink != null -> onDeeplink(chip.deeplink)
