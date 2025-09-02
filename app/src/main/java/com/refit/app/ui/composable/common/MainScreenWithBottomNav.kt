@@ -525,7 +525,6 @@ fun MainScreenWithBottomNav(
                         OrderSheetScreen(
                             navController = navController,
                             draftReq = draftReq,
-                            clientKey = BuildConfig.TOSS_CLIENT_KEY,
                             successUrl = "refitapp://pay/success",
                             failUrl = "refitapp://pay/fail"
                         )

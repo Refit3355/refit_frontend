@@ -21,7 +21,7 @@ class RecommendationViewModel(
     private val _state = MutableStateFlow(RecommendationUiState())
     val state: StateFlow<RecommendationUiState> = _state
 
-    fun loadRecommendations(type: Int, limit: Int = 10) {
+    fun loadRecommendations(type: Int, limit: Int = 100) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
             repo.fetchRecommendations(type, limit)

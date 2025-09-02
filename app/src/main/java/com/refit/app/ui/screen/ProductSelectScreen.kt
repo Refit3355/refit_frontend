@@ -37,6 +37,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import androidx.compose.ui.unit.LayoutDirection
 
 @Composable
 fun ProductSelectScreen(
@@ -115,7 +116,11 @@ fun ProductSelectScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
-                .padding(innerPadding)
+                .padding(
+                    start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
+                    end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
+                    bottom = innerPadding.calculateBottomPadding()
+                )
         ) {
 
             // 선택된 상품 미리보기
