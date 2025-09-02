@@ -144,15 +144,26 @@ fun HomeScreen(
                 // === 걸음수 기반 섹션 ===
                 run {
                     val stepsMsg = if ((uiState.steps ?: 0) > 5000) {
-                        highlightText("활동적인 하루, 피부도 휴식이 필요합니다", listOf("활동적인 하루", "휴식"))
+                        highlightText(
+                            "활동적인 하루, 컨디션 회복이 필요합니다",
+                            listOf("활동적인 하루", "컨디션", "회복")
+                        )
                     } else {
-                        highlightText("움직임이 적을수록 필요한 피부 활력 충전", listOf("움직임", "활력 충전"))
+                        highlightText(
+                            "움직임이 적을수록 활력을 채워주세요",
+                            listOf("움직임", "활력")
+                        )
                     }
+
                     SectionHeader(title = stepsMsg, onMore = {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "recommendation_items",
+                            uiState.stepProducts
+                        )
                         navController.navigate("recommendation/0")
                     })
                     HomeProductRow(
-                        products = uiState.stepProducts,
+                        products = uiState.stepProducts.take(10),
                         onClick = { p -> navController.navigate("product/${p.id}") }
                     )
                 }
@@ -167,10 +178,14 @@ fun HomeScreen(
                         highlightText("짧은 수면, 지친 피부를 위한 에너지 충전", listOf("짧은 수면", "에너지 충전"))
                     }
                     SectionHeader(title = sleepMsg, onMore = {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "recommendation_items",
+                            uiState.sleepProducts
+                        )
                         navController.navigate("recommendation/1")
                     })
                     HomeProductRow(
-                        products = uiState.sleepProducts,
+                        products = uiState.sleepProducts.take(10),
                         onClick = { p -> navController.navigate("product/${p.id}") }
                     )
                 }
@@ -180,10 +195,16 @@ fun HomeScreen(
                 // === 날씨 기반 섹션 ===
                 SectionHeader(
                     title = highlightText("매일 달라지는 날씨에 맞춘 헤어 솔루션", listOf("날씨", "헤어 솔루션")),
-                    onMore = { navController.navigate("recommendation/2") }
+                    onMore = {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "recommendation_items",
+                            uiState.weatherProducts
+                        )
+                        navController.navigate("recommendation/2")
+                    }
                 )
                 HomeProductRow(
-                    products = uiState.weatherProducts,
+                    products = uiState.weatherProducts.take(10),
                     onClick = { p -> navController.navigate("product/${p.id}") }
                 )
 
@@ -192,10 +213,16 @@ fun HomeScreen(
                 // === 생활 리듬 기반 섹션 ===
                 SectionHeader(
                     title = highlightText("당신의 생활 리듬에 맞춘 건강 케어", listOf("생활 리듬", "건강 케어")),
-                    onMore = { navController.navigate("recommendation/3") }
+                    onMore = {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "recommendation_items",
+                            uiState.rhythmProducts
+                        )
+                        navController.navigate("recommendation/3")
+                    }
                 )
                 HomeProductRow(
-                    products = uiState.rhythmProducts,
+                    products = uiState.rhythmProducts.take(10),
                     onClick = { p -> navController.navigate("product/${p.id}") }
                 )
             }
