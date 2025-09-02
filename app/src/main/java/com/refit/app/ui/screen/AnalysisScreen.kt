@@ -39,17 +39,13 @@ fun AnalysisScreen(
     var showCamera by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf("뷰티") } // "뷰티" | "헬스"
 
-    LaunchedEffect(result) {
-        when (val r = result) {
-            is UiResult.Cosmetic ->
-                if (!r.isEmptyResult()) {
-                    navController.navigate("ingredient/result") { launchSingleTop = true }
-                }
-            is UiResult.Supplement ->
-                if (!r.isEmptyResult()) {
-                    navController.navigate("ingredient/result") { launchSingleTop = true }
-                }
-            else -> Unit
+    LaunchedEffect(Unit) {
+        vm.navigationEvents.collect { route ->
+            navController.navigate(route) {
+                // ingredient 아래에 result만 쌓이게, 뒤로가면 분석화면(ingredient)로 딱 한 번에 복귀
+                popUpTo("ingredient") { inclusive = false }
+                launchSingleTop = true
+            }
         }
     }
 

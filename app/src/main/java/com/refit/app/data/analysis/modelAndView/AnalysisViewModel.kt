@@ -1,6 +1,8 @@
 package com.refit.app.data.analysis.modelAndView
 
 import android.app.Application
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.Composable
@@ -32,6 +34,9 @@ class AnalysisViewModel(
     var result = mutableStateOf<UiResult>(UiResult.Empty)
         private set
 
+    private val _navigationEvents = Channel<String>(Channel.BUFFERED)
+    val navigationEvents = _navigationEvents.receiveAsFlow()
+
     fun setProductTypeFromUi(uiValue: String) {
         productType.value = if (uiValue.trim() == "헬스") ProductTypeUi.HEALTH else ProductTypeUi.BEAUTY
     }
@@ -42,7 +47,11 @@ class AnalysisViewModel(
             result.value = UiResult.Loading
             try {
                 val res = repo.analyzeFromUri(getApplication(), uri, productTypeUi)
-                result.value = res.toUiResult(resolveMemberName(getApplication(), res.memberName), productType.value)
+                val ui = res.toUiResult(resolveMemberName(getApplication(), res.memberName), productType.value)
+                result.value = ui
+                if (!ui.isEmptyResult()) {
+                    _navigationEvents.send("ingredient/result")
+                }
             } catch (e: Exception) {
                 result.value = UiResult.Error(friendlyMessage(e))
             }
@@ -55,14 +64,17 @@ class AnalysisViewModel(
             result.value = UiResult.Loading
             try {
                 val res = repo.analyzeFromBytes(getApplication(), bytes, productTypeUi)
-                result.value = res.toUiResult(resolveMemberName(getApplication(), res.memberName), productType.value)
+                val ui = res.toUiResult(resolveMemberName(getApplication(), res.memberName), productType.value)
+                result.value = ui
+                if (!ui.isEmptyResult()) {
+                    _navigationEvents.send("ingredient/result")
+                }
             } catch (e: Exception) {
                 result.value = UiResult.Error(friendlyMessage(e))
             }
         }
     }
 
-    /** 폴백 우선순위: 서버값 > UserPrefs.getNickname() > JWT 닉네임 > "사용자" */
     private fun resolveMemberName(app: Application, serverName: String?): String {
         if (!serverName.isNullOrBlank()) return serverName
         val spName = try { UserPrefs.getNickname() } catch (_: Exception) { null }
