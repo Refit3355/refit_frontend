@@ -20,6 +20,7 @@ import androidx.navigation.NavController
 import com.refit.app.data.myfit.model.MemberProductItem
 import com.refit.app.data.myfit.model.PurchasedProductDto
 import com.refit.app.data.myfit.viewmodel.*
+import com.refit.app.data.product.mapper.toProduct
 import com.refit.app.ui.composable.myfit.*
 import com.refit.app.ui.composable.product.Group
 import com.refit.app.ui.composable.product.GroupSegmented
@@ -170,7 +171,28 @@ fun MyfitScreen(
                                         items(ui.items, key = { it.memberProductId }) { item ->
                                             MyfitCompletedCard(
                                                 item = item,
-                                                onRecommend = { /* TODO */ },
+                                                onRecommend = { mpItem ->
+                                                    scope.launch {
+                                                        // 추천 조회
+                                                        val recs = vm.fetchRecommendations(mpItem)
+
+                                                        //  DTO -> Product 변환
+                                                        val products = recs.map { it.toProduct() }
+                                                        if (products.isNotEmpty()) {
+                                                            android.util.Log.d("Reco", "first=${products.first()}")
+                                                        }
+
+                                                        //  savedStateHandle에 결과 저장 (중요: 현재 BackStackEntry에 set)
+                                                        navController?.currentBackStackEntry
+                                                            ?.savedStateHandle
+                                                            ?.set("recommendation_items", products)
+
+                                                        //  배너 타입 결정해서 이동
+                                                        val bannerType = 4
+
+                                                        navController?.navigate("recommendation/$bannerType")
+                                                    }
+                                                },
                                                 onClickItem = { goDetailIfSell(item, navController) }
                                             )
                                         }
