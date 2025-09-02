@@ -115,7 +115,7 @@ fun InAppCameraScreen(
                 fontFamily = Pretendard,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = 130.dp)
+                    .padding(top = 100.dp)
                     .background(
                         MainPurple.copy(alpha = 0.55f),
                         shape = androidx.compose.foundation.shape.RoundedCornerShape(999.dp)
