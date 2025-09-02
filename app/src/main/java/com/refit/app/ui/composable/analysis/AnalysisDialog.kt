@@ -1,38 +1,46 @@
 package com.refit.app.ui.composable.analysis
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.refit.app.R
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 
-
 @Composable
 fun AnalysisDialog(
     title: String,
     text: String,
-    confirmText: String,
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
+    // 옵션 버튼들 (없으면 닫기 버튼만)
+    confirmText: String? = null,
+    onConfirm: (() -> Unit)? = null,
     secondaryText: String? = null,
     onSecondary: (() -> Unit)? = null,
+    // 아이콘 커스터마이즈
+    iconRes: Int = R.drawable.ic_icon_upload,
 ) {
-                  AlertDialog(
+    AlertDialog(
         onDismissRequest = onDismiss,
         icon = {
             Image(
-                painter = painterResource(id = R.drawable.ic_icon_upload),
+                painter = painterResource(id = iconRes),
                 contentDescription = null,
                 modifier = Modifier.size(80.dp)
             )
@@ -46,42 +54,35 @@ fun AnalysisDialog(
                 fontFamily = Pretendard,
             )
         },
-        text  = {
+        text = {
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
                 fontFamily = Pretendard,
             )
-        }, confirmButton = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
+        },
+        confirmButton = {
+            if (secondaryText != null && onSecondary != null && confirmText != null && onConfirm != null) {
+                // 보조 + 확인 두 개
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    if (secondaryText != null && onSecondary != null) {
-                        Button(
-                            onClick = onSecondary,
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFEDE7F6),
-                                contentColor = Color(0xFF6A1B9A)
-                            ),
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(44.dp)
-                        ) {
-                            Text(secondaryText, maxLines = 1, textAlign = TextAlign.Center)
-                        }
-                    }
+                    Button(
+                        onClick = onSecondary,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFEDE7F6),
+                            contentColor = MainPurple
+                        ),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp)
+                    ) { Text(secondaryText, maxLines = 1, textAlign = TextAlign.Center, fontFamily = Pretendard) }
+
                     Button(
                         onClick = onConfirm,
                         shape = RoundedCornerShape(12.dp),
@@ -92,40 +93,38 @@ fun AnalysisDialog(
                         modifier = Modifier
                             .weight(1f)
                             .height(44.dp)
-                    ) {
-                        Text(confirmText, maxLines = 1, textAlign = TextAlign.Center, fontFamily = Pretendard)
-                    }
+                    ) { Text(confirmText, maxLines = 1, textAlign = TextAlign.Center, fontFamily = Pretendard) }
                 }
-
-                OutlinedButton(
-                    onClick = onDismiss,
+            } else if (confirmText != null && onConfirm != null) {
+                // 확인 한 개
+                Button(
+                    onClick = onConfirm,
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color.Black
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MainPurple,
+                        contentColor = Color.White
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(44.dp)
-                ) {
-                    Text("취소", maxLines = 1, textAlign = TextAlign.Center, fontFamily = Pretendard)
-                }
-            } },
+                ) { Text(confirmText, maxLines = 1, textAlign = TextAlign.Center, fontFamily = Pretendard) }
+            } else {
+                // 닫기 한 개
+                Button(
+                    onClick = onDismiss,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MainPurple,
+                        contentColor = Color.White
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp)
+                ) { Text("닫기", maxLines = 1, textAlign = TextAlign.Center, fontFamily = Pretendard) }
+            }
+        },
         dismissButton = null,
         shape = RoundedCornerShape(16.dp),
         containerColor = Color.White
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AnalysisDialogPreview() {
-    MaterialTheme {
-        AnalysisDialog(
-            title = "이미지 선택",
-            text = "카메라 또는 갤러리에서 이미지를 가져옵니다.",
-            confirmText = "확인",
-            onDismiss = {},
-            onConfirm = {}
-        )
-    }
 }

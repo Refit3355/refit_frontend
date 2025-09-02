@@ -42,11 +42,10 @@ object MultipartUtils {
             bitmap.compress(Bitmap.CompressFormat.JPEG, quality, bos)
             bytes = bos.toByteArray()
             quality -= 7
-        } while (bytes.size > 9_000_000 && quality > 30) // 9MB로 압축
+        } while (bytes.size > 9_000_000 && quality > 30) // 9MB target
 
         val tmp = File.createTempFile("upload_", ".jpg", context.cacheDir).apply {
-            writeBytes(bytes)
-            deleteOnExit()
+            writeBytes(bytes); deleteOnExit()
         }
         val body = tmp.asRequestBody("image/jpeg".toMediaType())
         return MultipartBody.Part.createFormData(partName, "upload.jpg", body)
@@ -58,8 +57,7 @@ object MultipartUtils {
         partName: String = "image"
     ): MultipartBody.Part {
         val file = File.createTempFile("upload_", ".jpg", context.cacheDir).apply {
-            writeBytes(bytes)
-            deleteOnExit()
+            writeBytes(bytes); deleteOnExit()
         }
         val body = file.asRequestBody("image/jpeg".toMediaType())
         return MultipartBody.Part.createFormData(partName, "upload.jpg", body)

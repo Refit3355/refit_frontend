@@ -26,65 +26,50 @@ class AnalysisViewModel(
     private val repo: AnalysisRepository
 ) : AndroidViewModel(app) {
 
-    val ui = mutableStateOf(AnalysisUiState())
+    var productType = mutableStateOf(ProductTypeUi.BEAUTY)
+        private set
+
+    var result = mutableStateOf<UiResult>(UiResult.Empty)
+        private set
+
+    fun setProductTypeFromUi(uiValue: String) {
+        productType.value = if (uiValue.trim() == "헬스") ProductTypeUi.HEALTH else ProductTypeUi.BEAUTY
+    }
 
     fun analyzeFromUri(uri: Uri, productTypeUi: String) {
+        setProductTypeFromUi(productTypeUi)
         viewModelScope.launch {
-            ui.value = ui.value.copy(loading = true, error = null)
+            result.value = UiResult.Loading
             try {
                 val res = repo.analyzeFromUri(getApplication(), uri, productTypeUi)
-                ui.value = ui.value.mergeWithFallback(getApplication(), res)
+                result.value = res.toUiResult(resolveMemberName(getApplication(), res.memberName), productType.value)
             } catch (e: Exception) {
-                ui.value = ui.value.copy(loading = false, error = friendlyMessage(e))
+                result.value = UiResult.Error(friendlyMessage(e))
             }
         }
     }
 
     fun analyzeFromBytes(bytes: ByteArray, productTypeUi: String) {
+        setProductTypeFromUi(productTypeUi)
         viewModelScope.launch {
-            ui.value = ui.value.copy(loading = true, error = null)
+            result.value = UiResult.Loading
             try {
                 val res = repo.analyzeFromBytes(getApplication(), bytes, productTypeUi)
-                ui.value = ui.value.mergeWithFallback(getApplication(), res)
+                result.value = res.toUiResult(resolveMemberName(getApplication(), res.memberName), productType.value)
             } catch (e: Exception) {
-                ui.value = ui.value.copy(loading = false, error = friendlyMessage(e))
+                result.value = UiResult.Error(friendlyMessage(e))
             }
         }
-    }
-
-    /** 서버 memberName이 비어오면 SharedPreferences(JWT) 폴백 사용 */
-    private fun AnalysisUiState.mergeWithFallback(
-        app: Application,
-        res: FullAnalysisResponse
-    ): AnalysisUiState {
-        val displayName = resolveMemberName(app, res.memberName)
-        return this.copy(
-            loading = false,
-            error = null,
-            memberName = displayName,
-            matchRate = res.matchRate,
-            risky = res.risky,
-            caution = res.caution,
-            safe = res.safe,
-            riskyText = res.riskyText,
-            cautionText = res.cautionText,
-            safeText = res.safeText,
-            summary = res.summary
-        )
     }
 
     /** 폴백 우선순위: 서버값 > UserPrefs.getNickname() > JWT 닉네임 > "사용자" */
     private fun resolveMemberName(app: Application, serverName: String?): String {
         if (!serverName.isNullOrBlank()) return serverName
-
-        // UserPrefs는 Application에서 UserPrefs.init(this) 선행 필요
         val spName = try { UserPrefs.getNickname() } catch (_: Exception) { null }
         if (!spName.isNullOrBlank()) return spName!!
-
         val token = TokenManager.getAccessToken()
         val jwtName = token?.let { TokenManager.parseNicknameFromJwt(it) }
         if (!jwtName.isNullOrBlank()) return jwtName!!
-
         return "사용자"
     }
 

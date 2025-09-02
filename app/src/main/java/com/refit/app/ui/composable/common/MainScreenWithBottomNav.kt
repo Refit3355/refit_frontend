@@ -89,6 +89,7 @@ import com.refit.app.ui.screen.HealthEditScreen
 import com.refit.app.ui.screen.ProductSelectScreen
 import com.refit.app.ui.screen.SignupFlowScreen
 import com.refit.app.data.order.model.decodeDraftOrderRequest
+import com.refit.app.ui.screen.ResultRouterScreen
 import com.refit.app.ui.screen.order.OrderSheetScreen
 import com.refit.app.ui.screen.order.PayFailScreen
 import com.refit.app.ui.screen.order.TossWebViewScreen
@@ -316,6 +317,7 @@ fun MainScreenWithBottomNav(
                 composable("ingredient") { backStackEntry ->
                     val app = LocalContext.current.applicationContext as Application
 
+                    // 부모 라우트(ingredient)에 스코프 고정
                     val parentEntry = remember(backStackEntry) { backStackEntry }
                     val vm: AnalysisViewModel =
                         viewModel(parentEntry, factory = AnalysisViewModelFactory(app))
@@ -325,14 +327,16 @@ fun MainScreenWithBottomNav(
 
                 composable("ingredient/result") { backStackEntry ->
                     val app = LocalContext.current.applicationContext as Application
+
+                    // 결과 화면에서도 동일 VM 재사용 (부모 엔트리 참조)
                     val parentEntry = remember(backStackEntry) {
-                        // 아래 라우트가 백스택에 남아 있으므로 이 엔트리를 통해 같은 VM 인스턴스를 재사용
                         navController.getBackStackEntry("ingredient")
                     }
                     val vm: AnalysisViewModel =
                         viewModel(parentEntry, factory = AnalysisViewModelFactory(app))
 
-                    AnalysisResultScreen(ui = vm.ui.value)
+                    // 🔁 타입 분기는 내부에서 자동 처리 (화장품/영양제/빈값/에러)
+                    ResultRouterScreen(vm = vm)
                 }
 
                 // 검색/알림/장바구니
