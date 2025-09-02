@@ -5,7 +5,13 @@ import retrofit2.http.Query
 
 data class WeatherResponse(
     val current_weather: CurrentWeather?,
-    val daily: DailyWeather? = null
+    val daily: DailyWeather? = null,
+    val hourly: HourlyWeather? = null
+)
+
+data class HourlyWeather(
+    val time: List<String>,
+    val relative_humidity_2m: List<Double>
 )
 
 data class CurrentWeather(
@@ -48,6 +54,7 @@ interface OpenMeteoService {
         @Query("latitude") latitude: Double,
         @Query("longitude") longitude: Double,
         @Query("daily") daily: String = "temperature_2m_max,temperature_2m_min,precipitation_sum,snowfall_sum,relative_humidity_2m_max,relative_humidity_2m_min",
+        @Query("hourly") hourly: String = "relative_humidity_2m",
         @Query("start_date") startDate: String,
         @Query("end_date") endDate: String
     ): WeatherResponse

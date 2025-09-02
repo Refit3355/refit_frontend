@@ -122,8 +122,21 @@ fun WeatherDetailScreen(
             }
         }
 
+        val chartHumidities = remember(uiState.humidities, uiState.currentHumidity) {
+            uiState.humidities.toMutableList().apply {
+                if (uiState.currentHumidity != null && isNotEmpty()) {
+                    this[lastIndex] = uiState.currentHumidity!!
+                }
+            }
+        }
+
         WeatherChart(title = "최근 기온 기록", values = chartTemps, unit = "℃", iconRes = R.drawable.jellbbo_sunny)
-        WeatherChart(title = "최근 습도 기록", values = uiState.humidities, unit = "%", iconRes = R.drawable.jellbbo_humid)
+        WeatherChart(
+            title = "최근 습도 기록",
+            values = chartHumidities,
+            unit = "%",
+            iconRes = R.drawable.jellbbo_humid
+        )
         WeatherChart(title = "최근 강수량 기록", values = uiState.precipitations, unit = "mm", iconRes = R.drawable.jellbbo_rainy)
         WeatherChart(title = "최근 적설량 기록", values = uiState.snowfalls, unit = "cm", iconRes = R.drawable.jellbbo_snow)
     }

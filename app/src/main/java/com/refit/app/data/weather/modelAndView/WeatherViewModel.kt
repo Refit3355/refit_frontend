@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.LocalDateTime
 
 class WeatherViewModel : ViewModel() {
 
@@ -16,8 +17,9 @@ class WeatherViewModel : ViewModel() {
         val temperature: Double? = null,
         val windspeed: Double? = null,
         val weatherCode: Int? = null,
+        val currentHumidity: Double? = null,
 
-        // 한달 치 데이터
+        // 데이터
         val dates: List<String> = emptyList(),
         val maxTemps: List<Double> = emptyList(),
         val minTemps: List<Double> = emptyList(),
@@ -53,10 +55,25 @@ class WeatherViewModel : ViewModel() {
                     endDate = end
                 )
 
+                val now = LocalDateTime.now()
+                val timeFormatter = java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME
+                val times = resp.hourly?.time ?: emptyList()
+                val hourlyHumidities = resp.hourly?.relative_humidity_2m ?: emptyList()
+
+                val currentIndex = times.indexOfFirst { timeStr ->
+                    val t = LocalDateTime.parse(timeStr, timeFormatter)
+                    t.toLocalDate() == now.toLocalDate() && t.hour == now.hour
+                }
+
+                val currentHumidity = if (currentIndex != -1) {
+                    hourlyHumidities[currentIndex]
+                } else null
+
                 _uiState.value = _uiState.value.copy(
                     temperature = resp.current_weather?.temperature,
                     windspeed = resp.current_weather?.windspeed,
                     weatherCode = resp.current_weather?.weathercode,
+                    currentHumidity = currentHumidity,
 
                     dates = resp.daily?.time ?: emptyList(),
                     maxTemps = resp.daily?.temperature_2m_max ?: emptyList(),
