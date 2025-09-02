@@ -34,6 +34,7 @@ fun RecommendationScreen(
         1 -> R.drawable.jellbbo_sleep to "수면 패턴에 맞춘 뷰티 케어"
         2 -> R.drawable.jellbbo_sunny to "날씨에 맞춘 헤어 솔루션"
         3 -> R.drawable.jellbbo_doctor to "생활 리듬에 맞춘 건강 케어"
+        4 -> R.drawable.jellbbo_default to "사용 완료한 제품과 효과가 비슷한 상품들이에요"
         else -> R.drawable.jellbbo_default to "추천 상품"
     }
 

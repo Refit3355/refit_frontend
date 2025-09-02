@@ -18,7 +18,7 @@ import com.refit.app.ui.theme.GreyOutline
 @Composable
 fun MyfitCompletedCard(
     item: MemberProductItem,
-    onRecommend: () -> Unit,
+    onRecommend: (MemberProductItem) -> Unit,
     onClickItem: () -> Unit
 ) {
     Surface(
@@ -51,7 +51,7 @@ fun MyfitCompletedCard(
                 }
             }
             Spacer(Modifier.width(12.dp))
-            RecommendCircleButton(onClick = onRecommend)
+            RecommendCircleButton(onClick = { onRecommend(item) })
         }
     }
 }
