@@ -59,7 +59,7 @@ fun AnalysisScreen(
             is UiResult.Error      -> true
             is UiResult.Cosmetic   -> r.isEmptyResult()
             is UiResult.Supplement -> r.isEmptyResult()
-            else -> false /
+            else -> false
         }
     }
 
