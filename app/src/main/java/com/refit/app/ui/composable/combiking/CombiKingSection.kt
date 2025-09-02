@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -201,29 +202,19 @@ fun CombiKingSection(
             }
 
             // 등록 버튼
-            Box(
+            FloatingActionButton(
+                onClick = { navController.navigate("combinationRegister") },
+                shape = CircleShape,
+                containerColor = MainPurple,
+                contentColor = Color.White,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(MainPurple)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = ripple(
-                            bounded = true,
-                            radius = 28.dp,
-                            color = Color.White
-                        )
-                    ) {
-                        navController.navigate("combinationRegister")
-                    },
-                contentAlignment = Alignment.Center
+                    .size(60.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "등록 버튼",
-                    tint = Color.White,
                     modifier = Modifier.size(32.dp)
                 )
             }
