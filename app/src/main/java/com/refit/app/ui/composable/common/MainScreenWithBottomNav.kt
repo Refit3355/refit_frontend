@@ -89,6 +89,7 @@ import com.refit.app.ui.screen.HealthEditScreen
 import com.refit.app.ui.screen.ProductSelectScreen
 import com.refit.app.ui.screen.SignupFlowScreen
 import com.refit.app.data.order.model.decodeDraftOrderRequest
+import com.refit.app.ui.screen.ChatbotScreen
 import com.refit.app.ui.screen.order.OrderSheetScreen
 import com.refit.app.ui.screen.order.PayFailScreen
 import com.refit.app.ui.screen.order.TossWebViewScreen
@@ -497,6 +498,8 @@ fun MainScreenWithBottomNav(
                     )
                 }
 
+                // 챗봇
+                composable("chatbot") { ChatbotScreen(navController) }
 
                 // 문자열 인코딩 유틸
                 fun enc(s: String) = java.net.URLEncoder.encode(s, "utf-8")

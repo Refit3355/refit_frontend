@@ -55,6 +55,7 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                 else if (route == "myfit/register") "상품 등록"
                 else if (route.startsWith("checkout/orderSheet")) "주문/결제"
                 else if (route.startsWith("myfit/edit")) "상품 수정"
+                else if (route.startsWith("chatbot")) "챗봇 상담"
                 else if (route.startsWith("chat")) "그룹채팅"
                 else "결제",
                 onBack = { nav.popBackStack() }
