@@ -11,13 +11,16 @@ data class IngredientAnalysisResponse(
 )
 
 data class FullAnalysisResponse(
-    val memberName: String,
-    val matchRate: Int,
-    val risky: List<String>,
-    val caution: List<String>,
-    val safe: List<String>,
-    val riskyText: String,
-    val cautionText: String,
-    val safeText: String,
-    val summary: String
+    val memberName: String? = null,
+    val matchRate: Int? = null,
+    val risky: List<String>? = null,
+    val caution: List<String>? = null,
+    val safe: List<String>? = null,
+    val riskyText: String? = null,
+    val cautionText: String? = null,
+    val safeText: String? = null,
+    val summary: String? = null,
+
+    val supplementBenefits: List<String>? = null,
+    val supplementConditionCautions: List<String>? = null
 )

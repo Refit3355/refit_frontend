@@ -30,7 +30,7 @@ class AnalysisRepository(private val api: AnalysisApi) {
         uiProductType: String
     ): FullAnalysisResponse = withContext(Dispatchers.IO) {
         val imagePart = MultipartUtils.bytesToImagePart(context, imageBytes)
-        val typePart = MultipartUtils.textPart(
+        val typePart: RequestBody = MultipartUtils.textPart(
             MultipartUtils.mapProductTypeForBackend(uiProductType)
         )
         api.analyzeImage(imagePart, typePart)

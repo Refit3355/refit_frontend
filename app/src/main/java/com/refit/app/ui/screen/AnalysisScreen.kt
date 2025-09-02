@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.refit.app.R
 import com.refit.app.data.analysis.modelAndView.AnalysisViewModel
+import com.refit.app.data.analysis.modelAndView.UiResult
 import com.refit.app.data.analysis.modelAndView.rememberAnalysisViewModel
 import com.refit.app.ui.composable.analysis.PhotoUploadButton
 import com.refit.app.ui.composable.analysis.LoadingOverlay
@@ -33,14 +34,24 @@ import com.refit.app.ui.theme.Pretendard
 @Composable
 fun AnalysisScreen(
     navController: NavHostController,
-    vm: AnalysisViewModel
+    vm: AnalysisViewModel = rememberAnalysisViewModel()
 ) {
     val context = LocalContext.current
-    val ui = vm.ui.value
+    val result by vm.result
 
     var showCamera by remember { mutableStateOf(false) }
     var previewBytes by remember { mutableStateOf<ByteArray?>(null) }
     var selected by remember { mutableStateOf("뷰티") } // "뷰티" | "헬스"
+
+    // 결과 타입에 따라 라우팅
+    LaunchedEffect(result) {
+        when (result) {
+            is UiResult.Cosmetic   -> navController.navigate("ingredient/result") { launchSingleTop = true }
+            is UiResult.Supplement -> navController.navigate("ingredient/result") { launchSingleTop = true }
+            else -> Unit
+        }
+    }
+
 
     Box(
         modifier = Modifier
@@ -105,14 +116,7 @@ fun AnalysisScreen(
                 OutlinedButton(
                     onClick = { selected = "뷰티" },
                     shape = RoundedCornerShape(24.dp),
-                    border = ButtonDefaults.outlinedButtonBorder.copy(
-                        brush = Brush.linearGradient(
-                            listOf(
-                                if (selected == "뷰티") MainPurple else Color.Gray,
-                                if (selected == "뷰티") MainPurple else Color.Gray
-                            )
-                        )
-                    ),
+                    border = ButtonDefaults.outlinedButtonBorder,
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = if (selected == "뷰티") MainPurple.copy(alpha = 0.1f) else Color.Transparent,
                         contentColor = if (selected == "뷰티") MainPurple else Color.Gray
@@ -122,14 +126,7 @@ fun AnalysisScreen(
                 OutlinedButton(
                     onClick = { selected = "헬스" },
                     shape = RoundedCornerShape(24.dp),
-                    border = ButtonDefaults.outlinedButtonBorder.copy(
-                        brush = Brush.linearGradient(
-                            listOf(
-                                if (selected == "헬스") MainPurple else Color.Gray,
-                                if (selected == "헬스") MainPurple else Color.Gray
-                            )
-                        )
-                    ),
+                    border = ButtonDefaults.outlinedButtonBorder,
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = if (selected == "헬스") MainPurple.copy(alpha = 0.1f) else Color.Transparent,
                         contentColor = if (selected == "헬스") MainPurple else Color.Gray
@@ -142,9 +139,7 @@ fun AnalysisScreen(
             PhotoUploadButton(
                 onPickFromGallery = { uri ->
                     if (uri != null) {
-                        // 미리보기
                         previewBytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                        // 즉시 분석
                         vm.analyzeFromUri(uri, selected)
                     }
                 },
@@ -182,15 +177,6 @@ fun AnalysisScreen(
             }
 
             Spacer(Modifier.height(16.dp))
-
-            // 응답이 준비되면 결과 페이지로 이동 (launchSingleTop 방지 옵션)
-            if (!ui.loading && ui.error == null && ui.summary.isNotBlank()) {
-                LaunchedEffect(ui.summary) {
-                    navController.navigate("ingredient/result") {
-                        launchSingleTop = true
-                    }
-                }
-            }
         }
 
         if (showCamera) {
@@ -204,16 +190,18 @@ fun AnalysisScreen(
             )
         }
 
-        LoadingOverlay(
-            visible = ui.loading,
-            message = "AI가 성분을 분석 중… 최대 1분 소요될 수 있어요"
-        )
+        val loading = result is UiResult.Loading
+        val error = (result as? UiResult.Error)?.msg
+        if (loading) {
+            LoadingOverlay(visible = true, message = "AI가 성분을 분석 중… 최대 1분 소요될 수 있어요")
+        }
+        if (error != null) {
+            // 너희 프로젝트의 토스트/다이얼로그 방식에 맞게 바꿔도 됨
+            SnackbarHost(hostState = remember { SnackbarHostState() }) { }
+        }
     }
 }
 
-/* 미리보기 용, VM 주입이 없어서 화면만 그림 */
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun AnalysisScreenPreview() {
-    // 단순 UI 프리뷰만 필요하면 여긴 비워둬도 됨.
-}
+private fun AnalysisScreenPreview() { }
