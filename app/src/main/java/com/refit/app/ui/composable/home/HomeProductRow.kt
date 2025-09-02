@@ -27,16 +27,16 @@ fun HomeProductRow(
 
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp), // 카드 간격
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = modifier.heightIn(min = 280.dp)
     ) {
-        items(products) { p ->
+        items(products.take(10)) { p ->
             ProductCard(
                 item = p,
                 wished = p.id in wished,
                 onToggleWish = { wishVM.toggle(p.id) },
                 onClick = { onClick(p) },
-                modifier = Modifier.width(160.dp) // 가로만 고정, 세로는 자동
+                modifier = Modifier.width(160.dp)
             )
         }
     }

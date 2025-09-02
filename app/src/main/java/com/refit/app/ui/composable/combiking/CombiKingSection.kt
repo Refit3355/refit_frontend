@@ -1,5 +1,6 @@
 package com.refit.app.ui.composable.combiking
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -33,6 +35,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import androidx.compose.ui.unit.LayoutDirection
+import com.refit.app.R
+import com.refit.app.ui.composable.product.SortBottomSheet
 
 @Composable
 fun CombiKingSection(
@@ -51,14 +55,17 @@ fun CombiKingSection(
     val snackbarHostState = remember { SnackbarHostState() }
 
     // 정렬 옵션
-    var expanded by remember { mutableStateOf(false) }
-    var selectedSort by remember { mutableStateOf("popular") } // popular, latest, lowPrice, highPrice
     val sortOptions = listOf(
-        "popular" to "인기순",
-        "latest" to "최신순",
-        "lowPrice" to "가격낮은순",
-        "highPrice" to "가격높은순"
+        "인기순" to "popular",
+        "최신순" to "latest",
+        "가격낮은순" to "lowPrice",
+        "가격높은순" to "highPrice"
     )
+
+    var showSortSheet by remember { mutableStateOf(false) }
+    var selectedSortIndex by remember { mutableStateOf(0) }
+    val selectedSort = sortOptions[selectedSortIndex].second
+
 
     // 카테고리
     val type = when (category) {
@@ -129,36 +136,22 @@ fun CombiKingSection(
                     Box {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.clickable { expanded = true }
+                            modifier = Modifier
+                                .clickable { showSortSheet = true }
+                                .padding(horizontal = 8.dp, vertical = 6.dp)
                         ) {
                             Text(
-                                text = sortOptions.find { it.first == selectedSort }?.second ?: "정렬",
+                                text = sortOptions[selectedSortIndex].first,
                                 fontSize = 14.sp,
                                 fontFamily = Pretendard,
                                 color = Color.Black
                             )
-                            Icon(
-                                imageVector = Icons.Default.ArrowDropDown,
+                            Spacer(Modifier.width(6.dp))
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_icon_sort),
                                 contentDescription = "정렬",
-                                tint = Color.Black
+                                modifier = Modifier.size(16.dp)
                             )
-                        }
-
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                            modifier = Modifier.background(Color.White)
-                        ) {
-                            sortOptions.forEach { (value, label) ->
-                                DropdownMenuItem(
-                                    text = { Text(label, fontFamily = Pretendard) },
-                                    onClick = {
-                                        selectedSort = value
-                                        expanded = false
-                                    },
-                                    colors = MenuDefaults.itemColors(textColor = Color.Black)
-                                )
-                            }
                         }
                     }
                 }
@@ -258,4 +251,17 @@ fun CombiKingSection(
                 }
             }
     }
+
+    if (showSortSheet) {
+        SortBottomSheet(
+            options = sortOptions,
+            selectedIndex = selectedSortIndex,
+            onSelected = { i ->
+                selectedSortIndex = i
+                showSortSheet = false
+            },
+            onDismiss = { showSortSheet = false }
+        )
+    }
+
 }
