@@ -10,7 +10,19 @@ data class IngredientAnalysisResponse(
     val summary: String
 )
 
+enum class AnalysisStatus {
+    OK,
+    NO_INGREDIENTS,
+    NOT_PRODUCT_LABEL,
+    OCR_FAILURE,
+    SERVER_ERROR
+}
+
 data class FullAnalysisResponse(
+    val status: AnalysisStatus? = null,
+    val reason: String? = null,
+    val suggestion: String? = null,
+
     val memberName: String? = null,
     val matchRate: Int? = null,
     val risky: List<String>? = null,

@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.refit.app.R
 import com.refit.app.data.analysis.modelAndView.AnalysisViewModel
+import com.refit.app.data.analysis.modelAndView.ProductTypeUi
 import com.refit.app.data.analysis.modelAndView.UiResult
 import com.refit.app.data.analysis.modelAndView.rememberAnalysisViewModel
 import com.refit.app.ui.composable.analysis.AnalysisDialog
@@ -39,28 +40,18 @@ fun AnalysisScreen(
     var showCamera by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf("뷰티") } // "뷰티" | "헬스"
 
-    LaunchedEffect(result) {
-        when (val r = result) {
-            is UiResult.Cosmetic ->
-                if (!r.isEmptyResult()) {
-                    navController.navigate("ingredient/result") { launchSingleTop = true }
-                }
-            is UiResult.Supplement ->
-                if (!r.isEmptyResult()) {
-                    navController.navigate("ingredient/result") { launchSingleTop = true }
-                }
-            else -> Unit
+    LaunchedEffect(Unit) {
+        vm.navigationEvents.collect { route ->
+            navController.navigate(route) {
+                popUpTo("ingredient") { inclusive = false }
+                launchSingleTop = true
+            }
         }
     }
 
-    var showFailDialog by remember { mutableStateOf(false) }
+    var blocked by remember { mutableStateOf<UiResult.Blocked?>(null) }
     LaunchedEffect(result) {
-        showFailDialog = when (val r = result) {
-            is UiResult.Error      -> true
-            is UiResult.Cosmetic   -> r.isEmptyResult()
-            is UiResult.Supplement -> r.isEmptyResult()
-            else -> false
-        }
+        blocked = (result as? UiResult.Blocked)
     }
 
     Box(
@@ -183,7 +174,6 @@ fun AnalysisScreen(
             )
         }
 
-        // 로딩/에러 UI
         val loading = result is UiResult.Loading
         val error = (result as? UiResult.Error)?.msg
 
@@ -196,30 +186,16 @@ fun AnalysisScreen(
         }
         SnackbarHost(hostState = hostState)
 
-        // 실패 다이얼로그 (아이콘 원하는 걸로 지정)
-        if (showFailDialog) {
+        // 분석 불가 다이얼로그
+        blocked?.let { b ->
             AnalysisDialog(
-                title = "분석 실패",
-                text = "이미지를 인식하지 못했어요.\n다시 시도해 주세요!",
+                title = b.title,
+                text = b.message,
                 iconRes = R.drawable.ic_danger_analysis,
-                onDismiss = { showFailDialog = false }
+                onDismiss = { blocked = null }
             )
         }
     }
-}
-
-// Cosmetic: 리스트 3개 모두 비고 + 설명문 3개 비고 + 요약 비면 빈 결과로 간주
-private fun UiResult.Cosmetic.isEmptyResult(): Boolean {
-    val listsEmpty = risky.isEmpty() && caution.isEmpty() && safe.isEmpty()
-    val textsBlank = riskyText.isNullOrBlank() && cautionText.isNullOrBlank() && safeText.isNullOrBlank()
-    val summaryBlank = summary.isBlank()
-    // 필요하면 + (matchRate == 0) 도 추가 가능
-    return listsEmpty && textsBlank && summaryBlank
-}
-
-// Supplement: summary 비고 + cautionText 비면 빈 결과
-private fun UiResult.Supplement.isEmptyResult(): Boolean {
-    return summary.isBlank() && cautionText.isNullOrBlank()
 }
 
 @Preview(showBackground = true, showSystemUi = true)
