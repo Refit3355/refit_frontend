@@ -73,7 +73,6 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scroll)
-                .padding(bottom = 100.dp)
         ) {
             // ===== 나만의 정보 섹션 =====
             Column(
@@ -94,7 +93,7 @@ fun HomeScreen(
                         MetricItem(
                             "오늘의 걸음수",
                             uiState.steps?.takeIf { it > 0 }?.toString() ?: "--",
-                            "보",
+                            "걸음",
                             R.drawable.jellbbo_walk,
                             iconOffsetY = -20,
                             onClick = { navController.navigate("stepsDetail") }
