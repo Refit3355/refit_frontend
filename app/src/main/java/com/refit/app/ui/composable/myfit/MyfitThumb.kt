@@ -36,7 +36,7 @@ fun MyfitThumb(
     borderColor: Color = GreyOutline
 ) {
     val shape = RoundedCornerShape(corner)
-    val placeholderRes = R.drawable.ic_product_placeholder
+    val placeholderRes = R.drawable.ic_jellbbo_wink
 
     Box(
         modifier = modifier

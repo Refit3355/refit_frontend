@@ -33,8 +33,8 @@ fun MyfitThumb(url: String?, modifier: Modifier = Modifier, size: Dp = 80.dp) {
         AsyncImage(
             model = url,
             contentDescription = null,
-            placeholder = painterResource(R.drawable.ic_product_placeholder),
-            error = painterResource(R.drawable.ic_product_placeholder),
+            placeholder = painterResource(R.drawable.ic_jellbbo_wink),
+            error = painterResource(R.drawable.ic_jellbbo_wink),
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
