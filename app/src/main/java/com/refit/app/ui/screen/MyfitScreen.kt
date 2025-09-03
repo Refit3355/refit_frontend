@@ -220,7 +220,22 @@ fun MyfitScreen(
                                             ) {
                                                 MyfitUsingCard(
                                                     item = item,
-                                                    onRecommend = { /* TODO */ },
+                                                    onRecommend = { mpItem ->
+                                                        scope.launch {
+                                                            val recs = vm.fetchRecommendations(mpItem)
+                                                            val products = recs.map { it.toProduct() }
+                                                            if (products.isNotEmpty()) {
+                                                                android.util.Log.d("Reco", "first=${products.first()}")
+                                                            }
+
+                                                            navController?.currentBackStackEntry
+                                                                ?.savedStateHandle
+                                                                ?.set("recommendation_items", products)
+
+                                                            val bannerType = 4
+                                                            navController?.navigate("recommendation/$bannerType")
+                                                        }
+                                                    },
                                                     onClickItem = { goDetailIfSell(item, navController) }
                                                 )
                                             }
