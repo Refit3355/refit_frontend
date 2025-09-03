@@ -6,6 +6,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun TimeStampKST(
@@ -25,7 +27,8 @@ fun TimeStampKST(
         Text(
             text = text,
             color = Color(0x99000000),
-            style = MaterialTheme.typography.labelSmall,
+            fontFamily = Pretendard,
+            fontSize = 11.sp,
             modifier = Modifier.padding(start = 62.dp, top = 2.dp, bottom = 4.dp)
         )
     } else {
@@ -35,7 +38,8 @@ fun TimeStampKST(
             Text(
                 text = text,
                 color = Color(0x99000000),
-                style = MaterialTheme.typography.labelSmall,
+                fontFamily = Pretendard,
+                fontSize = 11.sp,
                 modifier = Modifier.padding(end = 12.dp, top = 2.dp, bottom = 4.dp)
             )
         }
