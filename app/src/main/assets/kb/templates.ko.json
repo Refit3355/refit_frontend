@@ -18,7 +18,7 @@
         },
         {
           "label": "상품 추천",
-          "next": "service_reco"
+          "next": "service_reco_intro"
         }
       ]
     },
@@ -543,6 +543,68 @@
       "bullets": [],
       "chips": [
         { "label": "자주 묻는 질문", "next": "cosmetics_faq_index" }
+      ]
+    },
+    {
+      "id": "service_reco_intro",
+      "title": "개인 맞춤형 상품 추천",
+      "blocks": [
+        "추천을 시작할게요!",
+        "어떤 **종류의 상품**을 추천받고 싶으세요?"
+      ],
+      "bullets": [],
+      "chips": [
+        { "label": "피부", "next": "reco_skin_select" },
+        { "label": "헤어", "next": "reco_hair_select" },
+        { "label": "건강", "next": "reco_health_select" },
+        { "label": "이전으로", "next": "service_overview" },
+        { "label": "처음으로", "next": "greeting" }
+      ]
+    },
+    {
+      "id": "reco_skin_select",
+      "title": "피부 추천",
+      "blocks": ["원하시는 **피부 효능**을 선택해 주세요."],
+      "bullets": [],
+      "chips": [
+        { "label": "보습",       "value": 0,  "next": "reco_start" },
+        { "label": "진정",       "value": 1,  "next": "reco_start" },
+        { "label": "주름 개선",  "value": 2,  "next": "reco_start" },
+        { "label": "미백",       "value": 3,  "next": "reco_start" },
+        { "label": "자외선 차단","value": 4,  "next": "reco_start" },
+        { "label": "여드름 완화","value": 5,  "next": "reco_start" },
+        { "label": "가려움 개선","value": 6,  "next": "reco_start" },
+        { "label": "튼살 개선",  "value": 7,  "next": "reco_start" },
+        { "label": "피부 건강",  "value": 18, "next": "reco_start" },
+        { "label": "뒤로",       "next": "service_reco" }
+      ]
+    },
+    {
+      "id": "reco_hair_select",
+      "title": "헤어/두피 추천",
+      "blocks": ["원하시는 **헤어/두피 효능**을 선택해 주세요."],
+      "bullets": [],
+      "chips": [
+        { "label": "손상모 개선", "value": 8,  "next": "reco_start" },
+        { "label": "탈모 개선",   "value": 9,  "next": "reco_start" },
+        { "label": "두피 개선",   "value": 10, "next": "reco_start" },
+        { "label": "뒤로",        "next": "service_reco" }
+      ]
+    },
+    {
+      "id": "reco_health_select",
+      "title": "건강 추천",
+      "blocks": ["원하시는 **건강 효능**을 선택해 주세요."],
+      "bullets": [],
+      "chips": [
+        { "label": "혈행 개선",   "value": 11, "next": "reco_start" },
+        { "label": "장 건강",     "value": 12, "next": "reco_start" },
+        { "label": "면역력 증진", "value": 13, "next": "reco_start" },
+        { "label": "항산화",      "value": 14, "next": "reco_start" },
+        { "label": "눈 건강",     "value": 15, "next": "reco_start" },
+        { "label": "뼈 건강",     "value": 16, "next": "reco_start" },
+        { "label": "활력",        "value": 17, "next": "reco_start" },
+        { "label": "뒤로",        "next": "service_reco" }
       ]
     }
   ]
