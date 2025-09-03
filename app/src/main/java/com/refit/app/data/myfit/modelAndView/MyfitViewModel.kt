@@ -173,10 +173,6 @@ class MyfitViewModel(
     suspend fun fetchRecommendations(item: MemberProductItem): List<ProductRecommendationDto> =
         withContext(Dispatchers.IO) {
             try {
-                val hasProduct = item.productId != null
-                if (!hasProduct) return@withContext emptyList<ProductRecommendationDto>()
-
-                // memberProductId 기준으로 호출
                 repo.getRecommendations(
                     memberProductId = item.memberProductId,
                     topKPerBase = 35,

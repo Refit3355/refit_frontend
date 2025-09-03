@@ -232,7 +232,7 @@ fun MyfitScreen(
                                                                 ?.savedStateHandle
                                                                 ?.set("recommendation_items", products)
 
-                                                            val bannerType = 4
+                                                            val bannerType = 5
                                                             navController?.navigate("recommendation/$bannerType")
                                                         }
                                                     },
