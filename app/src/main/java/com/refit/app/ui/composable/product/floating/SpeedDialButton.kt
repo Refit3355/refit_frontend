@@ -1,6 +1,7 @@
 package com.refit.app.ui.composable.product.floating
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -34,27 +35,23 @@ fun SpeedDialButton(
     FloatingActionButton(
         onClick = onToggle,
         shape = CircleShape,
-        containerColor = bg,
+        containerColor = if (isOpen) openBgColor else closedBgColor,
         elevation = FloatingActionButtonDefaults.elevation(6.dp, 8.dp),
         modifier = modifier.size(size)
     ) {
-        Crossfade(targetState = isOpen, label = "fab-crossfade") { open ->
-            if (open) {
-                // 열림 상태: 동그라미 안에 X
-                Icon(
-                    imageVector = Icons.Rounded.Close,
-                    contentDescription = "메뉴 닫기",
-                    tint = closeIconTint,
-                    modifier = Modifier.size(closeIconSize)
-                )
-            } else {
-                // 닫힘 상태: 챗봇 이미지
-                Image(
-                    painter = painterResource(iconRes),
-                    contentDescription = "메뉴 열기",
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
+        if (isOpen) {
+            Icon(
+                imageVector = Icons.Rounded.Close,
+                contentDescription = "메뉴 닫기",
+                tint = closeIconTint,
+                modifier = Modifier.size(closeIconSize)
+            )
+        } else {
+            Image(
+                painter = painterResource(iconRes),
+                contentDescription = "메뉴 열기",
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 }
