@@ -57,8 +57,8 @@ fun CombiKingSection(
 
     // 정렬 옵션
     val sortOptions = listOf(
-        "인기순" to "popular",
         "최신순" to "latest",
+        "인기순" to "popular",
         "가격낮은순" to "lowPrice",
         "가격높은순" to "highPrice"
     )

@@ -36,6 +36,7 @@ import androidx.navigation.NavController
 import com.refit.app.R
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
 import com.refit.app.data.me.modelAndView.OrderViewModel
+import com.refit.app.util.common.PriceUtil
 import com.refit.app.util.order.OrderStatusMapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -132,6 +133,7 @@ fun RecentOrderSection(
                 }
 
                 Spacer(Modifier.height(8.dp))
+                HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
 
                 order.items.forEach { item ->
                     Row(
@@ -168,27 +170,30 @@ fun RecentOrderSection(
                                 )
                                 Row {
                                     Text(
-                                        text = "${item.price}원",
+                                        text = PriceUtil.formatPrice(item.price.toLong()),
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.Bold,
-                                        fontFamily = Pretendard
+                                        fontFamily = Pretendard,
+                                        modifier = Modifier.alignByBaseline()
                                     )
                                     if (item.originalPrice > item.price) {
                                         Spacer(Modifier.width(6.dp))
                                         Text(
-                                            text = "${item.originalPrice}원",
+                                            text = PriceUtil.formatPrice(item.originalPrice.toLong()),
                                             fontSize = 12.sp,
                                             fontFamily = Pretendard,
                                             color = Color.Gray,
-                                            textDecoration = TextDecoration.LineThrough
+                                            textDecoration = TextDecoration.LineThrough,
+                                            modifier = Modifier.alignByBaseline()
                                         )
                                     }
                                     Spacer(Modifier.width(6.dp))
                                     Text(
-                                        text = "수량:${item.quantity}",
+                                        text = "| ${item.quantity}개",
                                         fontSize = 12.sp,
                                         fontFamily = Pretendard,
-                                        color = Color.Gray
+                                        color = Color.Gray,
+                                        modifier = Modifier.alignByBaseline()
                                     )
                                 }
 
@@ -273,7 +278,17 @@ fun RecentOrderSection(
                                 .clickable {
                                     cartVm.addOne(item.productId, 1)
                                     scope.launch {
-                                        snackbarHostState.showSnackbar("${item.productName}이 장바구니에 추가되었습니다.")
+                                        snackbarHostState.currentSnackbarData?.dismiss()
+
+                                        val result = snackbarHostState.showSnackbar(
+                                            message = "${item.productName}을 장바구니에 담았어요.",
+                                            actionLabel = "바로가기",
+                                            withDismissAction = true,
+                                            duration = SnackbarDuration.Short
+                                        )
+                                        if (result == SnackbarResult.ActionPerformed) {
+                                            navController.navigate("cart")
+                                        }
                                     }
                                 },
                             contentAlignment = Alignment.Center
@@ -286,7 +301,6 @@ fun RecentOrderSection(
                             )
                         }
                     }
-                    HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
                 }
             }
         }

@@ -34,7 +34,6 @@ import com.refit.app.data.home.modelAndView.HomeViewModel
 import com.refit.app.network.UserPrefs
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
-import com.refit.app.network.TokenManager
 import com.refit.app.util.home.getWeatherIcon
 import com.refit.app.util.home.highlightText
 
