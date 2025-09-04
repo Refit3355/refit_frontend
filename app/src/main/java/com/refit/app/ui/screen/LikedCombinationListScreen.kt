@@ -1,7 +1,6 @@
 package com.refit.app.ui.screen
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
@@ -9,14 +8,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.refit.app.R
 import com.refit.app.data.local.combination.MyCombinationStore
 import com.refit.app.data.combination.modelAndView.LikedCombinationViewModel
 import com.refit.app.ui.composable.combination.CombinationCard
 import com.refit.app.ui.theme.Pretendard
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun LikedCombinationListScreen(
@@ -30,9 +36,10 @@ fun LikedCombinationListScreen(
     val savedIds by myCombinationStore.savedIds.collectAsState(initial = emptySet())
     val scope = rememberCoroutineScope()
 
-    // MyCombinationStore에 저장된 combinationId 기반으로 조회
     LaunchedEffect(savedIds) {
-        if (savedIds.isNotEmpty()) {
+        if (savedIds.isEmpty()) {
+            vm.clearLikedCombinations()
+        } else {
             vm.loadLikedCombinations(savedIds)
         }
     }
@@ -50,6 +57,31 @@ fun LikedCombinationListScreen(
             }
         }
 
+        state.combinations.isEmpty() -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.jellbbo_default),
+                        contentDescription = "저장한 조합 없음",
+                        modifier = Modifier.size(120.dp)
+                    )
+                    Text(
+                        text = "아직 저장한 조합이 없어요.",
+                        fontFamily = Pretendard,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 15.sp,
+                        color = Color.Gray
+                    )
+                }
+            }
+        }
+
         else -> {
             LazyColumn {
                 items(state.combinations) { combination ->
@@ -59,11 +91,7 @@ fun LikedCombinationListScreen(
                         onToggleSave = { id ->
                             scope.launch {
                                 val wasSaved = savedIds.contains(id)
-
-                                // SharedPreference에서 제거
                                 myCombinationStore.toggle(id)
-
-                                // 서버에도 반영
                                 if (wasSaved) {
                                     vm.dislikeCombination(id)
                                 } else {

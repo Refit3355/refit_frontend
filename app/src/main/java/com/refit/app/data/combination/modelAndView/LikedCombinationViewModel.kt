@@ -76,4 +76,15 @@ class LikedCombinationViewModel(
             )
         }
     }
+
+    /** 찜한 조합 비우기 */
+    fun clearLikedCombinations() {
+        _state.value = _state.value.copy(
+            combinations = emptyList(),
+            isLoading = false,
+            error = null,
+            message = null,
+            isProcessing = false
+        )
+    }
 }

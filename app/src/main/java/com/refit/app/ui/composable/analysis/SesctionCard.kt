@@ -32,6 +32,7 @@ fun SectionCard(
                 text = title,
                 color = titleColor,
                 fontSize = titleSize.sp,
+                fontFamily = Pretendard,
                 fontWeight = FontWeight.ExtraBold
             )
         }

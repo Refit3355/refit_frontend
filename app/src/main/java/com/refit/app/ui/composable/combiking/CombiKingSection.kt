@@ -57,8 +57,8 @@ fun CombiKingSection(
 
     // 정렬 옵션
     val sortOptions = listOf(
-        "인기순" to "popular",
         "최신순" to "latest",
+        "인기순" to "popular",
         "가격낮은순" to "lowPrice",
         "가격높은순" to "highPrice"
     )
@@ -203,7 +203,13 @@ fun CombiKingSection(
 
             // 등록 버튼
             FloatingActionButton(
-                onClick = { navController.navigate("combinationRegister") },
+                onClick = {
+                    val defaultType = when (category) {
+                        CommunityCategory.ALL, CommunityCategory.BEAUTY -> "beauty"
+                        CommunityCategory.HEALTH -> "health"
+                    }
+                    navController.navigate("combinationRegister/$defaultType")
+                },
                 shape = CircleShape,
                 containerColor = MainPurple,
                 contentColor = Color.White,

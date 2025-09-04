@@ -1,6 +1,5 @@
 package com.refit.app.ui.composable.mypage
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,7 +17,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.refit.app.ui.theme.LightPurple
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 
@@ -171,58 +169,35 @@ fun ExchangeReturnReasonDialog(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         // 취소 버튼
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(42.dp)
-                                .background(Color.White, shape = RoundedCornerShape(8.dp))
-                                .border(
-                                    width = 1.dp,
-                                    color = Color(0xFFCCCCCC),
-                                    shape = RoundedCornerShape(8.dp)
-                                )
-                                .clickable { onDismiss() },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "취소",
-                                fontFamily = Pretendard,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Color(0xFF666666)
-                            )
-                        }
+                        MyOrderActionButton(
+                            text = "취소",
+                            modifier = Modifier.weight(1f).height(42.dp),
+                            onClick = onDismiss
+                        )
 
                         // 다음 단계 / 신청 완료 버튼
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(42.dp)
-                                .background(
-                                    if (if (step == 1) selectedReason != null else selectedAction != null)
-                                        MainPurple else Color(0xFFE0E0E0),
-                                    shape = RoundedCornerShape(8.dp)
-                                )
-                                .clickable(
-                                    enabled = if (step == 1) selectedReason != null else selectedAction != null
-                                ) {
-                                    if (step == 1) step = 2
-                                    else {
-                                        if (selectedAction == "exchange") onConfirmExchange(orderItemId)
-                                        if (selectedAction == "return") onConfirmReturn(orderItemId)
+                        MyOrderActionButton(
+                            text = if (step == 1) "다음 단계" else "신청 완료",
+                            modifier = Modifier.weight(1f).height(42.dp),
+                            textColor = Color.White,
+                            backgroundColor = MainPurple,
+                            borderColor = MainPurple,
+                            onClick = {
+                                if (step == 1) {
+                                    if (selectedReason != null) {
+                                        step = 2
+                                    }
+                                } else {
+                                    if (selectedAction != null) {
+                                        when (selectedAction) {
+                                            "exchange" -> onConfirmExchange(orderItemId)
+                                            "return" -> onConfirmReturn(orderItemId)
+                                        }
                                         onDismiss()
                                     }
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = if (step == 1) "다음 단계" else "신청 완료",
-                                fontFamily = Pretendard,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Color.White
-                            )
-                        }
+                                }
+                            }
+                        )
                     }
                 }
             }

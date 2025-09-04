@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.refit.app.R
 import com.refit.app.data.analysis.modelAndView.UiResult
@@ -76,4 +77,16 @@ fun SupplementResultScreen(data: UiResult.Supplement) {
             Spacer(Modifier.height(24.dp))
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SupplementResultScreenPreview() {
+    val sampleData = UiResult.Supplement(
+        memberName = "리핏",
+        summary = "이 영양제는 피부 건강과 면역력에 도움을 줄 수 있습니다.",
+        cautionText = "임산부나 수유부는 섭취 전 전문가와 상담하세요."
+    )
+
+    SupplementResultScreen(data = sampleData)
 }

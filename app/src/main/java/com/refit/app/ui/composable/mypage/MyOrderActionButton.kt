@@ -20,15 +20,18 @@ import com.refit.app.ui.theme.Pretendard
 fun MyOrderActionButton(
     text: String,
     modifier: Modifier = Modifier,
+    textColor: Color = Color(0xFF999999),
+    backgroundColor: Color = Color.White,
+    borderColor: Color = Color(0xFFCCCCCC),
     onClick: () -> Unit = {}
 ) {
     Box(
         modifier = modifier
             .height(30.dp)
-            .background(Color.White, shape = RoundedCornerShape(8.dp))
+            .background(backgroundColor, shape = RoundedCornerShape(8.dp))
             .border(
                 width = 1.dp,
-                color = Color(0xFFCCCCCC),
+                color = borderColor,
                 shape = RoundedCornerShape(8.dp)
             )
             .clickable { onClick() },
@@ -39,7 +42,7 @@ fun MyOrderActionButton(
             fontFamily = Pretendard,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
-            color = Color(0xFF999999)
+            color = textColor
         )
     }
 }

@@ -86,38 +86,47 @@ fun CombinationCard(
                 Spacer(Modifier.height(8.dp))
 
                 // 상품 이미지
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    val images = combination.productImages
-                    val size = 75.dp
-                    val shape = RoundedCornerShape(6.dp)
+                BoxWithConstraints(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    val spacing = 6.dp
+                    val itemSize = (maxWidth - spacing * 3) / 4
 
-                    images.take(4).forEachIndexed { index, url ->
-                        Box(
-                            modifier = Modifier
-                                .size(size)
-                                .clip(shape)
-                                .background(Color.White, shape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            AsyncImage(
-                                model = url,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.matchParentSize().clip(shape)
-                            )
-                            if (index == 3 && images.size > 4) {
-                                Box(
-                                    Modifier
-                                        .matchParentSize()
-                                        .background(Color.Black.copy(alpha = 0.45f), shape)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(spacing)
+                    ) {
+                        val images = combination.productImages
+                        val shape = RoundedCornerShape(6.dp)
+
+                        images.take(4).forEachIndexed { index, url ->
+                            Box(
+                                modifier = Modifier
+                                    .size(itemSize)
+                                    .clip(shape)
+                                    .background(Color.White, shape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                AsyncImage(
+                                    model = url,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.matchParentSize().clip(shape)
                                 )
-                                Text(
-                                    text = "+${images.size - 3}",
-                                    color = Color.White,
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    fontFamily = Pretendard
-                                )
+                                if (index == 3 && images.size > 4) {
+                                    Box(
+                                        Modifier
+                                            .matchParentSize()
+                                            .background(Color.Black.copy(alpha = 0.45f), shape)
+                                    )
+                                    Text(
+                                        text = "+${images.size - 3}",
+                                        color = Color.White,
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = Pretendard
+                                    )
+                                }
                             }
                         }
                     }
