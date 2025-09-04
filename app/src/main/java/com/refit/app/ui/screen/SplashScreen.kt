@@ -29,7 +29,7 @@ import kotlinx.coroutines.delay
 fun SplashScreen(
     onDecide: (loggedIn: Boolean) -> Unit,
     preview: Boolean = false,
-    minDurationMs: Long = 1000L  // 최소 노출 시간
+    minDurationMs: Long = 800L  // 최소 노출 시간
 ) {
     // val context = LocalContext.current
 

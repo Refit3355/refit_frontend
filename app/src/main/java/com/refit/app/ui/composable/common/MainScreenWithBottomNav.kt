@@ -29,7 +29,9 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
 import com.refit.app.data.order.flow.CheckoutFlowStore
 import com.refit.app.data.cart.api.CartApi
@@ -107,17 +109,36 @@ fun MainScreenWithBottomNav(
 )
 {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route ?: "home"
+
+    val currentRoute = navBackStackEntry?.destination?.route.orEmpty()
+    val isRouteResolved = navBackStackEntry != null
+
+    var leftSplash by remember { mutableStateOf(false) }
+    LaunchedEffect(isRouteResolved, currentRoute) {
+        if (isRouteResolved && currentRoute != "splash") {
+            leftSplash = true
+        }
+    }
 
     val bottomTabs = listOf("home", "category", "myfit", "community", "my", "sleepDetail",
         "stepsDetail", "weatherDetail")
     val noBottomTabs = listOf("myfit/register", "myfit/edit", "checkout/")
 
-    // 스플래시/인증 경로에서는 상단 및 하단 바 숨김 처리
-    val hideBars = currentRoute == "splash" || currentRoute.startsWith("auth/login")
+    val inAuth = currentRoute.startsWith("auth/login")
+    val inSplash = !isRouteResolved || currentRoute == "splash"
+
+    // 스플래시 중이거나 인증 플로우면 숨김
+    val hideBarsBase = inSplash || inAuth
+
+    // 스플래시 “이후” + 탭 라우트일 때만
+    val showBottomBar = leftSplash &&
+            !hideBarsBase &&
+            noBottomTabs.none { currentRoute.startsWith(it) } &&
+            bottomTabs.any { currentRoute.startsWith(it) }
+
     Scaffold(
         topBar = {
-            if (!hideBars) {
+            if (leftSplash && !hideBarsBase) {
                 Box(Modifier.padding(vertical = 8.dp)) {
                     RefitTopBar(
                         config = appBarFor(
@@ -129,10 +150,7 @@ fun MainScreenWithBottomNav(
             }
         },
         bottomBar = {
-            if (!hideBars &&
-                noBottomTabs.none { currentRoute.startsWith(it) } &&
-                bottomTabs.any { currentRoute.startsWith(it) }
-            ) {
+            if (showBottomBar) {
                 BottomBar(navController = navController)
             }
         }
@@ -147,7 +165,6 @@ fun MainScreenWithBottomNav(
                 startDestination = startDestination,
                 modifier = Modifier.padding(innerPadding)
             ) {
-                // Splash
                 composable("splash") {
                     SplashScreen(
                         onDecide = { loggedIn ->
