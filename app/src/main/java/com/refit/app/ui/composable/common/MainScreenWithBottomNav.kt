@@ -110,7 +110,7 @@ fun MainScreenWithBottomNav(
     val currentRoute = navBackStackEntry?.destination?.route ?: "home"
 
     val bottomTabs = listOf("home", "category", "myfit", "community", "my", "sleepDetail",
-        "stepsDetail", "weatherDetail", "ingredient")
+        "stepsDetail", "weatherDetail")
     val noBottomTabs = listOf("myfit/register", "myfit/edit", "checkout/")
 
     // 스플래시/인증 경로에서는 상단 및 하단 바 숨김 처리
