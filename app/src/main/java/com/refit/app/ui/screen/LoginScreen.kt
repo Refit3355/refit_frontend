@@ -31,11 +31,12 @@ import com.refit.app.data.auth.modelAndView.KakaoFlowStore
 import com.refit.app.data.auth.modelAndView.KakaoLoginViewModel
 import com.refit.app.data.auth.modelAndView.SamsungHealthViewModel
 import com.refit.app.data.health.HealthRepo
+import com.refit.app.ui.composable.auth.LoginFieldsCard
 
 @Composable
 fun LoginScreen(
     onClose: () -> Unit,
-    onSignup: (prefilledFromKakao: Boolean) -> Unit, // ← 카카오 프리필로 회원가입 진입
+    onSignup: (prefilledFromKakao: Boolean) -> Unit,
     onLoggedIn: () -> Unit,
     vm: AuthViewModel = viewModel(),
     kakaoVm: KakaoLoginViewModel = viewModel(),
@@ -92,37 +93,36 @@ fun LoginScreen(
 
                     Spacer(Modifier.height(24.dp))
 
-                    RefitTextField(
-                        value = vm.email,
-                        onValueChange = { vm.onEmailChange(it); vm.clearError() },
-                        hint = "이메일",
-                        modifier = Modifier.width(382.dp)
-                    )
-
-                    Spacer(Modifier.height(15.dp))
-
-                    RefitTextField(
-                        value = vm.password,
-                        onValueChange = { vm.onPasswordChange(it); vm.clearError() },
-                        hint = "비밀번호",
-                        isPassword = true,
-                        modifier = Modifier.width(382.dp)
+                    LoginFieldsCard(
+                        email = vm.email,
+                        onEmailChange = { vm.onEmailChange(it); vm.clearError() },
+                        password = vm.password,
+                        onPasswordChange = { vm.onPasswordChange(it); vm.clearError() },
+                        onDone = { vm.login() },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.CenterHorizontally)
                     )
                 }
 
                 vm.error?.let { msg ->
                     Spacer(Modifier.height(16.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            Modifier
-                                .size(16.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFF8E24AA))
+                        Icon(
+                            painter = painterResource(R.drawable.ic_login_error),
+                            contentDescription = null,
+                            tint = MainPurple,
+                            modifier = Modifier.size(18.dp)
                         )
-                        Spacer(Modifier.width(10.dp))
-                        Text(text = msg, color = Color(0xFF6A1B9A), style = MaterialTheme.typography.bodyMedium)
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = msg,
+                            color = Color(0xFF6A1B9A),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
                 }
+
 
                 Spacer(Modifier.height(25.dp))
 
