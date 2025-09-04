@@ -48,7 +48,7 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
 
         route in listOf("notifications", "cart", "myfit/register") || route.startsWith("myfit/edit")
                 || route.startsWith("checkout/orderSheet") || route.startsWith("tossPay")
-                || route.startsWith("chat") ->
+                || route.startsWith("chat") || route.startsWith("productList") ->
             AppBarConfig.BackOnly(
                 title = if (route == "notifications") "알림함"
                 else if (route == "cart") "장바구니"
@@ -57,6 +57,7 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                 else if (route.startsWith("myfit/edit")) "상품 수정"
                 else if (route.startsWith("chatbot")) "챗봇 상담"
                 else if (route.startsWith("chat")) "그룹채팅"
+                else if (route.startsWith("productList")) "추천 상품"
                 else "결제",
                 onBack = { nav.popBackStack() }
             )

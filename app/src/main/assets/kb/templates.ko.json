@@ -626,7 +626,8 @@
         {
           "label": "추천 상품 보기",
           "deeplink": "productList?bhType={bhType}&effectId={effectId}&sort=latest"
-        }
+        },
+        { "label": "처음으로", "next": "greeting" }
       ]
     }
   ]
