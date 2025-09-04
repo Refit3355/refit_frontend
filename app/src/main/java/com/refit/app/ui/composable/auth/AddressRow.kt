@@ -25,44 +25,38 @@ fun AddressRow(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        val labelStyle = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
-        // 우편번호 + 주소검색
-        LabeledField(
+        // 우편번호 + [주소검색] 버튼
+        FieldWithSideButton(
             label = "우편번호",
             value = zipcode,
             onValueChange = onZip,
             placeholder = "우편번호",
-            labelTextStyle = labelStyle,
-            trailing = {
-                Box(Modifier.padding(end = 6.dp)) {
-                    InlineActionButton(
-                        text = "주소검색",
-                        onClick = onSearchAddress,
-                    )
-                }
-            }
+            buttonText = "주소검색",
+            buttonEnabled = true,
+            onButtonClick = onSearchAddress,
+            showButton = true
         )
 
         Spacer(Modifier.height(10.dp))
 
         // 도로명 주소
-        LabeledField(
+        FieldWithSideButton(
             label = "도로명 주소",
             value = road,
             onValueChange = onRoad,
             placeholder = "도로명 주소",
-            labelTextStyle = labelStyle,
+            showButton = false
         )
 
         Spacer(Modifier.height(10.dp))
 
         // 상세 주소
-        LabeledField(
+        FieldWithSideButton(
             label = "상세 주소",
             value = detail,
             onValueChange = onDetail,
             placeholder = "상세 주소",
-            labelTextStyle = labelStyle,
+            showButton = false
         )
     }
 }

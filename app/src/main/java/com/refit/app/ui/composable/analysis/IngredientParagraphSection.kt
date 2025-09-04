@@ -59,7 +59,7 @@ fun IngredientParagraphSection(
                 fontSize = 16.sp,
                 lineHeight = 20.sp,
                 fontFamily = Pretendard,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.Medium,
                 color = Color(0xFF8A8A8A)
             )
         }

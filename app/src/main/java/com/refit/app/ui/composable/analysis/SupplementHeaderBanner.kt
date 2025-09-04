@@ -1,14 +1,18 @@
 package com.refit.app.ui.composable.analysis
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -29,35 +33,39 @@ fun SupplementHeaderBanner(
     val name = memberName.ifBlank { "고객" }
 
     val text = buildAnnotatedString {
-
         withStyle(
-            SpanStyle(
-                color = nameColor,
-                fontWeight = FontWeight.Bold,
-                fontSize = nameSize.sp,
-                fontFamily = Pretendard
-            )
+            style = ParagraphStyle(textAlign = TextAlign.Center)
         ) {
-            append(name)
-        }
+            withStyle(
+                SpanStyle(
+                    color = nameColor,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = nameSize.sp,
+                    fontFamily = Pretendard
+                )
+            ) {
+                append(name)
+            }
 
-        withStyle(
-            SpanStyle(
-                fontSize = baseSize.sp,
-                fontFamily = Pretendard
-            )
-        ) {
-            append("님이 \n요청하신 이미지 분석 결과입니다.")
+            withStyle(
+                SpanStyle(
+                    fontSize = baseSize.sp,
+                    fontFamily = Pretendard
+                )
+            ) {
+                append("님이 \n요청하신 이미지 분석 결과입니다.")
+            }
         }
     }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .height(130.dp)
             .background(Color(0xFFF1EBF7))
-            .padding(horizontal = 20.dp)
-            .heightIn(min = 120.dp)
-            .padding(vertical = 24.dp)
+            .padding(horizontal = 20.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = text,

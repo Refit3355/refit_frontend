@@ -103,12 +103,12 @@ fun AnalysisScreen(
                 text = "어떤 상품인가요?",
                 fontSize = 20.sp,
                 color = Color.Gray,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
                 fontFamily = Pretendard,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(18.dp))
 
             Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -135,7 +135,20 @@ fun AnalysisScreen(
                 ) { Text("헬스", fontFamily = Pretendard) }
             }
 
-            Spacer(Modifier.height(24.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(360.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_icon_analysis),
+                    contentDescription = null,
+                    modifier = Modifier.size(360.dp)
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
 
             PhotoUploadButton(
                 onPickFromGallery = { uri ->
@@ -145,23 +158,6 @@ fun AnalysisScreen(
                 },
                 onOpenInAppCamera = { showCamera = true }
             )
-
-            Spacer(Modifier.height(30.dp))
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(280.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_icon_analysis),
-                    contentDescription = null,
-                    modifier = Modifier.size(300.dp)
-                )
-            }
-
-            Spacer(Modifier.height(16.dp))
         }
 
         if (showCamera) {

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -14,8 +15,7 @@ import java.time.LocalDate
 
 @Composable
 fun BasicInfoForm(
-    mode: FormMode,                    // SIGNUP / EDIT
-    // 상태
+    mode: FormMode,
     email: String,
     password: String,
     passwordConfirm: String,
@@ -26,16 +26,12 @@ fun BasicInfoForm(
     zipcode: String,
     roadAddress: String,
     detailAddress: String,
-
-    // 메시지/로딩
     emailMsg: String?,
     emailAvailable: Boolean,
     emailCheckLoading: Boolean,
     nickMsg: String?,
     nickAvailable: Boolean,
     nickCheckLoading: Boolean,
-
-    // 핸들러
     onEmail: (String) -> Unit,
     onPassword: (String) -> Unit,
     onPasswordConfirm: (String) -> Unit,
@@ -46,33 +42,30 @@ fun BasicInfoForm(
     onZip: (String) -> Unit,
     onRoad: (String) -> Unit,
     onDetail: (String) -> Unit,
-
-    // 액션
     onCheckEmail: () -> Unit,
     onCheckNick: () -> Unit,
     onSearchAddress: () -> Unit,
-
-    // 파생 검증 상태 (ViewModel 계산값 전달)
     isPasswordRuleOk: Boolean,
     isPasswordConfirmMatch: Boolean,
     isPhoneStartsWith010: Boolean,
     isPhoneFormatOk: Boolean,
-
     emailReadOnly: Boolean = (mode == FormMode.EDIT),
 ) {
     val okColor = MainPurple
     val errColor = Color(0xFFD32F2F)
 
+    var phoneTouched by rememberSaveable { mutableStateOf(false) }
+
     Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        // 이메일 (EDIT 모드에서는 읽기전용 + 중복검사 숨김)
-        LabeledField(
+        FieldWithSideButton(
             label = "이메일",
             value = email,
             onValueChange = if (mode == FormMode.EDIT) ({}) else onEmail,
             placeholder = "이메일 입력",
-            modifier = Modifier.fillMaxWidth(),
-            supportingText = {
-                if (mode == FormMode.SIGNUP) {
+            readOnly = (mode == FormMode.EDIT),
+            enabled = (mode != FormMode.EDIT),
+            supportingText = if (mode == FormMode.SIGNUP) {
+                {
                     emailMsg?.let { msg ->
                         Text(
                             msg,
@@ -81,45 +74,40 @@ fun BasicInfoForm(
                         )
                     }
                 }
-            },
-            trailing = if (mode == FormMode.SIGNUP) {
-                {
-                    InlineActionButton(
-                        text = if (emailCheckLoading) "확인중..." else "중복확인",
-                        enabled = !emailCheckLoading && email.isNotBlank(),
-                        onClick = onCheckEmail
-                    )
-                }
             } else null,
-            readOnly = (mode == FormMode.EDIT),
-            enabled = (mode != FormMode.EDIT)
+            buttonText = if (emailCheckLoading) "확인중..." else "중복확인",
+            buttonEnabled = !emailCheckLoading && email.isNotBlank(),
+            onButtonClick = onCheckEmail,
+            showButton = (mode == FormMode.SIGNUP)
         )
 
         // 비밀번호
-        LabeledField(
+        FieldWithSideButton(
             label = "비밀번호",
             value = password,
             onValueChange = onPassword,
             placeholder = "비밀번호 입력",
+            showButton = false,
             visualTransformation = PasswordVisualTransformation(),
             supportingText = {
                 if (password.isNotEmpty()) {
                     Text(
                         if (isPasswordRuleOk) "사용 가능한 비밀번호입니다."
-                        else "영문+숫자/특수문자 포함 8자 이상으로 입력해주세요.",
+                        else "영문+숫자 or 영문+특수문자 포함 8자 이상으로 입력해주세요.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (isPasswordRuleOk) okColor else errColor
+                        color = if (isPasswordRuleOk) MainPurple else Color(0xFFD32F2F)
                     )
                 }
             }
         )
 
         // 비밀번호 확인
-        LabeledField(
+        FieldWithSideButton(
             label = "비밀번호 확인",
             value = passwordConfirm,
             onValueChange = onPasswordConfirm,
             placeholder = "비밀번호 확인 입력",
+            showButton = false,
             visualTransformation = PasswordVisualTransformation(),
             supportingText = {
                 if (passwordConfirm.isNotEmpty()) {
@@ -127,65 +115,70 @@ fun BasicInfoForm(
                         if (isPasswordConfirmMatch) "비밀번호가 일치합니다."
                         else "비밀번호가 일치하지 않습니다.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (isPasswordConfirmMatch) okColor else errColor
+                        color = if (isPasswordConfirmMatch) MainPurple else Color(0xFFD32F2F)
                     )
                 }
             }
         )
 
         // 닉네임
-        LabeledField(
+        FieldWithSideButton(
             label = "닉네임",
             value = nickname,
-            onValueChange = onNick,
+            onValueChange = if (mode == FormMode.EDIT) ({}) else onNick,
             placeholder = "닉네임 입력",
-            supportingText = {
-                nickMsg?.let { msg ->
-                    Text(
-                        msg,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (nickAvailable) okColor else errColor
-                    )
+            readOnly = (mode == FormMode.EDIT),
+            enabled = (mode != FormMode.EDIT),
+            supportingText = if (mode == FormMode.SIGNUP) {
+                {
+                    nickMsg?.let { msg ->
+                        Text(
+                            msg,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (nickAvailable) okColor else errColor
+                        )
+                    }
                 }
-            },
-            trailing = {
-                Box(Modifier.padding(end = 6.dp)) {
-                    InlineActionButton(
-                        text = if (nickCheckLoading) "확인중..." else "중복확인",
-                        enabled = !nickCheckLoading && nickname.isNotBlank(),
-                        onClick = onCheckNick
-                    )
-                }
-            }
+            } else null,
+            buttonText = if (nickCheckLoading) "확인중..." else "중복확인",
+            buttonEnabled = !nickCheckLoading && nickname.isNotBlank(),
+            onButtonClick = onCheckNick,
+            showButton = (mode == FormMode.SIGNUP)
         )
 
         // 이름
-        LabeledField(
+        FieldWithSideButton(
             label = "이름",
             value = memberName,
             onValueChange = onMemberName,
-            placeholder = "이름 입력"
+            placeholder = "이름 입력",
+            showButton = false
         )
 
-        // 휴대폰
-        LabeledField(
+        // 휴대폰 번호
+        FieldWithSideButton(
             label = "휴대폰 번호",
             value = phoneNumber,
-            onValueChange = onPhone,
+            onValueChange = {
+                if (!phoneTouched) phoneTouched = true
+                onPhone(it)
+            },
             placeholder = "휴대폰 번호 입력",
+            showButton = false,
             supportingText = {
-                if (phoneNumber.isNotEmpty()) {
+                // 표시 여부 결정
+                val show = phoneTouched && phoneNumber.isNotEmpty()
+
+                if (show) {
+                    val isOk = isPhoneStartsWith010 && isPhoneFormatOk
                     Text(
                         when {
                             !isPhoneStartsWith010 -> "010으로 시작해야 합니다."
-                            !isPhoneFormatOk -> "형식이 올바르지 않습니다. (총 11자리 숫자)"
-                            else -> "번호 형식이 올바릅니다."
+                            !isPhoneFormatOk      -> "형식이 올바르지 않습니다. (총 11자리 숫자)"
+                            else                  -> "번호 형식이 올바릅니다."
                         },
                         style = MaterialTheme.typography.bodySmall,
-                        color = when {
-                            !isPhoneStartsWith010 || !isPhoneFormatOk -> errColor
-                            else -> okColor
-                        }
+                        color = if (isOk) okColor else errColor
                     )
                 }
             }
