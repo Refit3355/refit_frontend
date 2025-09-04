@@ -1,8 +1,5 @@
 package com.refit.app.ui.composable.mypage
 
-import android.view.LayoutInflater
-import android.widget.TextView
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -44,7 +41,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun RecentOrderSection(
-    order: OrderResponse,
+    order: OrderResponse?,
     onClickAll: () -> Unit,
     vm: OrderViewModel,
     cartVm: CartEditViewModel,
@@ -112,193 +109,217 @@ fun RecentOrderSection(
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(Modifier.padding(16.dp)) {
-                val firstItem = order.items.firstOrNull()
-                if (firstItem != null) {
-                    Column {
-                        Text(
-                            text = firstItem.createdAt.take(10).replace("-", "."),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = Pretendard,
-                            color = MainPurple
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            text = "주문번호 ${firstItem.orderCode}",
-                            fontSize = 12.sp,
-                            fontFamily = Pretendard,
-                            color = Color.Gray
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(8.dp))
-                HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
-
-                order.items.forEach { item ->
-                    Row(
+                if (order == null) {
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp)
-                            .clickable {
-                                navController.navigate("product/${item.productId}")
-                            },
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(vertical = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            AsyncImage(
-                                model = item.thumbnailUrl,
-                                contentDescription = item.productName,
-                                modifier = Modifier.size(60.dp)
+                        Icon(
+                            painter = painterResource(id = R.drawable.jellbbo_default),
+                            contentDescription = "주문 내역 없음",
+                            tint = Color.Unspecified,
+                            modifier = Modifier.size(100.dp)
+                        )
+                        Text(
+                            text = "아직 주문 내역이 없어요.",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.Gray,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                    }
+                } else {
+                    val firstItem = order.items.firstOrNull()
+                    if (firstItem != null) {
+                        Column {
+                            Text(
+                                text = firstItem.createdAt.take(10).replace("-", "."),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = Pretendard,
+                                color = MainPurple
                             )
-                            Spacer(Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = OrderStatusMapper.getStatusText(item.status),
-                                    color = MainPurple,
-                                    fontSize = 12.sp,
-                                    fontFamily = Pretendard,
-                                    fontWeight = FontWeight.Bold
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                text = "주문번호 ${firstItem.orderCode}",
+                                fontSize = 12.sp,
+                                fontFamily = Pretendard,
+                                color = Color.Gray
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+                    HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
+
+                    order.items.forEach { item ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                                .clickable {
+                                    navController.navigate("product/${item.productId}")
+                                },
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                AsyncImage(
+                                    model = item.thumbnailUrl,
+                                    contentDescription = item.productName,
+                                    modifier = Modifier.size(60.dp)
                                 )
-                                Text(
-                                    text = "[${item.brand}] ${item.productName}".limitWithEllipsis(10),
-                                    fontSize = 14.sp,
-                                    fontFamily = Pretendard,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Row {
+                                Spacer(Modifier.width(12.dp))
+                                Column {
                                     Text(
-                                        text = PriceUtil.formatPrice(item.price.toLong()),
-                                        fontSize = 13.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        text = OrderStatusMapper.getStatusText(item.status),
+                                        color = MainPurple,
+                                        fontSize = 12.sp,
                                         fontFamily = Pretendard,
-                                        modifier = Modifier.alignByBaseline()
+                                        fontWeight = FontWeight.Bold
                                     )
-                                    if (item.originalPrice > item.price) {
+                                    Text(
+                                        text = "[${item.brand}] ${item.productName}".limitWithEllipsis(10),
+                                        fontSize = 14.sp,
+                                        fontFamily = Pretendard,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Row {
+                                        Text(
+                                            text = PriceUtil.formatPrice(item.price.toLong()),
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            fontFamily = Pretendard,
+                                            modifier = Modifier.alignByBaseline()
+                                        )
+                                        if (item.originalPrice > item.price) {
+                                            Spacer(Modifier.width(6.dp))
+                                            Text(
+                                                text = PriceUtil.formatPrice(item.originalPrice.toLong()),
+                                                fontSize = 12.sp,
+                                                fontFamily = Pretendard,
+                                                color = Color.Gray,
+                                                textDecoration = TextDecoration.LineThrough,
+                                                modifier = Modifier.alignByBaseline()
+                                            )
+                                        }
                                         Spacer(Modifier.width(6.dp))
                                         Text(
-                                            text = PriceUtil.formatPrice(item.originalPrice.toLong()),
+                                            text = "| ${item.quantity}개",
                                             fontSize = 12.sp,
                                             fontFamily = Pretendard,
                                             color = Color.Gray,
-                                            textDecoration = TextDecoration.LineThrough,
                                             modifier = Modifier.alignByBaseline()
                                         )
                                     }
-                                    Spacer(Modifier.width(6.dp))
-                                    Text(
-                                        text = "| ${item.quantity}개",
-                                        fontSize = 12.sp,
-                                        fontFamily = Pretendard,
-                                        color = Color.Gray,
-                                        modifier = Modifier.alignByBaseline()
-                                    )
-                                }
 
-                                // 결제완료 → 주문취소 버튼
-                                if (item.status == 1) {
-                                    var showCancelDialog by remember { mutableStateOf(false) }
+                                    // 결제완료 → 주문취소 버튼
+                                    if (item.status == 1) {
+                                        var showCancelDialog by remember { mutableStateOf(false) }
 
-                                    if (showCancelDialog) {
-                                        // 남은 취소 가능 수량 계산
-                                        // item.canceledCount 가 없다면 아래 remainQty는 item.quantity 로 둠
-                                        val remainQty = run {
-                                            val canceled = try {
-                                                @Suppress("UNUSED_VARIABLE")
-                                                (item::class.java.getDeclaredField("canceledCount")
-                                                    .apply { isAccessible = true }
-                                                    .get(item) as? Int) ?: 0
-                                            } catch (_: Exception) {
-                                                0
+                                        if (showCancelDialog) {
+                                            // 남은 취소 가능 수량 계산
+                                            // item.canceledCount 가 없다면 아래 remainQty는 item.quantity 로 둠
+                                            val remainQty = run {
+                                                val canceled = try {
+                                                    @Suppress("UNUSED_VARIABLE")
+                                                    (item::class.java.getDeclaredField("canceledCount")
+                                                        .apply { isAccessible = true }
+                                                        .get(item) as? Int) ?: 0
+                                                } catch (_: Exception) {
+                                                    0
+                                                }
+                                                val q = item.quantity - canceled
+                                                if (q < 1) 1 else q
                                             }
-                                            val q = item.quantity - canceled
-                                            if (q < 1) 1 else q
+
+                                            CancelOrderReasonDialog(
+                                                orderItemId = item.orderItemId,
+                                                unitPrice = item.price,
+                                                maxQty = remainQty,
+                                                onDismiss = { showCancelDialog = false },
+                                                onConfirmCancel = { id, reason, count ->
+                                                    //  cancelAmount = unitPrice * count 으로 요청
+                                                    vm.requestCancel(
+                                                        orderItemId = id,
+                                                        unitPrice = item.price,
+                                                        count = count,
+                                                        reason = reason
+                                                    )
+                                                }
+                                            )
                                         }
 
-                                        CancelOrderReasonDialog(
-                                            orderItemId = item.orderItemId,
-                                            unitPrice = item.price,
-                                            maxQty = remainQty,
-                                            onDismiss = { showCancelDialog = false },
-                                            onConfirmCancel = { id, reason, count ->
-                                                //  cancelAmount = unitPrice * count 으로 요청
-                                                vm.requestCancel(
-                                                    orderItemId = id,
-                                                    unitPrice = item.price,
-                                                    count = count,
-                                                    reason = reason
-                                                )
-                                            }
+                                        MyOrderActionButton(
+                                            text = "주문 취소",
+                                            modifier = Modifier
+                                                .width(90.dp)
+                                                .height(30.dp)
+                                                .padding(top = 6.dp),
+                                            onClick = { showCancelDialog = true }
                                         )
                                     }
 
-                                    MyOrderActionButton(
-                                        text = "주문 취소",
-                                        modifier = Modifier
-                                            .width(90.dp)
-                                            .height(30.dp)
-                                            .padding(top = 6.dp),
-                                        onClick = { showCancelDialog = true }
-                                    )
-                                }
+                                    // 배송완료 → 교환/반품 신청 버튼
+                                    if (item.status == 6) {
+                                        var showDialog by remember { mutableStateOf(false) }
 
-                                // 배송완료 → 교환/반품 신청 버튼
-                                if (item.status == 6) {
-                                    var showDialog by remember { mutableStateOf(false) }
+                                        if (showDialog) {
+                                            ExchangeReturnReasonDialog(
+                                                orderItemId = item.orderItemId,
+                                                onDismiss = { showDialog = false },
+                                                onConfirmExchange = { vm.requestExchange(it) },
+                                                onConfirmReturn = { vm.requestReturn(it) }
+                                            )
+                                        }
 
-                                    if (showDialog) {
-                                        ExchangeReturnReasonDialog(
-                                            orderItemId = item.orderItemId,
-                                            onDismiss = { showDialog = false },
-                                            onConfirmExchange = { vm.requestExchange(it) },
-                                            onConfirmReturn = { vm.requestReturn(it) }
+                                        MyOrderActionButton(
+                                            text = "교환/반품",
+                                            modifier = Modifier
+                                                .width(90.dp)
+                                                .height(28.dp)
+                                                .padding(top = 6.dp),
+                                            onClick = { showDialog = true }
                                         )
                                     }
-
-                                    MyOrderActionButton(
-                                        text = "교환/반품",
-                                        modifier = Modifier
-                                            .width(90.dp)
-                                            .height(28.dp)
-                                            .padding(top = 6.dp),
-                                        onClick = { showDialog = true }
-                                    )
                                 }
                             }
-                        }
 
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                                .size(40.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
-                                .clickable {
-                                    cartVm.addOne(item.productId, 1)
-                                    scope.launch {
-                                        snackbarHostState.currentSnackbarData?.dismiss()
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.CenterVertically)
+                                    .size(40.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                                    .clickable {
+                                        cartVm.addOne(item.productId, 1)
+                                        scope.launch {
+                                            snackbarHostState.currentSnackbarData?.dismiss()
 
-                                        val result = snackbarHostState.showSnackbar(
-                                            message = "${item.productName}을 장바구니에 담았어요.",
-                                            actionLabel = "바로가기",
-                                            withDismissAction = true,
-                                            duration = SnackbarDuration.Short
-                                        )
-                                        if (result == SnackbarResult.ActionPerformed) {
-                                            navController.navigate("cart")
+                                            val result = snackbarHostState.showSnackbar(
+                                                message = "${item.productName}을 장바구니에 담았어요.",
+                                                actionLabel = "바로가기",
+                                                withDismissAction = true,
+                                                duration = SnackbarDuration.Short
+                                            )
+                                            if (result == SnackbarResult.ActionPerformed) {
+                                                navController.navigate("cart")
+                                            }
                                         }
-                                    }
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_icon_bag),
-                                contentDescription = "장바구니 담기",
-                                tint = Color.Black,
-                                modifier = Modifier.size(20.dp)
-                            )
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_icon_bag),
+                                    contentDescription = "장바구니 담기",
+                                    tint = Color.Black,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
                         }
                     }
                 }
