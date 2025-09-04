@@ -31,7 +31,7 @@ fun FullAnalysisResponse.toUiResult(
         }
         return UiResult.Blocked(
             title = blockedTitle(status),
-            message = msg
+            message = "이미지를 다시 한번 확인해주세요."
         )
     }
 
