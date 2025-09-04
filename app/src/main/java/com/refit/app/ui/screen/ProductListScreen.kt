@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -43,6 +44,7 @@ fun ProductListScreen(
     val vm: ProductViewModel = viewModel(factory = remember { ProductViewModelFactory(useCase) }) // :contentReference[oaicite:11]{index=11}
 
     val state by vm.uiState.collectAsState()
+    var currentSort by rememberSaveable { mutableStateOf(sort) }
 
     // 최초 로드: bhType/effectId를 기존 VM 시그니처(templateId + effectCode)에 매핑
     LaunchedEffect(bhType, effectId, sort) {
@@ -50,7 +52,7 @@ fun ProductListScreen(
             1 -> "reco_health_select"                 // 건강
             else -> if (effectId in 8..10) "reco_hair_select" else "reco_skin_select" // 피부/헤어
         }
-        vm.fetchFirst(templateId = templateId, effectCode = effectId) // 내부에서 UseCase 호출
+        vm.fetchFirst(templateId = templateId, effectCode = effectId, sort = currentSort) // 내부에서 UseCase 호출
     }
 
     // 정렬(라벨, 코드) — VM에 정렬 지원 추가 전까지 UI만 유지
@@ -58,8 +60,8 @@ fun ProductListScreen(
         listOf(
             "최신순" to "latest",
             "인기순" to "popular",
-            "낮은 가격순" to "price_asc",
-            "높은 가격순" to "price_desc"
+            "낮은 가격순" to "lowPrice",
+            "높은 가격순" to "highPrice"
         )
     }
     var showSortSheet by remember { mutableStateOf(false) }
@@ -129,7 +131,7 @@ fun ProductListScreen(
                         1 -> "reco_health_select"
                         else -> if (effectId in 8..10) "reco_hair_select" else "reco_skin_select"
                     }
-                    vm.fetchMore(templateId = templateId, effectCode = effectId)
+                    vm.fetchMore(templateId = templateId, effectCode = effectId, sort = currentSort)
                 },
                 modifier = Modifier
                     .fillMaxSize()
@@ -146,11 +148,12 @@ fun ProductListScreen(
                 selectedSortIndex = idx
                 showSortSheet = false
                 val newSort = sortOptions[idx].second
+                currentSort = newSort
                 val templateId = when (bhType) {
                     1 -> "reco_health_select"
                     else -> if (effectId in 8..10) "reco_hair_select" else "reco_skin_select"
                 }
-                vm.fetchFirst(templateId = templateId, effectCode = effectId)
+                vm.fetchFirst(templateId = templateId, effectCode = effectId, sort = newSort)
             },
             onDismiss = { showSortSheet = false }
         )
