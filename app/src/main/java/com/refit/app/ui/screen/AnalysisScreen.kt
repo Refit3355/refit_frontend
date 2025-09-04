@@ -135,19 +135,6 @@ fun AnalysisScreen(
                 ) { Text("헬스", fontFamily = Pretendard) }
             }
 
-            Spacer(Modifier.height(50.dp))
-
-            PhotoUploadButton(
-                onPickFromGallery = { uri ->
-                    if (uri != null) {
-                        vm.analyzeFromUri(uri, selected)
-                    }
-                },
-                onOpenInAppCamera = { showCamera = true }
-            )
-
-            Spacer(Modifier.height(40.dp))
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -162,6 +149,15 @@ fun AnalysisScreen(
             }
 
             Spacer(Modifier.height(16.dp))
+
+            PhotoUploadButton(
+                onPickFromGallery = { uri ->
+                    if (uri != null) {
+                        vm.analyzeFromUri(uri, selected)
+                    }
+                },
+                onOpenInAppCamera = { showCamera = true }
+            )
         }
 
         if (showCamera) {
