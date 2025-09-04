@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.refit.app.R
 import com.refit.app.ui.theme.Pretendard
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun BotTemplateBubble(
     templateId: String,
@@ -32,6 +33,14 @@ fun BotTemplateBubble(
     val ctx = LocalContext.current
     val bundle = remember { TemplateRepository.loadFromAssets(ctx) }
     val tpl = remember(templateId, bundle) { bundle.get(templateId) } ?: return
+
+    val (footerChips, inlineChips) = remember(tpl) {
+        val isFooter: (ChipItem) -> Boolean = { it.placement.equals("footer", ignoreCase = true) }
+        val footers = tpl.chips.filter(isFooter)
+        val inlines = tpl.chips.filterNot(isFooter)
+        footers to inlines
+    }
+
 
     Row(
         modifier = Modifier
@@ -87,16 +96,16 @@ fun BotTemplateBubble(
                         }
 
                         // 칩(하단 선택)
-                        if (tpl.chips.isNotEmpty()) Spacer(Modifier.height(12.dp))
+                        if (inlineChips.isNotEmpty()) Spacer(Modifier.height(12.dp))
                         if (tpl.id != "service_overview") {
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                tpl.chips.forEach { chip ->
+                                inlineChips.forEach { chip ->
                                     ChatChoiceChip(
                                         label = chip.label.interpolate(variables),
                                         onClick = {
                                             onUserReply(chip.label.interpolate(variables))
                                             when {
-                                                chip.next != null -> onNext(chip.next)
+                                                chip.next != null     -> onNext(chip.next)
                                                 chip.deeplink != null -> onDeeplink(chip.deeplink)
                                             }
                                         }
@@ -107,9 +116,33 @@ fun BotTemplateBubble(
                     }
                 }
             }
+            if (footerChips.isNotEmpty()) {
+                Spacer(Modifier.height(8.dp))
+                FlowRow(
+                    modifier = Modifier
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    footerChips.forEach { chip ->
+                        FooterChip(
+                            label = chip.label.interpolate(variables),
+                            onClick = {
+                                onUserReply(chip.label.interpolate(variables))
+                                when {
+                                    chip.next != null     -> onNext(chip.next)
+                                    chip.deeplink != null -> onDeeplink(chip.deeplink)
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+
         }
 
         Spacer(Modifier.width(12.dp))
+
     }
 }
 

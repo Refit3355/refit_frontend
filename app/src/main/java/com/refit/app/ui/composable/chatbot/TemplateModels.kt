@@ -3,7 +3,9 @@ package com.refit.app.ui.composable.chatbot
 data class ChipItem(
     val label: String,
     val next: String? = null,
-    val deeplink: String? = null
+    val deeplink: String? = null,
+    val value: Int? = null,
+    val placement: String? = null
 )
 
 data class BubbleTemplate(
