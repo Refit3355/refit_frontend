@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -53,8 +54,9 @@ fun BasicInfoForm(
     val okColor = MainPurple
     val errColor = Color(0xFFD32F2F)
 
+    var phoneTouched by rememberSaveable { mutableStateOf(false) }
+
     Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        // 이메일
         FieldWithSideButton(
             label = "이메일",
             value = email,
@@ -76,7 +78,7 @@ fun BasicInfoForm(
             buttonText = if (emailCheckLoading) "확인중..." else "중복확인",
             buttonEnabled = !emailCheckLoading && email.isNotBlank(),
             onButtonClick = onCheckEmail,
-            showButton = (mode == FormMode.SIGNUP) // EDIT에선 버튼 숨김
+            showButton = (mode == FormMode.SIGNUP)
         )
 
         // 비밀번호
@@ -141,7 +143,7 @@ fun BasicInfoForm(
             buttonText = if (nickCheckLoading) "확인중..." else "중복확인",
             buttonEnabled = !nickCheckLoading && nickname.isNotBlank(),
             onButtonClick = onCheckNick,
-            showButton = (mode == FormMode.SIGNUP) // EDIT에선 버튼 숨김
+            showButton = (mode == FormMode.SIGNUP)
         )
 
         // 이름
@@ -157,22 +159,26 @@ fun BasicInfoForm(
         FieldWithSideButton(
             label = "휴대폰 번호",
             value = phoneNumber,
-            onValueChange = onPhone,
+            onValueChange = {
+                if (!phoneTouched) phoneTouched = true
+                onPhone(it)
+            },
             placeholder = "휴대폰 번호 입력",
             showButton = false,
             supportingText = {
-                if (phoneNumber.isNotEmpty()) {
+                // 표시 여부 결정
+                val show = phoneTouched && phoneNumber.isNotEmpty()
+
+                if (show) {
+                    val isOk = isPhoneStartsWith010 && isPhoneFormatOk
                     Text(
                         when {
                             !isPhoneStartsWith010 -> "010으로 시작해야 합니다."
-                            !isPhoneFormatOk -> "형식이 올바르지 않습니다. (총 11자리 숫자)"
-                            else -> "번호 형식이 올바릅니다."
+                            !isPhoneFormatOk      -> "형식이 올바르지 않습니다. (총 11자리 숫자)"
+                            else                  -> "번호 형식이 올바릅니다."
                         },
                         style = MaterialTheme.typography.bodySmall,
-                        color = when {
-                            !isPhoneStartsWith010 || !isPhoneFormatOk -> Color(0xFFD32F2F)
-                            else -> MainPurple
-                        }
+                        color = if (isOk) okColor else errColor
                     )
                 }
             }

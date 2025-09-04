@@ -9,7 +9,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -119,11 +118,9 @@ fun SignupStep3Screen(
                 contentScale = ContentScale.Fit
             )
 
-            // 스크롤 내용이 버튼에 가리지 않도록 여유
             Spacer(Modifier.height(100.dp))
         }
 
-        // 하단 고정 CTA 버튼
         Button(
             onClick = onLogin,
             modifier = Modifier
