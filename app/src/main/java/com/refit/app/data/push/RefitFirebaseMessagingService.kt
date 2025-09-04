@@ -73,7 +73,7 @@ class RefitFirebaseMessagingService : FirebaseMessagingService() {
         )
 
         // largeIcon (컬러 비트맵)
-        val largeIconBitmap = BitmapFactory.decodeResource(ctx.resources, R.drawable.ic_launcher_foreground)
+        val largeIconBitmap = BitmapFactory.decodeResource(ctx.resources, R.drawable.ic_launcher)
 
         val builder = NotificationCompat.Builder(ctx, channelId)
             // smallIcon: 단색 심볼 (상태바/알림바용)
