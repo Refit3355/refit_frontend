@@ -614,6 +614,20 @@
         { "label": "활력",        "value": 17, "next": "reco_start", "placement": "footer" },
         { "label": "뒤로",        "next": "service_reco_intro" }
       ]
+    },
+    {
+      "id": "reco_hint",
+      "title": "상품 추천 안내",
+      "blocks": [
+        "선택하신 효능 기준으로 추천 상품을 보여드릴게요."
+      ],
+      "bullets": [],
+      "chips": [
+        {
+          "label": "추천 상품 보기",
+          "deeplink": "productList?bhType={bhType}&effectId={effectId}&sort=latest"
+        }
+      ]
     }
   ]
 }

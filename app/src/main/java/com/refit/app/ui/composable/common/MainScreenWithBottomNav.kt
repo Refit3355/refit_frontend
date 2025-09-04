@@ -639,16 +639,16 @@ fun MainScreenWithBottomNav(
                     }
 
                     composable(
-                        route = "products?bhType={bhType}&effectId={effectId}&sort={sort}",
+                        route = "productList?bhType={bhType}&effectId={effectId}&sort={sort}",
                         arguments = listOf(
-                            navArgument("bhType")  { type = NavType.IntType;    defaultValue = 0 },
-                            navArgument("effectId"){ type = NavType.IntType;    defaultValue = -1 },
-                            navArgument("sort")    { type = NavType.StringType; defaultValue = "latest" }
+                            navArgument("bhType")  { type = NavType.IntType;  defaultValue = 0 },
+                            navArgument("effectId"){ type = NavType.IntType;  defaultValue = -1 },
+                            navArgument("sort")    { type = NavType.StringType; defaultValue = "latest" },
                         )
                     ) { backStackEntry ->
-                        val bhType   = backStackEntry.arguments!!.getInt("bhType")
-                        val effectId = backStackEntry.arguments!!.getInt("effectId")
-                        val sort     = backStackEntry.arguments!!.getString("sort") ?: "latest"
+                        val bhType   = backStackEntry.arguments?.getInt("bhType") ?: 0
+                        val effectId = backStackEntry.arguments?.getInt("effectId") ?: -1
+                        val sort     = backStackEntry.arguments?.getString("sort") ?: "latest"
 
                         ProductListScreen(
                             navController = navController,

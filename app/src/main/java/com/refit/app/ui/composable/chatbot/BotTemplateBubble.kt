@@ -28,6 +28,7 @@ fun BotTemplateBubble(
     variables: Map<String, String> = emptyMap(),
     onUserReply: (String) -> Unit = {},
     onNext: (String) -> Unit = {},
+    onSetVars: (Map<String, String>) -> Unit = {},
     onDeeplink: (String) -> Unit = {}
 ) {
     val ctx = LocalContext.current
@@ -106,7 +107,7 @@ fun BotTemplateBubble(
                                             onUserReply(chip.label.interpolate(variables))
                                             when {
                                                 chip.next != null     -> onNext(chip.next)
-                                                chip.deeplink != null -> onDeeplink(chip.deeplink)
+                                                chip.deeplink != null -> onDeeplink(chip.deeplink!!.interpolate(variables))
                                             }
                                         }
                                     )
@@ -116,11 +117,11 @@ fun BotTemplateBubble(
                     }
                 }
             }
+
             if (footerChips.isNotEmpty()) {
                 Spacer(Modifier.height(8.dp))
                 FlowRow(
-                    modifier = Modifier
-                        .padding(8.dp),
+                    modifier = Modifier.padding(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -128,16 +129,32 @@ fun BotTemplateBubble(
                         FooterChip(
                             label = chip.label.interpolate(variables),
                             onClick = {
-                                onUserReply(chip.label.interpolate(variables))
-                                when {
-                                    chip.next != null     -> onNext(chip.next)
-                                    chip.deeplink != null -> onDeeplink(chip.deeplink)
+                                val label = chip.label.interpolate(variables)
+                                onUserReply(label)
+
+                                if (chip.next == "reco_start" && chip.value != null) {
+                                    val bhType = if (tpl.id == "reco_health_select") 1 else 0
+                                    val effectId = chip.value.toString()
+                                    onSetVars(mapOf(
+                                        "bhType" to bhType.toString(),
+                                        "effectId" to effectId
+                                    ))
+                                    onNext("reco_hint")
+                                } else {
+                                    when {
+                                        chip.next != null -> onNext(chip.next)
+                                        chip.deeplink != null -> {
+                                            val route = chip.deeplink!!.interpolate(variables)
+                                            if (route.isNotBlank()) onDeeplink(route)
+                                        }
+                                    }
                                 }
                             }
                         )
                     }
                 }
             }
+
 
         }
 

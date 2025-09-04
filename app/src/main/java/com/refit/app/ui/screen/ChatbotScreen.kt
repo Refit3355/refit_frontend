@@ -65,6 +65,8 @@ fun ChatbotScreen(
     val extraGap = if (isImeVisible) 10.dp else 8.dp
     val bottomPaddingDp = with(density) { bottomBarHeightPx.toDp() } + extraGap
 
+    var convoVars by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
+
     // 키보드가 뜨거나 새 메시지가 추가되면, 마지막(＋스페이서)까지 스크롤
     LaunchedEffect(isImeVisible, messages.size) {
         if (messages.isNotEmpty()) {
@@ -158,17 +160,15 @@ fun ChatbotScreen(
                     is ChatItem.Bot -> {
                         BotTemplateBubble(
                             templateId = item.templateId,
-                            variables   = mapOf("nickname" to nickname),
+                            variables   = mapOf("nickname" to nickname) + convoVars,
                             onUserReply = { userText -> messages += ChatItem.User(userText) },
-                            onNext      = { nextId ->
-                                if (nextId == "greeting") {
-                                    //messages.clear()
-                                    messages += ChatItem.Bot("greeting")
-                                } else {
-                                    messages += ChatItem.Bot(nextId)
+                            onNext      = { nextId -> messages += ChatItem.Bot(nextId) },
+                            onSetVars   = { newVars -> convoVars = convoVars + newVars },
+                            onDeeplink  = { route ->
+                                navController.navigate(route) {
+                                    launchSingleTop = true
                                 }
-                            },
-                            onDeeplink  = onDeeplink
+                            }
                         )
                         if (item.templateId == "service_overview") {
                             Spacer(Modifier.height(10.dp))
