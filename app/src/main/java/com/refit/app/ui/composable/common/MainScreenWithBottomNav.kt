@@ -313,11 +313,9 @@ fun MainScreenWithBottomNav(
                     )
                 }
 
-                // 성분 분석 (부모 라우트에 VM 스코프 고정)
                 composable("ingredient") { backStackEntry ->
                     val app = LocalContext.current.applicationContext as Application
 
-                    // 부모 라우트(ingredient)에 스코프 고정
                     val parentEntry = remember(backStackEntry) { backStackEntry }
                     val vm: AnalysisViewModel =
                         viewModel(parentEntry, factory = AnalysisViewModelFactory(app))
@@ -328,14 +326,11 @@ fun MainScreenWithBottomNav(
                 composable("ingredient/result") { backStackEntry ->
                     val app = LocalContext.current.applicationContext as Application
 
-                    // 결과 화면에서도 동일 VM 재사용 (부모 엔트리 참조)
                     val parentEntry = remember(backStackEntry) {
                         navController.getBackStackEntry("ingredient")
                     }
                     val vm: AnalysisViewModel =
                         viewModel(parentEntry, factory = AnalysisViewModelFactory(app))
-
-                    // 🔁 타입 분기는 내부에서 자동 처리 (화장품/영양제/빈값/에러)
                     ResultRouterScreen(vm = vm)
                 }
 
