@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -53,15 +54,22 @@ fun SignupStep2Screen(
                 .fillMaxWidth()
                 .align(Alignment.TopCenter)
         ) {
-            LinearProgressIndicator(
-                progress = { 2f / 3f },
-                modifier = Modifier
+            Box(
+                Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .height(4.dp),
-                color = MainPurple,
-                trackColor = Color(0xFFE5E5EA)
-            )
+                    .height(4.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(Color(0xFFE5E5EA))
+            ) {
+                Box(
+                    Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(2f / 3f)
+                        .background(MainPurple)
+                )
+            }
+
         }
 
         // 본문 스크롤
