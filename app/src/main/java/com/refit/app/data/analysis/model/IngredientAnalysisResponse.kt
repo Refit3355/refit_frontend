@@ -33,6 +33,6 @@ data class FullAnalysisResponse(
     val safeText: String? = null,
     val summary: String? = null,
 
-    val supplementBenefits: List<String>? = null,
-    val supplementConditionCautions: List<String>? = null
+    val supplementBenefits: String? = null,
+    val supplementConditionCautions: String? = null
 )
