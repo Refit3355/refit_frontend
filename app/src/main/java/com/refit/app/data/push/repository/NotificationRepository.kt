@@ -1,6 +1,7 @@
 package com.refit.app.data.push.repository
 
 import com.refit.app.data.push.api.NotificationApi
+import com.refit.app.data.push.bus.PushEvents
 import com.refit.app.data.push.model.BadgeResponse
 import com.refit.app.data.push.model.BaseResponse
 import com.refit.app.data.push.model.NotificationListResponse
@@ -21,7 +22,11 @@ class NotificationRepository(
 
     suspend fun getBadge(): BadgeResponse = api.getBadge()
 
-    suspend fun readAll(): BaseResponse = api.readAll()
+    suspend fun readAll(): BaseResponse {
+        val res = api.readAll()
+        PushEvents.tryEmitBadge(0)
+        return res
+    }
 
     suspend fun getNotifications(offset: Int = 0, size: Int = 20): NotificationListResponse =
         api.getNotifications(offset, size)

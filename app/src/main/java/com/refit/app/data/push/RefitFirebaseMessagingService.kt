@@ -18,6 +18,8 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.refit.app.R
+import com.refit.app.data.push.bus.PushEvents
+import com.refit.app.data.push.model.NotificationBus
 import com.refit.app.data.push.repository.NotificationRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -51,10 +53,17 @@ class RefitFirebaseMessagingService : FirebaseMessagingService() {
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun onMessageReceived(msg: RemoteMessage) {
+        super.onMessageReceived(msg)
+        val unread = msg.data["unreadCount"]?.toIntOrNull()
         val d = msg.data
         val title = d["title"] ?: msg.notification?.title ?: "알림"
         val body = d["body"] ?: msg.notification?.body ?: ""
         val deeplink = d["deeplink"] ?: "app://notification"
+        if (unread != null) {
+            PushEvents.tryEmitBadge(unread)
+        } else {
+            NotificationBus.onNew()
+        }
         showSystemNotification(title, body, deeplink)
     }
 
