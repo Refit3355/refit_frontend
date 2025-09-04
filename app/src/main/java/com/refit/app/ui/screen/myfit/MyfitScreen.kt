@@ -1,4 +1,4 @@
-package com.refit.app.ui.screen
+package com.refit.app.ui.screen.myfit
 
 import android.util.Log
 import androidx.compose.foundation.background

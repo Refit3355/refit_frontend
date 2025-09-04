@@ -1,4 +1,4 @@
-package com.refit.app.ui.screen
+package com.refit.app.ui.screen.myfit
 
 import android.os.Build
 import androidx.annotation.RequiresApi

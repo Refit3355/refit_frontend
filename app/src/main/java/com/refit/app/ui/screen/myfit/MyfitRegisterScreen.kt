@@ -1,4 +1,4 @@
-package com.refit.app.ui.screen
+package com.refit.app.ui.screen.myfit
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -21,13 +21,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.refit.app.data.myfit.model.CreateMemberProductRequest
 import com.refit.app.data.myfit.model.MyfitCategory
-import com.refit.app.data.myfit.model.MyfitEffect
 import com.refit.app.data.myfit.model.MyfitDataSource
 import com.refit.app.data.myfit.repository.MyfitRepository
 import com.refit.app.ui.composable.common.SpinnerDatePicker
 import com.refit.app.ui.composable.myfit.TypeSegment
 import com.refit.app.ui.composable.common.CategoryDropdown
-import com.refit.app.ui.theme.GreyOutline
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.GreyInput
 import kotlinx.coroutines.launch
