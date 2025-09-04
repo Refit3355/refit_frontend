@@ -14,4 +14,8 @@ object PushEvents {
     suspend fun emitBadge(count: Int) {
         _badgeFlow.emit(count)
     }
+
+    fun tryEmitBadge(count: Int) {
+        _badgeFlow.tryEmit(count)
+    }
 }
