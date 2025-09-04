@@ -38,11 +38,16 @@ suspend fun readSleep(
             Log.w("HealthRepo", "수면: 빈 페이지 (page=$pageCount) → 중단")
             break
         }
+
         page.records.forEach {
-            val d = it.startTime.atZone(zone).toLocalDate()
+            val end = it.endTime.atZone(zone)
             val minutes = Duration.between(it.startTime, it.endTime).toMinutes()
+
+            val d = end.toLocalDate()
+
             dailySleep[d] = (dailySleep[d] ?: 0L) + minutes
         }
+
         val next = page.pageToken ?: break
         if (pageCount > 50) {
             Log.e("HealthRepo", "수면: 페이지 50 초과 → 강제 중단")

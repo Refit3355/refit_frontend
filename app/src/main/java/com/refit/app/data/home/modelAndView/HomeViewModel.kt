@@ -50,10 +50,9 @@ class HomeViewModel : ViewModel() {
                 val rows = HealthRepo.readDailyAll(ctx, days = 2)
                 if (rows.size >= 2) {
                     val today = rows.last()
-                    val yesterday = rows[rows.size - 2]
                     _uiState.value = _uiState.value.copy(
-                        steps = today.steps,                  // 걸음수는 오늘
-                        sleepMinutes = yesterday.sleepMinutes // 수면시간은 어제
+                        steps = today.steps,
+                        sleepMinutes = today.sleepMinutes
                     )
                 }
             } else {
@@ -120,12 +119,15 @@ class HomeViewModel : ViewModel() {
 
     // === 수면시간 포맷 ===
     fun formatSleep(minutes: Long): String {
-        return if (minutes <= 0) {
-            "-- 시간"
-        } else {
-            val h = minutes / 60
-            val m = minutes % 60
-            "${h}시간 ${m}분"
+        if (minutes <= 0) return "-- 시간"
+
+        val h = minutes / 60
+        val m = minutes % 60
+
+        return when {
+            h > 0 && m > 0 -> "${h}시간 ${m}분"
+            m == 0L && h > 0 -> "${h}시간"
+            else -> "${m}분"
         }
     }
 
