@@ -27,6 +27,7 @@ fun FieldWithSideButton(
     onButtonClick: () -> Unit = {},
     showButton: Boolean = true,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    fieldModifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
@@ -47,9 +48,9 @@ fun FieldWithSideButton(
                 readOnly = readOnly,
                 enabled = enabled,
                 visualTransformation = visualTransformation,
-                modifier = Modifier
+                modifier = fieldModifier
                     .weight(1f)
-                    .height(FieldHeight)
+                    .height(50.dp)
             )
 
             if (showButton) {

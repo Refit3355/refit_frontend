@@ -25,6 +25,9 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.refit.app.data.auth.modelAndView.FormMode
 import com.refit.app.ui.theme.Pretendard
 import com.refit.app.data.auth.modelAndView.SignupViewModel
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 
 @Composable
 fun SignupStep1Screen(
@@ -66,13 +69,13 @@ fun SignupStep1Screen(
             )
         }
 
-
         val scroll = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 20.dp, vertical = 16.dp)
                 .verticalScroll(scroll)
+                .imePadding()
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -141,6 +144,7 @@ fun SignupStep1Screen(
             ) {
                 Text("다음", fontFamily = Pretendard)
             }
+            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.ime))
         }
     }
 
@@ -158,7 +162,6 @@ fun SignupStep1Screen(
 @Preview(showBackground = true, widthDp = 360, heightDp = 800)
 @Composable
 fun Preview_SignupStep1Screen() {
-    // viewModel() 이 쓸 수 있는 가짜 ViewModelStoreOwner 제공
     val owner = remember {
         object : ViewModelStoreOwner {
             override val viewModelStore: ViewModelStore = ViewModelStore()
@@ -172,7 +175,7 @@ fun Preview_SignupStep1Screen() {
                 onBack = {},
                 onNextOrSubmit = {},
                 onSearchAddress = {},
-                prefillNickname = "수진",
+                prefillNickname = "리핏",
                 prefillEmail = "soo@example.com"
             )
         }
