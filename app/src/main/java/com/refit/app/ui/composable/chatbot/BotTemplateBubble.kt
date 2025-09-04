@@ -4,7 +4,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.refit.app.R
 import com.refit.app.ui.theme.Pretendard
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -28,8 +32,8 @@ fun BotTemplateBubble(
     variables: Map<String, String> = emptyMap(),
     onUserReply: (String) -> Unit = {},
     onNext: (String) -> Unit = {},
-    onSetVars: (Map<String, String>) -> Unit = {},
-    onDeeplink: (String) -> Unit = {}
+    onDeeplink: (String) -> Unit = {},
+    onSetVars: (Map<String, String>) -> Unit = {}
 ) {
     val ctx = LocalContext.current
     val bundle = remember { TemplateRepository.loadFromAssets(ctx) }
@@ -41,7 +45,6 @@ fun BotTemplateBubble(
         val inlines = tpl.chips.filterNot(isFooter)
         footers to inlines
     }
-
 
     Row(
         modifier = Modifier
@@ -90,13 +93,11 @@ fun BotTemplateBubble(
                         tpl.bullets.forEach { b ->
                             Row(verticalAlignment = Alignment.Top) {
                                 Text("• ", style = MaterialTheme.typography.bodySmall, color = Color(0xFF111111))
-                                MarkdownBold(
-                                    text = b.interpolate(variables)
-                                )
+                                MarkdownBold(text = b.interpolate(variables))
                             }
                         }
 
-                        // 칩(하단 선택)
+                        // 인라인 칩 (버블 내부)
                         if (inlineChips.isNotEmpty()) Spacer(Modifier.height(12.dp))
                         if (tpl.id != "service_overview") {
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -106,8 +107,12 @@ fun BotTemplateBubble(
                                         onClick = {
                                             onUserReply(chip.label.interpolate(variables))
                                             when {
-                                                chip.next != null     -> onNext(chip.next)
-                                                chip.deeplink != null -> onDeeplink(chip.deeplink!!.interpolate(variables))
+                                                chip.next != null -> onNext(chip.next!!)
+                                                chip.deeplink != null -> {
+                                                    // 변수 치환 후 이동
+                                                    val route = chip.deeplink!!.interpolate(variables)
+                                                    if (route.isNotBlank()) onDeeplink(route)
+                                                }
                                             }
                                         }
                                     )
@@ -118,6 +123,7 @@ fun BotTemplateBubble(
                 }
             }
 
+            // 푸터 칩 (버블 아래)
             if (footerChips.isNotEmpty()) {
                 Spacer(Modifier.height(8.dp))
                 FlowRow(
@@ -133,17 +139,23 @@ fun BotTemplateBubble(
                                 onUserReply(label)
 
                                 if (chip.next == "reco_start" && chip.value != null) {
-                                    val bhType = if (tpl.id == "reco_health_select") 1 else 0
+                                    // 선택된 효능 저장 & 안내 템플릿으로 이동
+                                    val bhType   = if (tpl.id == "reco_health_select") 1 else 0
                                     val effectId = chip.value.toString()
+
+                                    // 대화 컨텍스트 변수 저장
                                     onSetVars(mapOf(
                                         "bhType" to bhType.toString(),
                                         "effectId" to effectId
                                     ))
+
+                                    // 순수 템플릿 ID로 다음 버블 표시
                                     onNext("reco_hint")
                                 } else {
                                     when {
-                                        chip.next != null -> onNext(chip.next)
+                                        chip.next != null -> onNext(chip.next!!)
                                         chip.deeplink != null -> {
+                                            // 변수 치환 후 이동
                                             val route = chip.deeplink!!.interpolate(variables)
                                             if (route.isNotBlank()) onDeeplink(route)
                                         }
@@ -154,12 +166,9 @@ fun BotTemplateBubble(
                     }
                 }
             }
-
-
         }
 
         Spacer(Modifier.width(12.dp))
-
     }
 }
 
