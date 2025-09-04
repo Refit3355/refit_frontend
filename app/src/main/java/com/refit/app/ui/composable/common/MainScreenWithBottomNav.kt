@@ -444,21 +444,23 @@ fun MainScreenWithBottomNav(
                 }
 
                 // 조합 등록 페이지
-                composable("combinationRegister") { backStackEntry ->
+                composable(
+                    route = "combinationRegister/{defaultType}",
+                    arguments = listOf(navArgument("defaultType") { defaultValue = "beauty" })
+                ) { backStackEntry ->
                     val selectedProducts =
                         backStackEntry.savedStateHandle
                             .getStateFlow("selectedProducts", emptyList<Product>())
                             .collectAsState().value
 
+                    val defaultType = backStackEntry.arguments?.getString("defaultType") ?: "beauty"
+
                     CombinationRegisterScreen(
                         navController = navController,
                         selectedProducts = selectedProducts,
-                        onSearchClick = { bh ->
-                            navController.navigate("productSelect/$bh")
-                        },
-                        onRegisterSuccess = {
-                            navController.popBackStack()
-                        }
+                        defaultType = defaultType,
+                        onSearchClick = { bh -> navController.navigate("productSelect/$bh") },
+                        onRegisterSuccess = { navController.popBackStack() }
                     )
                 }
 

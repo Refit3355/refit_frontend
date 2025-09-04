@@ -203,7 +203,13 @@ fun CombiKingSection(
 
             // 등록 버튼
             FloatingActionButton(
-                onClick = { navController.navigate("combinationRegister") },
+                onClick = {
+                    val defaultType = when (category) {
+                        CommunityCategory.ALL, CommunityCategory.BEAUTY -> "beauty"
+                        CommunityCategory.HEALTH -> "health"
+                    }
+                    navController.navigate("combinationRegister/$defaultType")
+                },
                 shape = CircleShape,
                 containerColor = MainPurple,
                 contentColor = Color.White,
