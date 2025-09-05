@@ -310,14 +310,23 @@ private fun SectionPayMethod(selected: String, onSelect: (String) -> Unit) {
             val isSelected = (value == selected)
             val borderColor = if (isSelected) MainPurple else Color(0xFFE0E0E6)
             val bg = if (isSelected) MainPurple.copy(alpha = 0.08f) else Color.White
+            val textColor = if (isSelected) MainPurple else Color.Black
+
             OutlinedButton(
                 onClick = { onSelect(value) },
                 shape = RoundedCornerShape(5.dp),
                 border = BorderStroke(1.dp, borderColor),
-                colors = ButtonDefaults.outlinedButtonColors(containerColor = bg),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = bg,
+                    contentColor = textColor
+                ),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp)
             ) {
-                Text(label, style = BodyTextStyle.copy(fontWeight = FontWeight.Medium))
+                Text(
+                    text = label,
+                    style = BodyTextStyle.copy(fontWeight = FontWeight.Medium),
+                    color = textColor
+                )
             }
         }
     }
