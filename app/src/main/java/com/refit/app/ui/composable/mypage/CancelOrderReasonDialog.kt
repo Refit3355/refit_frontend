@@ -143,6 +143,9 @@ fun CancelOrderReasonDialog(
                         MyOrderActionButton(
                             text = if (step == 1) "다음 단계" else "환불 신청",
                             modifier = Modifier.weight(1f).height(42.dp),
+                            textColor = Color.White,
+                            backgroundColor = MainPurple,
+                            borderColor = MainPurple,
                             onClick = {
                                 if (step == 1) {
                                     if (selectedReason != null) step = 2

@@ -46,12 +46,12 @@ fun SleepDetailScreen(
         }
     }
 
-    // 어제까지 데이터
-    val yesterdayRows = if (rows.size > 1) rows.dropLast(1) else rows
-    val yesterdaySleep = yesterdayRows.lastOrNull()?.sleepMinutes ?: 0
-    val avgSleep = yesterdayRows.mapNotNull { it.sleepMinutes }.average().toInt()
-    val minSleep = yesterdayRows.mapNotNull { it.sleepMinutes }.minOrNull() ?: 0
-    val maxSleep = yesterdayRows.mapNotNull { it.sleepMinutes }.maxOrNull() ?: 0
+    // 데이터
+    val allRows = rows
+    val yesterdaySleep = allRows.lastOrNull()?.sleepMinutes ?: 0
+    val avgSleep = allRows.mapNotNull { it.sleepMinutes }.average().toInt()
+    val minSleep = allRows.mapNotNull { it.sleepMinutes }.minOrNull() ?: 0
+    val maxSleep = allRows.mapNotNull { it.sleepMinutes }.maxOrNull() ?: 0
 
     // 한국 평균 & 권장 수면시간
     val koreanAvgSleep = 387    // 6시간 27분
@@ -76,7 +76,7 @@ fun SleepDetailScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        if (yesterdayRows.isEmpty()) {
+        if (allRows.isEmpty()) {
             Text("수면 데이터가 아직 없어요.", style = MaterialTheme.typography.bodyMedium.copy(fontFamily = Pretendard))
             return
         }
@@ -96,7 +96,7 @@ fun SleepDetailScreen(
             modifier = Modifier.fillMaxWidth().height(220.dp),
             factory = { ctx ->
                 MpLineChart(ctx).apply {
-                    val entries = yesterdayRows.mapIndexed { idx, row ->
+                    val entries = allRows.mapIndexed { idx, row ->
                         Entry(idx.toFloat(), (row.sleepMinutes ?: 0).toFloat())
                     }
                     data = LineData(LineDataSet(entries, "수면시간").apply {
@@ -122,10 +122,14 @@ fun SleepDetailScreen(
                     axisLeft.setDrawGridLines(false)
                     legend.isEnabled = true
 
+                    val totalSize = allRows.size
                     xAxis.valueFormatter = object : ValueFormatter() {
                         override fun getFormattedValue(value: Float): String {
-                            val dayOffset = yesterdayRows.size - value.toInt()
-                            return if (dayOffset > 0) "${dayOffset}일 전" else "어제"
+                            val index = value.toInt()
+                            return when (index) {
+                                totalSize - 1 -> "오늘"
+                                else -> "${totalSize - 1 - index}일 전"
+                            }
                         }
                     }
                     axisLeft.valueFormatter = object : ValueFormatter() {

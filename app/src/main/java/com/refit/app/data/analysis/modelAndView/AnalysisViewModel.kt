@@ -3,8 +3,6 @@ package com.refit.app.data.analysis.modelAndView
 import android.app.Application
 import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -16,82 +14,87 @@ import com.refit.app.data.analysis.repository.AnalysisRepository
 import com.refit.app.network.RetrofitInstance
 import com.refit.app.network.TokenManager
 import com.refit.app.network.UserPrefs
-import com.refit.app.ui.screen.AnalysisUiState
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 
 class AnalysisViewModel(
     app: Application,
     private val repo: AnalysisRepository
 ) : AndroidViewModel(app) {
 
-    val ui = mutableStateOf(AnalysisUiState())
+    var productType = mutableStateOf(ProductTypeUi.BEAUTY)
+        private set
+
+    var result = mutableStateOf<UiResult>(UiResult.Empty)
+        private set
+
+    private val _navigationEvents = Channel<String>(Channel.BUFFERED)
+    val navigationEvents = _navigationEvents.receiveAsFlow()
+
+    fun setProductTypeFromUi(uiValue: String) {
+        productType.value = if (uiValue.trim() == "헬스") ProductTypeUi.HEALTH else ProductTypeUi.BEAUTY
+    }
 
     fun analyzeFromUri(uri: Uri, productTypeUi: String) {
+        setProductTypeFromUi(productTypeUi)
         viewModelScope.launch {
-            ui.value = ui.value.copy(loading = true, error = null)
+            result.value = UiResult.Loading
             try {
                 val res = repo.analyzeFromUri(getApplication(), uri, productTypeUi)
-                ui.value = ui.value.mergeWithFallback(getApplication(), res)
+                val ui = res.toUiResult(resolveMemberName(getApplication(), res.memberName), productType.value)
+                result.value = ui
+                if (ui is UiResult.Cosmetic && !ui.isEmptyResult()) {
+                    _navigationEvents.send("ingredient/result")
+                } else if (ui is UiResult.Supplement && !ui.isEmptyResult()) {
+                    _navigationEvents.send("ingredient/result")
+                }
             } catch (e: Exception) {
-                ui.value = ui.value.copy(loading = false, error = friendlyMessage(e))
+                result.value = UiResult.Error(friendlyMessage(e))
             }
         }
     }
 
     fun analyzeFromBytes(bytes: ByteArray, productTypeUi: String) {
+        setProductTypeFromUi(productTypeUi)
         viewModelScope.launch {
-            ui.value = ui.value.copy(loading = true, error = null)
+            result.value = UiResult.Loading
             try {
                 val res = repo.analyzeFromBytes(getApplication(), bytes, productTypeUi)
-                ui.value = ui.value.mergeWithFallback(getApplication(), res)
+                val ui = res.toUiResult(resolveMemberName(getApplication(), res.memberName), productType.value)
+                result.value = ui
+                if (ui is UiResult.Cosmetic && !ui.isEmptyResult()) {
+                    _navigationEvents.send("ingredient/result")
+                } else if (ui is UiResult.Supplement && !ui.isEmptyResult()) {
+                    _navigationEvents.send("ingredient/result")
+                }
             } catch (e: Exception) {
-                ui.value = ui.value.copy(loading = false, error = friendlyMessage(e))
+                result.value = UiResult.Error(friendlyMessage(e))
             }
         }
     }
 
-    /** 서버 memberName이 비어오면 SharedPreferences(JWT) 폴백 사용 */
-    private fun AnalysisUiState.mergeWithFallback(
-        app: Application,
-        res: FullAnalysisResponse
-    ): AnalysisUiState {
-        val displayName = resolveMemberName(app, res.memberName)
-        return this.copy(
-            loading = false,
-            error = null,
-            memberName = displayName,
-            matchRate = res.matchRate,
-            risky = res.risky,
-            caution = res.caution,
-            safe = res.safe,
-            riskyText = res.riskyText,
-            cautionText = res.cautionText,
-            safeText = res.safeText,
-            summary = res.summary
-        )
-    }
-
-    /** 폴백 우선순위: 서버값 > UserPrefs.getNickname() > JWT 닉네임 > "사용자" */
     private fun resolveMemberName(app: Application, serverName: String?): String {
         if (!serverName.isNullOrBlank()) return serverName
-
-        // UserPrefs는 Application에서 UserPrefs.init(this) 선행 필요
         val spName = try { UserPrefs.getNickname() } catch (_: Exception) { null }
         if (!spName.isNullOrBlank()) return spName!!
-
         val token = TokenManager.getAccessToken()
         val jwtName = token?.let { TokenManager.parseNicknameFromJwt(it) }
         if (!jwtName.isNullOrBlank()) return jwtName!!
-
         return "사용자"
     }
 
     private fun friendlyMessage(e: Exception): String = when (e) {
-        is UnknownHostException -> "네트워크 연결을 확인해 주세요."
-        is SocketTimeoutException -> "서버 응답이 지연되고 있어요. 잠시 후 다시 시도해 주세요."
-        else -> e.message ?: "알 수 없는 오류가 발생했어요."
+        is UnknownHostException     -> "네트워크 연결을 확인해 주세요."
+        is SocketTimeoutException   -> "서버 응답이 지연되고 있어요. 잠시 후 다시 시도해 주세요."
+        else                        -> e.message ?: "알 수 없는 오류가 발생했어요."
+    }
+    fun acknowledgeBlocked() {
+        result.value = UiResult.Empty
     }
 }
 
@@ -109,3 +112,5 @@ fun rememberAnalysisViewModel(): AnalysisViewModel {
     val app = LocalContext.current.applicationContext as Application
     return viewModel(factory = AnalysisViewModelFactory(app))
 }
+
+

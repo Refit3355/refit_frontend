@@ -37,6 +37,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import androidx.compose.ui.unit.LayoutDirection
 
 @Composable
 fun ProductSelectScreen(
@@ -62,8 +63,13 @@ fun ProductSelectScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    var selectedProducts by remember { mutableStateOf(listOf<Product>()) }
-    val isValid = selectedProducts.size in 2..6
+    val preSelectedProducts =
+        navController.previousBackStackEntry
+            ?.savedStateHandle
+            ?.get<List<Product>>("preSelectedProducts")
+
+    var selectedProducts by remember { mutableStateOf(preSelectedProducts ?: emptyList()) }
+    var showCountErrorDialog by remember { mutableStateOf(false) }
 
     val listState = rememberLazyListState()
 
@@ -86,20 +92,23 @@ fun ProductSelectScreen(
         bottomBar = {
             Button(
                 onClick = {
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("selectedProducts", selectedProducts)
-                    navController.popBackStack()
+                    if (selectedProducts.size !in 2..6) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("상품은 2개 이상 6개 이하로 선택해야 합니다.")
+                        }
+                    } else {
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("selectedProducts", selectedProducts)
+                        navController.popBackStack()
+                    }
                 },
-                enabled = isValid,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .height(52.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isValid) MainPurple else Color.LightGray
-                )
+                colors = ButtonDefaults.buttonColors(containerColor = MainPurple) // 항상 보라색
             ) {
                 Text(
                     "선택완료",
@@ -115,7 +124,11 @@ fun ProductSelectScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
-                .padding(innerPadding)
+                .padding(
+                    start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
+                    end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
+                    bottom = innerPadding.calculateBottomPadding()
+                )
         ) {
 
             // 선택된 상품 미리보기

@@ -29,7 +29,9 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
 import com.refit.app.data.order.flow.CheckoutFlowStore
 import com.refit.app.data.cart.api.CartApi
@@ -89,6 +91,7 @@ import com.refit.app.ui.screen.HealthEditScreen
 import com.refit.app.ui.screen.ProductSelectScreen
 import com.refit.app.ui.screen.SignupFlowScreen
 import com.refit.app.data.order.model.decodeDraftOrderRequest
+import com.refit.app.ui.screen.ResultRouterScreen
 import com.refit.app.ui.screen.ChatbotScreen
 import com.refit.app.ui.screen.ProductListScreen
 import com.refit.app.ui.screen.order.OrderSheetScreen
@@ -108,17 +111,36 @@ fun MainScreenWithBottomNav(
 )
 {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route ?: "home"
+
+    val currentRoute = navBackStackEntry?.destination?.route.orEmpty()
+    val isRouteResolved = navBackStackEntry != null
+
+    var leftSplash by remember { mutableStateOf(false) }
+    LaunchedEffect(isRouteResolved, currentRoute) {
+        if (isRouteResolved && currentRoute != "splash") {
+            leftSplash = true
+        }
+    }
 
     val bottomTabs = listOf("home", "category", "myfit", "community", "my", "sleepDetail",
-        "stepsDetail", "weatherDetail", "ingredient")
+        "stepsDetail", "weatherDetail")
     val noBottomTabs = listOf("myfit/register", "myfit/edit", "checkout/")
 
-    // 스플래시/인증 경로에서는 상단 및 하단 바 숨김 처리
-    val hideBars = currentRoute == "splash" || currentRoute.startsWith("auth/login")
+    val inAuth = currentRoute.startsWith("auth/login")
+    val inSplash = !isRouteResolved || currentRoute == "splash"
+
+    // 스플래시 중이거나 인증 플로우면 숨김
+    val hideBarsBase = inSplash || inAuth
+
+    // 스플래시 “이후” + 탭 라우트일 때만
+    val showBottomBar = leftSplash &&
+            !hideBarsBase &&
+            noBottomTabs.none { currentRoute.startsWith(it) } &&
+            bottomTabs.any { currentRoute.startsWith(it) }
+
     Scaffold(
         topBar = {
-            if (!hideBars) {
+            if (leftSplash && !hideBarsBase) {
                 Box(Modifier.padding(vertical = 8.dp)) {
                     RefitTopBar(
                         config = appBarFor(
@@ -130,10 +152,7 @@ fun MainScreenWithBottomNav(
             }
         },
         bottomBar = {
-            if (!hideBars &&
-                noBottomTabs.none { currentRoute.startsWith(it) } &&
-                bottomTabs.any { currentRoute.startsWith(it) }
-            ) {
+            if (showBottomBar) {
                 BottomBar(navController = navController)
             }
         }
@@ -148,7 +167,6 @@ fun MainScreenWithBottomNav(
                 startDestination = startDestination,
                 modifier = Modifier.padding(innerPadding)
             ) {
-                // Splash
                 composable("splash") {
                     SplashScreen(
                         onDecide = { loggedIn ->
@@ -314,7 +332,6 @@ fun MainScreenWithBottomNav(
                     )
                 }
 
-                // 성분 분석 (부모 라우트에 VM 스코프 고정)
                 composable("ingredient") { backStackEntry ->
                     val app = LocalContext.current.applicationContext as Application
 
@@ -327,14 +344,13 @@ fun MainScreenWithBottomNav(
 
                 composable("ingredient/result") { backStackEntry ->
                     val app = LocalContext.current.applicationContext as Application
+
                     val parentEntry = remember(backStackEntry) {
-                        // 아래 라우트가 백스택에 남아 있으므로 이 엔트리를 통해 같은 VM 인스턴스를 재사용
                         navController.getBackStackEntry("ingredient")
                     }
                     val vm: AnalysisViewModel =
                         viewModel(parentEntry, factory = AnalysisViewModelFactory(app))
-
-                    AnalysisResultScreen(ui = vm.ui.value)
+                    ResultRouterScreen(vm = vm)
                 }
 
                 // 검색/알림/장바구니
@@ -446,21 +462,23 @@ fun MainScreenWithBottomNav(
                 }
 
                 // 조합 등록 페이지
-                composable("combinationRegister") { backStackEntry ->
+                composable(
+                    route = "combinationRegister/{defaultType}",
+                    arguments = listOf(navArgument("defaultType") { defaultValue = "beauty" })
+                ) { backStackEntry ->
                     val selectedProducts =
                         backStackEntry.savedStateHandle
                             .getStateFlow("selectedProducts", emptyList<Product>())
                             .collectAsState().value
 
+                    val defaultType = backStackEntry.arguments?.getString("defaultType") ?: "beauty"
+
                     CombinationRegisterScreen(
                         navController = navController,
                         selectedProducts = selectedProducts,
-                        onSearchClick = { bh ->
-                            navController.navigate("productSelect/$bh")
-                        },
-                        onRegisterSuccess = {
-                            navController.popBackStack()
-                        }
+                        defaultType = defaultType,
+                        onSearchClick = { bh -> navController.navigate("productSelect/$bh") },
+                        onRegisterSuccess = { navController.popBackStack() }
                     )
                 }
 

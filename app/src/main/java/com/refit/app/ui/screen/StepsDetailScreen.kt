@@ -1,7 +1,6 @@
 package com.refit.app.ui.screen
 
 import android.graphics.Color
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -19,9 +18,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.github.mikephil.charting.charts.LineChart as MpLineChart
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.refit.app.R
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
@@ -30,6 +29,10 @@ import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.HealthConnectClient
 import com.refit.app.data.health.HealthRepo
 import com.github.mikephil.charting.components.Legend
+import com.refit.app.ui.composable.health.RoundedBarChartRenderer
+import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 
 @Composable
 fun StepsDetailScreen(
@@ -40,26 +43,20 @@ fun StepsDetailScreen(
     val rows = uiState.rows
     val context = LocalContext.current
 
-    // 권한 요청 런처
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = PermissionController.createRequestPermissionResultContract()
     ) { granted ->
         val allGranted = HealthRepo.readPerms.all { granted.contains(it) }
         if (allGranted) {
-            Log.d("StepsDetailScreen", "권한 허용 완료 → fetch 호출")
             vm.onPermissionGranted(context)
             vm.onDaysChanged(context, 7)
-        } else {
-            Log.w("StepsDetailScreen", "권한 거부됨")
         }
     }
 
-    // 화면 진입 시 실행
     LaunchedEffect(Unit) {
         val healthConnectClient = HealthConnectClient.getOrCreate(context)
         val granted = healthConnectClient.permissionController.getGrantedPermissions()
         if (HealthRepo.readPerms.all { granted.contains(it) }) {
-            Log.d("StepsDetailScreen", "이미 권한 있음 → fetch 호출")
             vm.onPermissionGranted(context)
             vm.onDaysChanged(context, 7)
         } else {
@@ -67,17 +64,13 @@ fun StepsDetailScreen(
         }
     }
 
-    // ====== 화면 레이아웃 ======
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        // 제목 + 마스코트 아이콘
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
                 painter = painterResource(id = R.drawable.jellbbo_doctor),
                 contentDescription = "타이틀 젤뽀",
@@ -96,139 +89,152 @@ fun StepsDetailScreen(
 
         val todaySteps = rows.lastOrNull()?.steps ?: 0L
         val todayKcal = rows.lastOrNull()?.totalKcal ?: 0.0
-        val avgSteps = rows.mapNotNull { it.steps }.average().toInt()
-        val avgKcal = rows.mapNotNull { it.totalKcal }.average().toInt()
 
-        val xLabels = rows.mapIndexed { idx, _ ->
-            if (idx == rows.size - 1) "오늘"
-            else "${rows.size - 1 - idx}일전"
+        val today = LocalDate.now()
+        val days = (6 downTo 0).map { today.minusDays(it.toLong()) }
+        val xLabels = days.map {
+            if (it == today) "오늘"
+            else it.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.KOREAN)
         }
+
+        // rows와 days를 맞춰 정렬
+        val sortedData = days.zip(rows.takeLast(7)).reversed()
+        val stepEntries = sortedData.mapIndexed { idx, pair -> BarEntry(idx.toFloat(), (pair.second.steps ?: 0L).toFloat()) }
+        val kcalEntries = sortedData.mapIndexed { idx, pair -> BarEntry(idx.toFloat(), (pair.second.totalKcal ?: 0.0).toFloat()) }
+
         val indexFormatter = IndexAxisValueFormatter(xLabels)
 
-        // ========== 1번째 차트: 최근 걸음수 ==========
+        // ========== 1번째 차트 ==========
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.jellbbo_walk),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-            )
+            Image(painter = painterResource(id = R.drawable.jellbbo_walk), contentDescription = null, modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.width(6.dp))
-            Text("7일간의 내 걸음", style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Pretendard))
+            Text("7일간의 내 걸음 (단위: 걸음)", style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Pretendard))
         }
         Spacer(Modifier.height(8.dp))
         AndroidView(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(220.dp),
+            modifier = Modifier.fillMaxWidth().height(220.dp),
             factory = { ctx ->
-                MpLineChart(ctx).apply {
-                    val entries = rows.mapIndexed { idx, row ->
-                        Entry(idx.toFloat(), (row.steps ?: 0L).toFloat())
-                    }
-                    val dataSet = LineDataSet(entries, "걸음수").apply {
-                        color = MainPurple.toArgb()
+                com.github.mikephil.charting.charts.BarChart(ctx).apply {
+                    val barDataSet = BarDataSet(stepEntries, "").apply {
+                        setDrawValues(true)
                         valueTextColor = Color.DKGRAY
-                        lineWidth = 2f
-                        setDrawCircles(true)
-                        setCircleColor(MainPurple.toArgb())
+                        valueTextSize = 12f
+                        colors = stepEntries.mapIndexed { idx, _ -> if (idx == stepEntries.size - 1) MainPurple.toArgb() else Color.LTGRAY }
+                        valueFormatter = object : ValueFormatter() {
+                            override fun getBarLabel(barEntry: BarEntry?): String = "${barEntry?.y?.toInt()}"
+                        }
                     }
-                    data = LineData(dataSet)
+                    data = BarData(barDataSet).apply { barWidth = 0.4f }
+                    renderer = RoundedBarChartRenderer(this, animator, viewPortHandler)
                     description.isEnabled = false
+                    legend.isEnabled = false
+                    axisLeft.isEnabled = false
                     axisRight.isEnabled = false
-                    axisLeft.setDrawGridLines(false)
-
-                    xAxis.granularity = 1f
-                    xAxis.setDrawGridLines(false)
-                    xAxis.valueFormatter = indexFormatter
+                    xAxis.apply {
+                        position = com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM
+                        setDrawGridLines(false)
+                        granularity = 1f
+                        valueFormatter = indexFormatter
+                        textColor = Color.DKGRAY
+                    }
                 }
             }
         )
 
         Spacer(Modifier.height(32.dp))
 
-        // ========== 2번째 차트: 최근 소비 칼로리 ==========
+        // ========== 2번째 차트 ==========
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.jellbbo_walk),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-            )
+            Image(painter = painterResource(id = R.drawable.jellbbo_walk), contentDescription = null, modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.width(6.dp))
-            Text("7일간의 칼로리 소모", style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Pretendard))
+            Text("7일간의 칼로리 소모 (단위: kcal)", style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Pretendard))
         }
         Spacer(Modifier.height(8.dp))
         AndroidView(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(220.dp),
+            modifier = Modifier.fillMaxWidth().height(220.dp),
             factory = { ctx ->
-                MpLineChart(ctx).apply {
-                    val entries = rows.mapIndexed { idx, row ->
-                        Entry(idx.toFloat(), (row.totalKcal ?: 0.0).toFloat())
-                    }
-                    val dataSet = LineDataSet(entries, "소모 칼로리(kcal)").apply {
-                        color = MainPurple.toArgb()
+                com.github.mikephil.charting.charts.BarChart(ctx).apply {
+                    val barDataSet = BarDataSet(kcalEntries, "").apply {
+                        setDrawValues(true)
                         valueTextColor = Color.DKGRAY
-                        lineWidth = 2f
-                        setDrawCircles(true)
-                        setCircleColor(MainPurple.toArgb())
+                        valueTextSize = 12f
+                        colors = kcalEntries.mapIndexed { idx, _ -> if (idx == kcalEntries.size - 1) MainPurple.toArgb() else Color.LTGRAY }
+                        valueFormatter = object : ValueFormatter() {
+                            override fun getBarLabel(barEntry: BarEntry?): String = "${barEntry?.y?.toInt()}"
+                        }
                     }
-                    data = LineData(dataSet)
+                    data = BarData(barDataSet).apply { barWidth = 0.4f }
+                    renderer = RoundedBarChartRenderer(this, animator, viewPortHandler)
                     description.isEnabled = false
+                    legend.isEnabled = false
+                    axisLeft.isEnabled = false
                     axisRight.isEnabled = false
-                    axisLeft.setDrawGridLines(false)
-
-                    xAxis.granularity = 1f
-                    xAxis.setDrawGridLines(false)
-                    xAxis.valueFormatter = indexFormatter
+                    xAxis.apply {
+                        position = com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM
+                        setDrawGridLines(false)
+                        granularity = 1f
+                        valueFormatter = indexFormatter
+                        textColor = Color.DKGRAY
+                    }
                 }
             }
         )
 
         Spacer(Modifier.height(32.dp))
 
-        // ========== 3번째 차트: 한국인 평균 걸음 비교 ==========
+        // ========== 3번째 차트 ==========
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.jellbbo_walk),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-            )
+            Image(painter = painterResource(id = R.drawable.jellbbo_walk), contentDescription = null, modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.width(6.dp))
-            Text("오늘 걸음 수 vs 한국인 평균", style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Pretendard))
+            Text("오늘 걸음 수 vs 한국인 평균 (단위: 걸음)", style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Pretendard))
         }
         Spacer(Modifier.height(8.dp))
         AndroidView(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp),
+            modifier = Modifier.fillMaxWidth().height(200.dp),
             factory = { ctx ->
                 com.github.mikephil.charting.charts.BarChart(ctx).apply {
                     val my = BarEntry(0f, todaySteps.toFloat())
                     val koreanAvg = BarEntry(1f, 9611f)
 
-                    val mySet = BarDataSet(listOf(my), "나의 오늘 걸음수").apply {
+                    val mySet = BarDataSet(listOf(my), "나").apply {
                         color = MainPurple.toArgb()
                         valueTextColor = Color.DKGRAY
+                        valueTextSize = 10f
+                        setDrawValues(true)
                     }
-                    val avgSet = BarDataSet(listOf(koreanAvg), "한국인 일평균 걸음수").apply {
+                    val avgSet = BarDataSet(listOf(koreanAvg), "한국인 평균").apply {
                         color = Color.LTGRAY
                         valueTextColor = Color.DKGRAY
+                        valueTextSize = 10f
+                        setDrawValues(true)
                     }
 
-                    data = BarData(mySet, avgSet)
-                    barData.barWidth = 0.4f
-                    groupBars(0f, 0.2f, 0f)
+                    val groupSpace = 0.4f
+                    val barSpace = 0.05f
+                    val barWidth = 0.2f
 
+                    data = BarData(mySet, avgSet).apply {
+                        this.barWidth = barWidth
+                    }
+
+                    val groupWidth = data.getGroupWidth(groupSpace, barSpace)
+                    xAxis.axisMinimum = 0f
+                    xAxis.axisMaximum = groupWidth
+                    groupBars(0f, groupSpace, barSpace)
+
+                    renderer = RoundedBarChartRenderer(this, animator, viewPortHandler)
                     description.isEnabled = false
                     axisRight.isEnabled = false
-                    xAxis.isEnabled = false
-                    axisLeft.setDrawGridLines(false)
+                    axisLeft.isEnabled = false
+                    xAxis.apply {
+                        isEnabled = false
+                        setDrawGridLines(false)
+                    }
 
                     legend.isEnabled = true
                     legend.form = Legend.LegendForm.SQUARE
                     legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-                    legend.horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+                    legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
                     legend.orientation = Legend.LegendOrientation.HORIZONTAL
                     legend.setDrawInside(false)
                 }
@@ -237,48 +243,59 @@ fun StepsDetailScreen(
 
         Spacer(Modifier.height(32.dp))
 
-        // ========== 4번째 차트: 한국인 평균 활동 칼로리 비교 ==========
+        // ========== 4번째 차트 ==========
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.jellbbo_walk),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-            )
+            Image(painter = painterResource(id = R.drawable.jellbbo_walk), contentDescription = null, modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.width(6.dp))
-            Text("오늘 칼로리 소모량 vs 한국인 평균", style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Pretendard))
+            Text("오늘 칼로리 소모량 vs 한국인 평균 (단위: kcal)", style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Pretendard))
         }
         Spacer(Modifier.height(8.dp))
         AndroidView(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp),
+            modifier = Modifier.fillMaxWidth().height(200.dp),
             factory = { ctx ->
                 com.github.mikephil.charting.charts.BarChart(ctx).apply {
                     val my = BarEntry(0f, todayKcal.toFloat())
                     val koreanAvgKcal = BarEntry(1f, 350f)
 
-                    val mySet = BarDataSet(listOf(my), "오늘 총 소모 칼로리").apply {
+                    val mySet = BarDataSet(listOf(my), "나").apply {
                         color = MainPurple.toArgb()
                         valueTextColor = Color.DKGRAY
+                        valueTextSize = 10f
+                        setDrawValues(true)
                     }
-                    val avgSet = BarDataSet(listOf(koreanAvgKcal), "한국인 일평균 소모").apply {
+                    val avgSet = BarDataSet(listOf(koreanAvgKcal), "한국인 평균").apply {
                         color = Color.LTGRAY
                         valueTextColor = Color.DKGRAY
+                        valueTextSize = 10f
+                        setDrawValues(true)
                     }
 
-                    data = BarData(mySet, avgSet)
-                    barData.barWidth = 0.4f
-                    groupBars(0f, 0.2f, 0f)
+                    val groupSpace = 0.4f
+                    val barSpace = 0.05f
+                    val barWidth = 0.2f
 
+                    data = BarData(mySet, avgSet).apply {
+                        this.barWidth = barWidth
+                    }
+
+                    val groupWidth = data.getGroupWidth(groupSpace, barSpace)
+                    xAxis.axisMinimum = 0f
+                    xAxis.axisMaximum = groupWidth
+                    groupBars(0f, groupSpace, barSpace)
+
+                    renderer = RoundedBarChartRenderer(this, animator, viewPortHandler)
                     description.isEnabled = false
                     axisRight.isEnabled = false
-                    xAxis.isEnabled = false
-                    axisLeft.setDrawGridLines(false)
+                    axisLeft.isEnabled = false
+                    xAxis.apply {
+                        isEnabled = false
+                        setDrawGridLines(false)
+                    }
 
                     legend.isEnabled = true
                     legend.form = Legend.LegendForm.SQUARE
                     legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-                    legend.horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+                    legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
                     legend.orientation = Legend.LegendOrientation.HORIZONTAL
                     legend.setDrawInside(false)
                 }

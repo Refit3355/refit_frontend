@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.refit.app.R
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
+import com.refit.app.util.common.PriceUtil
 import com.refit.app.util.order.OrderStatusMapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -92,29 +95,32 @@ fun OrderItemRow(
                 )
 
                 // 가격/수량
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row {
+                    Text(
+                        text = PriceUtil.formatPrice(item.price.toLong()),
+                        fontFamily = Pretendard,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.alignByBaseline()
+                    )
                     if (item.originalPrice > item.price) {
+                        Spacer(Modifier.width(4.dp))
                         Text(
-                            text = "${item.originalPrice}원",
+                            text = PriceUtil.formatPrice(item.originalPrice.toLong()),
                             fontFamily = Pretendard,
                             fontSize = 12.sp,
                             color = Color.Gray,
                             textDecoration = TextDecoration.LineThrough,
-                            modifier = Modifier.padding(end = 4.dp)
+                            modifier = Modifier.alignByBaseline()
                         )
                     }
+                    Spacer(Modifier.width(6.dp))
                     Text(
-                        text = "${item.price}원",
-                        fontFamily = Pretendard,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = " | ${item.quantity}개",
+                        text = "| ${item.quantity}개",
                         fontFamily = Pretendard,
                         fontSize = 13.sp,
                         color = Color.Gray,
-                        modifier = Modifier.padding(start = 6.dp)
+                        modifier = Modifier.alignByBaseline()
                     )
                 }
 
@@ -174,9 +180,17 @@ fun OrderItemRow(
                     .clickable {
                         cartVm.addOne(item.productId, 1)
                         scope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = "${item.productName}이 장바구니에 추가되었습니다."
+                            snackbarHostState.currentSnackbarData?.dismiss()
+
+                            val result = snackbarHostState.showSnackbar(
+                                message = "${item.productName}을 장바구니에 담았어요.",
+                                actionLabel = "바로가기",
+                                withDismissAction = true,
+                                duration = SnackbarDuration.Short
                             )
+                            if (result == SnackbarResult.ActionPerformed) {
+                                navController.navigate("cart")
+                            }
                         }
                     },
                 contentAlignment = Alignment.Center

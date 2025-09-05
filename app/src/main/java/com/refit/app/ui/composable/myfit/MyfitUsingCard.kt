@@ -25,7 +25,7 @@ import com.refit.app.ui.theme.RedCaution
 @Composable
 fun MyfitUsingCard(
     item: MemberProductItem,
-    onRecommend: () -> Unit,
+    onRecommend: (MemberProductItem) -> Unit,
     onClickItem: () -> Unit
 ) {
 
@@ -115,7 +115,7 @@ fun MyfitUsingCard(
                     .widthIn(min = 64.dp),
                 contentAlignment = Alignment.Center
             ) {
-                RecommendCircleButton(onClick = onRecommend)
+                RecommendCircleButton(onClick = { onRecommend(item) })
             }
         }
     }

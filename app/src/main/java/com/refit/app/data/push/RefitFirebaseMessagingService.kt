@@ -6,17 +6,20 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import android.provider.Settings
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.google.firebase.messaging.FirebaseMessaging
 import com.refit.app.R
+import com.refit.app.data.push.bus.PushEvents
+import com.refit.app.data.push.model.NotificationBus
 import com.refit.app.data.push.repository.NotificationRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,7 +36,6 @@ class RefitFirebaseMessagingService : FirebaseMessagingService() {
         Log.d("FCM", "new token: $token")
 
         scope.launch {
-            // ANDROID_ID 획득 (로그인 여부와 무관하게 시도; 서버에서 인증 필요 시 실패할 수 있음)
             val deviceId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
                 ?: "unknown"
 
@@ -51,10 +53,17 @@ class RefitFirebaseMessagingService : FirebaseMessagingService() {
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun onMessageReceived(msg: RemoteMessage) {
+        super.onMessageReceived(msg)
+        val unread = msg.data["unreadCount"]?.toIntOrNull()
         val d = msg.data
         val title = d["title"] ?: msg.notification?.title ?: "알림"
         val body = d["body"] ?: msg.notification?.body ?: ""
         val deeplink = d["deeplink"] ?: "app://notification"
+        if (unread != null) {
+            PushEvents.tryEmitBadge(unread)
+        } else {
+            NotificationBus.onNew()
+        }
         showSystemNotification(title, body, deeplink)
     }
 
@@ -65,7 +74,6 @@ class RefitFirebaseMessagingService : FirebaseMessagingService() {
         ensureChannel(ctx, channelId)
 
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deeplink)).apply {
-            // 앱 내부 딥링크만 처리하도록 패키지 고정
             setPackage(ctx.packageName)
         }
         val pi = PendingIntent.getActivity(
@@ -73,8 +81,14 @@ class RefitFirebaseMessagingService : FirebaseMessagingService() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        // largeIcon (컬러 비트맵)
+        val largeIconBitmap = BitmapFactory.decodeResource(ctx.resources, R.drawable.ic_launcher)
+
         val builder = NotificationCompat.Builder(ctx, channelId)
-            .setSmallIcon(R.drawable.ic_icon_alarm)
+            // smallIcon: 단색 심볼 (상태바/알림바용)
+            .setSmallIcon(R.drawable.ic_noti_small)
+            // largeIcon: 알림 카드 안쪽 큰 로고
+            .setLargeIcon(largeIconBitmap)
             .setContentTitle(title)
             .setContentText(body)
             .setAutoCancel(true)

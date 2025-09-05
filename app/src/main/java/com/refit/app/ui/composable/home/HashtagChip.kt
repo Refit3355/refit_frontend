@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.text.font.FontWeight
+import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 
 @Composable
@@ -17,14 +18,14 @@ fun HashtagChip(text: String) {
     Surface(
         shape = RoundedCornerShape(8.dp),
         color = Color.White,
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF7A3EFF))
+        border = androidx.compose.foundation.BorderStroke(1.5.dp, MainPurple)
     ) {
         Text(
             text = text,
-            color = Color(0xFF7A3EFF),
+            color = MainPurple,
             fontSize = 12.sp,
             fontFamily = Pretendard,
-            fontWeight = FontWeight.Medium,
+            fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(horizontal = 10.dp)
         )
     }

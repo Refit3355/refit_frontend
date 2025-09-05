@@ -83,21 +83,20 @@ fun MypageScreen(
 
                 Spacer(Modifier.height(12.dp))
 
-                state.orders?.recentOrder
+                val latestOrder = state.orders?.recentOrder
                     ?.maxByOrNull { order -> order.items.maxOfOrNull { it.createdAt } ?: "" }
-                    ?.let { latestOrder ->
-                        RecentOrderSection(
-                            order = latestOrder,
-                            onClickAll = { navController.navigate("orders") },
-                            vm = vm,
-                            cartVm = cartVm,
-                            onCartChanged = onCartChanged,
-                            navController = navController,
-                            snackbarHostState = snackbarHostState,
-                            scope = scope
-                        )
-                        Spacer(Modifier.height(12.dp))
-                    }
+
+                RecentOrderSection(
+                    order = latestOrder,
+                    onClickAll = { navController.navigate("orders") },
+                    vm = vm,
+                    cartVm = cartVm,
+                    onCartChanged = onCartChanged,
+                    navController = navController,
+                    snackbarHostState = snackbarHostState,
+                    scope = scope
+                )
+                Spacer(Modifier.height(12.dp))
 
                 MypageMenuSection(navController = navController)
             }

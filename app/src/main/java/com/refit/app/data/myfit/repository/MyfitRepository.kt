@@ -44,4 +44,10 @@ class MyfitRepository(
             throw HttpException(res)
         }
     }
+
+    suspend fun getRecommendations(
+        memberProductId: Long,
+        topKPerBase: Int = 35,
+        finalLimit: Int = 10
+    ) = api.getRecommendations(memberProductId, topKPerBase, finalLimit)
 }

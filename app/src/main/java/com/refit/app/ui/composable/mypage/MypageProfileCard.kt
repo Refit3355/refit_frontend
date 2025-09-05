@@ -3,7 +3,6 @@ package com.refit.app.ui.composable.mypage
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -41,7 +40,6 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 
-
 @Composable
 fun MypageProfileCard(
     nickname: String,
@@ -56,7 +54,6 @@ fun MypageProfileCard(
     val savedUrl = UserPrefs.getProfileUrl()
     val finalUrl = profileUrl ?: savedUrl
 
-    // 갤러리/카메라 런처 준비
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -67,11 +64,11 @@ fun MypageProfileCard(
                 val body = MultipartBody.Part.createFormData("profileImage", f.name, requestFile)
                 vm.updateProfileImage(body)
             } ?: run {
-                // 파일 변환 실패 처리
                 Log.e("Profile", "Failed to convert URI to File")
             }
         }
     }
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -85,40 +82,33 @@ fun MypageProfileCard(
             modifier = Modifier.padding(20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 프로필 이미지 박스
+            // 프로필 이미지
             Box(
                 modifier = Modifier
                     .size(80.dp)
                     .clickable { launcher.launch("image/*") },
                 contentAlignment = Alignment.BottomEnd
             ) {
-                // 프사 부분
-                Box(
+                AsyncImage(
+                    model = finalUrl,
+                    contentDescription = null,
                     modifier = Modifier
-                        .size(80.dp)
-                        .clickable { launcher.launch("image/*") },
-                    contentAlignment = Alignment.BottomEnd
-                ) {
-                    AsyncImage(
-                        model = finalUrl,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(CircleShape)
-                            .border(2.dp, MainPurple, CircleShape)
-                            .background(Color.White),
-                        contentScale = ContentScale.Crop
-                    )
-                    Icon(
-                        painter = painterResource(R.drawable.ic_camera),
-                        contentDescription = "프로필 변경",
-                        tint = Color.Unspecified,
-                        modifier = Modifier
-                            .size(36.dp)
-                            .offset(x = 8.dp, y = 8.dp)
-                    )
-                }
+                        .fillMaxSize()
+                        .clip(CircleShape)
+                        .border(2.dp, MainPurple, CircleShape)
+                        .background(Color.White),
+                    contentScale = ContentScale.Crop
+                )
+                Icon(
+                    painter = painterResource(R.drawable.ic_camera),
+                    contentDescription = "프로필 변경",
+                    tint = Color.Unspecified,
+                    modifier = Modifier
+                        .size(36.dp)
+                        .offset(x = 8.dp, y = 8.dp)
+                )
             }
+
             Spacer(Modifier.width(12.dp))
 
             // 오른쪽 정보
@@ -127,14 +117,32 @@ fun MypageProfileCard(
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = nickname,
-                    fontFamily = Pretendard,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp,
-                    color = Color.Black
-                )
+                // 닉네임 + 기본 정보 수정 버튼
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = nickname,
+                        fontFamily = Pretendard,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    )
+                    IconButton(
+                        onClick = onArrowClick,
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = "이동",
+                            tint = Color.Gray
+                        )
+                    }
+                }
+
                 Spacer(Modifier.height(8.dp))
+
+                // 해시태그
                 Row(
                     modifier = Modifier.horizontalScroll(rememberScrollState()),
                     verticalAlignment = Alignment.CenterVertically
@@ -144,7 +152,10 @@ fun MypageProfileCard(
                         if (idx != tags.lastIndex) Spacer(Modifier.width(8.dp))
                     }
                 }
+
                 Spacer(Modifier.height(12.dp))
+
+                // 내 타입 수정 버튼
                 Box(
                     modifier = Modifier
                         .height(28.dp)
@@ -163,14 +174,7 @@ fun MypageProfileCard(
                     )
                 }
             }
-
-            IconButton(onClick = onArrowClick) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "이동",
-                    tint = Color.Gray
-                )
-            }
         }
     }
 }
+

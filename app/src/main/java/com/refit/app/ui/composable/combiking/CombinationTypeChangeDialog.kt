@@ -1,10 +1,13 @@
 package com.refit.app.ui.composable.combiking
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,14 +28,19 @@ fun CombinationTypeChangeDialog(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0x66000000)),
+            .background(Color(0x66000000))
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) { onDismiss() },
         contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier
                 .width(280.dp)
                 .background(Color.White, shape = RoundedCornerShape(16.dp))
-                .padding(24.dp),
+                .padding(24.dp)
+                .clickable(enabled = false) {},
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // 상단 느낌표 아이콘
