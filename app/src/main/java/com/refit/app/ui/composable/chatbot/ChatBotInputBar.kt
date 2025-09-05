@@ -47,7 +47,7 @@ fun ChatBotInputBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 18.dp, vertical = 8.dp),
+            .padding(horizontal = 18.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
@@ -79,7 +79,6 @@ fun ChatBotInputBar(
                     .heightIn(min = 40.dp, max = 60.dp)
                     .verticalScroll(scroll),
                 decorationBox = { inner ->
-                    // 내부 패딩 완전 최소화
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
