@@ -76,4 +76,8 @@ class MeRepository(
         )
     }
 
+    // 구매 확정
+    suspend fun confirmReceipt(orderItemId: Long): Result<UpdateOrderStatusResponse> = runCatching {
+        meApi.confirmReceipt(orderItemId)
+    }
 }

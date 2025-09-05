@@ -152,6 +152,7 @@ fun OrderItemRow(
                 if (item.status == 6) {
                     var showDialog by remember { mutableStateOf(false) }
 
+                    // 교환/반품 다이얼로그
                     if (showDialog) {
                         ExchangeReturnReasonDialog(
                             orderItemId = item.orderItemId,
@@ -161,14 +162,27 @@ fun OrderItemRow(
                         )
                     }
 
-                    MyOrderActionButton(
-                        text = "교환/반품",
-                        modifier = Modifier
-                            .width(80.dp)
-                            .height(24.dp),
-                        onClick = { showDialog = true }
-                    )
+                    Row {
+                        MyOrderActionButton(
+                            text = "구매 확정",
+                            modifier = Modifier
+                                .width(90.dp)
+                                .height(28.dp)
+                                .padding(top = 6.dp, end = 8.dp),
+                            onClick = { vm.confirmReceipt(item.orderItemId) }
+                        )
+
+                        MyOrderActionButton(
+                            text = "교환/반품",
+                            modifier = Modifier
+                                .width(90.dp)
+                                .height(28.dp)
+                                .padding(top = 6.dp),
+                            onClick = { showDialog = true }
+                        )
+                    }
                 }
+
             }
 
             Box(
