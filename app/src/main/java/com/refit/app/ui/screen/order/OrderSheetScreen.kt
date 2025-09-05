@@ -33,6 +33,7 @@ import com.refit.app.ui.theme.Pretendard
 import java.text.DecimalFormat
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.ui.unit.Dp
 
 @Composable
 fun OrderSheetScreen(
@@ -150,7 +151,6 @@ fun OrderSheetScreen(
 
                     // 5) 약관 동의
                     item { SectionTerms(ui.consentTerms, onToggle = vm::toggleTerms) }
-                    item { Spacer(Modifier.height(8.dp)) }
                 }
             }
         }
@@ -172,6 +172,15 @@ private val BodyTextStyle = TextStyle(
 private val moneyFormatter = DecimalFormat("#,###")
 private fun won(n: Long) = moneyFormatter.format(n)
 
+private fun formatKoreanPhone(raw: String): String {
+    val digits = raw.filter { it.isDigit() }
+    return when (digits.length) {
+        11 -> "${digits.substring(0,3)}-${digits.substring(3,7)}-${digits.substring(7,11)}"
+        10 -> "${digits.substring(0,3)}-${digits.substring(3,6)}-${digits.substring(6,10)}"
+        else -> raw
+    }
+}
+
 /* ================= 공통 섹션 요소 ================= */
 
 @Composable
@@ -183,15 +192,18 @@ private fun SectionTitle(text: String) {
     )
 }
 
-/** 각 영역을 이미지처럼 두꺼운 회색 블럭으로 구분 */
+// 각 영역을 이미지처럼 두꺼운 회색 블럭으로 구분
 @Composable
-private fun SectionSeparator() {
+private fun SectionSeparator(
+    topSpacing: Dp = 16.dp,
+    blockHeight: Dp = 8.dp
+) {
     Spacer(
         Modifier
             .fillMaxWidth()
-            .height(8.dp)
+            .padding(top = topSpacing)
+            .height(blockHeight)
             .background(Color(0xFFF5F5F7))
-            .padding(vertical = 20.dp)
     )
 }
 
@@ -199,7 +211,6 @@ private fun SectionSeparator() {
 
 @Composable
 private fun SectionShipping(info: ShippingInfo) {
-    // 얇은 연회색 테두리 + 둥근 모서리 + 내부 흰색 카드
     Column(
         Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -212,7 +223,8 @@ private fun SectionShipping(info: ShippingInfo) {
             .background(Color.White)
             .padding(16.dp)
     ) {
-        Text("${info.receiverName} · ${info.phone}", style = BodyTextStyle)
+        val phone = formatKoreanPhone(info.phone)
+        Text("${info.receiverName} · $phone", style = BodyTextStyle)
         Spacer(Modifier.height(6.dp))
         Text("${info.roadAddress} ${info.detailAddress} [${info.zipcode}]", style = BodyTextStyle)
         info.memo?.let {
@@ -326,11 +338,11 @@ private fun SectionAmountBlock(summary: AmountSummary) {
 
     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
         // 상품금액(정가 총액)
-        AmountRow("상품금액(정가)", "${won(productTotal)} 원")
+        AmountRow("상품금액 (정가)", "${won(productTotal)} 원")
         // 할인금액
         AmountRow("할인금액", "-${won(summary.discount)} 원")
         // 주문금액(할인가 총액)
-        AmountRow("주문금액(할인가)", "${won(summary.goodsAmount)} 원")
+        AmountRow("주문금액 (할인가)", "${won(summary.goodsAmount)} 원")
 
         // 배송비는 그대로 표기
         AmountRow("배송비", "${won(summary.deliveryFee)} 원")
@@ -370,7 +382,12 @@ private fun AmountRow(label: String, value: String) {
 
 @Composable
 private fun SectionTerms(checked: Boolean, onToggle: (Boolean) -> Unit) {
-    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .padding(top = 12.dp)
+    ) {
         Row(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
