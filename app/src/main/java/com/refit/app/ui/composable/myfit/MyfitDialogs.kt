@@ -25,15 +25,13 @@ fun ConfirmDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-
         icon = {
             Image(
-                    painter = painterResource(id = R.drawable.ic_exclamation_fill),
-                    contentDescription = null,
-                    modifier = Modifier.size(60.dp)
-                )
+                painter = painterResource(id = R.drawable.ic_exclamation_fill),
+                contentDescription = null,
+                modifier = Modifier.size(60.dp)
+            )
         },
-
         title = {
             Text(
                 text = title,
@@ -42,7 +40,6 @@ fun ConfirmDialog(
                 modifier = Modifier.fillMaxWidth()
             )
         },
-
         text  = {
             Text(
                 text = text,
@@ -52,16 +49,14 @@ fun ConfirmDialog(
                 modifier = Modifier.fillMaxWidth()
             )
         },
-
         confirmButton = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.Center,
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 취소 버튼 (연한 회색)
                 Button(
                     onClick = onDismiss,
                     shape = RoundedCornerShape(12.dp),
@@ -70,12 +65,11 @@ fun ConfirmDialog(
                         contentColor = Color.Black
                     ),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
-                    modifier = Modifier.height(44.dp)
+                    modifier = Modifier
+                        .height(44.dp)
+                        .weight(1f)
                 ) { Text("취소") }
 
-                Spacer(Modifier.width(12.dp))
-
-                // 사용 등록 버튼 (보라)
                 Button(
                     onClick = onConfirm,
                     shape = RoundedCornerShape(12.dp),
@@ -83,14 +77,13 @@ fun ConfirmDialog(
                         containerColor = MainPurple,
                         contentColor = Color.White
                     ),
-                    modifier = Modifier.height(44.dp)
+                    modifier = Modifier
+                        .height(44.dp)
+                        .weight(1f)
                 ) { Text(confirmText) }
             }
         },
-
-        // dismissButton 은 쓰지 않는다 (기본 배치가 우측 정렬이기 때문)
         dismissButton = null,
-
         shape = RoundedCornerShape(16.dp),
         containerColor = Color.White
     )
