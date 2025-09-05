@@ -1,6 +1,7 @@
 package com.refit.app.ui.screen.myfit
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
@@ -38,7 +40,8 @@ fun MyfitRegisterScreen(
     navController: NavController? = null,
     repo: MyfitRepository = MyfitRepository()
 ) {
-    // 상태
+    val context = LocalContext.current
+
     var type by remember { mutableStateOf("beauty") }
     var productName by remember { mutableStateOf("") }
     var brandName by remember { mutableStateOf("") }
@@ -65,11 +68,10 @@ fun MyfitRegisterScreen(
                 (recommendedDays.toIntOrNull() ?: 0) > 0 &&
                 (selectedCategory != null)
 
-    // 여백/토큰
     val PAGE_HP = 28.dp
-    val SECTION_GAP = 26.dp           // 블록(제목+입력) 사이 간격: 큼
-    val INNER_GAP  = 6.dp             // 블록 내부(제목↔입력) 간격: 작게
-    val BOTTOM_ACTION_GAP = 36.dp     // 카테고리 ↔ 등록 버튼 간격
+    val SECTION_GAP = 26.dp
+    val INNER_GAP  = 6.dp
+    val BOTTOM_ACTION_GAP = 36.dp
 
     val scroll = rememberScrollState()
 
@@ -82,30 +84,18 @@ fun MyfitRegisterScreen(
             .padding(horizontal = PAGE_HP, vertical = 27.dp),
         verticalArrangement = Arrangement.spacedBy(SECTION_GAP)
     ) {
-        // 상품 타입
         Section(title = "상품 타입", innerGap = INNER_GAP) {
             TypeSegment(current = type, onChange = { type = it }, spacing = 8.dp)
         }
 
-        // 상품명
         Section(title = "상품명", innerGap = INNER_GAP) {
-            SmallOutlinedField(
-                value = productName,
-                onValueChange = { productName = it },
-                placeholder = "상품명 입력"
-            )
+            SmallOutlinedField(value = productName, onValueChange = { productName = it }, placeholder = "상품명 입력")
         }
 
-        // 브랜드명
         Section(title = "브랜드명", innerGap = INNER_GAP) {
-            SmallOutlinedField(
-                value = brandName,
-                onValueChange = { brandName = it },
-                placeholder = "브랜드명 입력"
-            )
+            SmallOutlinedField(value = brandName, onValueChange = { brandName = it }, placeholder = "브랜드명 입력")
         }
 
-        // 권장 소비기한
         Section(title = "권장 소비기한", innerGap = INNER_GAP) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 SmallOutlinedField(
@@ -116,12 +106,10 @@ fun MyfitRegisterScreen(
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(Modifier.width(10.dp))
-                Text("일", style = MaterialTheme.typography.titleMedium, color = GreyInput,
-                    fontSize = 18.sp)
+                Text("일", style = MaterialTheme.typography.titleMedium, color = GreyInput, fontSize = 18.sp)
             }
         }
 
-        // 상품 개봉일
         Section(title = "상품 개봉일", innerGap = INNER_GAP) {
             SpinnerDatePicker(
                 initial = startDate,
@@ -131,20 +119,16 @@ fun MyfitRegisterScreen(
             )
         }
 
-        // 효과
         Section(title = "효과", innerGap = INNER_GAP) {
             EffectSectionedSelector(
                 type = type,
                 selected = selectedEffects,
                 onToggle = { id ->
-                    selectedEffects =
-                        if (selectedEffects.contains(id)) selectedEffects - id
-                        else selectedEffects + id
+                    selectedEffects = if (selectedEffects.contains(id)) selectedEffects - id else selectedEffects + id
                 }
             )
         }
 
-        // 카테고리
         Section(title = "카테고리", innerGap = INNER_GAP) {
             CategoryDropdown(
                 items = categoriesForType,
@@ -172,8 +156,19 @@ fun MyfitRegisterScreen(
                 isLoading = true; error = null
                 scope.launch {
                     runCatching { repo.createCustom(req) }
-                        .onSuccess { isLoading = false; navController?.popBackStack() }
-                        .onFailure { e -> isLoading = false; error = e.message ?: "등록 실패" }
+                        .onSuccess {
+                            isLoading = false
+                            Toast.makeText(context, "등록이 완료되었습니다.", Toast.LENGTH_SHORT).show()
+                            navController?.previousBackStackEntry?.savedStateHandle?.apply {
+                                set("myfit_refresh", true)
+                                set("myfit_switch_to_using", true)
+                            }
+                            navController?.popBackStack()
+                        }
+                        .onFailure { e ->
+                            isLoading = false
+                            error = e.message ?: "등록 실패"
+                        }
                 }
             },
             enabled = !isLoading && isValid(),
@@ -181,18 +176,15 @@ fun MyfitRegisterScreen(
             colors = ButtonDefaults.buttonColors(
                 containerColor = MainPurple,
                 contentColor = Color.White,
-                disabledContainerColor = GreyInput.copy(alpha = 0.7f), // 비활성 배경
-                disabledContentColor = Color.White    // 비활성 텍스트/아이콘
+                disabledContainerColor = GreyInput.copy(alpha = 0.7f),
+                disabledContentColor = Color.White
             ),
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .fillMaxWidth()
                 .height(52.dp)
-        ) {
-            Text(
-                text = if (isLoading) "등록 중..." else "등록하기", fontSize = 18.sp
-            )
-        }
+        ) { Text(if (isLoading) "등록 중..." else "등록하기", fontSize = 18.sp) }
+
         Spacer(Modifier.height(12.dp))
     }
 }
