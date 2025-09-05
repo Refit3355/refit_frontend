@@ -39,7 +39,7 @@ fun MyfitProductCard(
                 Text(item.productName, style = MaterialTheme.typography.labelMedium, maxLines = 2,
                     minLines = 2, overflow = TextOverflow.Ellipsis, color = DarkBlack, fontSize = 13.sp)
                 Spacer(Modifier.height(4.dp))
-                Text("구매 일시: ${item.purchaseDate}  /  ${item.itemCount}개", style = MaterialTheme.typography.bodySmall, color = GreyText)
+                Text("구매 일시: ${item.purchaseDate}  /  ${item.remainingCount}개", style = MaterialTheme.typography.bodySmall, color = GreyText)
             }
             Spacer(Modifier.width(12.dp))
             RegisterCircleButton(onClick = onStartUsing)

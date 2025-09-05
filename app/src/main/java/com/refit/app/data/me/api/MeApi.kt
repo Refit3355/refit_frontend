@@ -51,4 +51,8 @@ interface MeApi {
         @Path("orderItemId") orderItemId: Long,
         @Body req: PartialCancelRequestDto
     ): PartialCancelResponseDto
+
+    @POST("/orders/{orderItemId}/confirm")
+    @Headers("Requires-Auth: true")
+    suspend fun confirmReceipt(@Path("orderItemId") orderItemId: Long): UpdateOrderStatusResponse
 }

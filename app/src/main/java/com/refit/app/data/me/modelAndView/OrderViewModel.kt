@@ -153,4 +153,34 @@ class OrderViewModel(
             }
         }
     }
+
+    // 구매 확정
+    fun confirmReceipt(orderItemId: Long) {
+        viewModelScope.launch {
+            val result = repo.confirmReceipt(orderItemId)
+            _state.value = result.fold(
+                onSuccess = { res: UpdateOrderStatusResponse ->
+                    val current = _state.value.orders
+                    val updated = current?.copy(
+                        recentOrder = current.recentOrder.map { order ->
+                            order.copy(
+                                items = order.items.map { item ->
+                                    if (item.orderItemId == orderItemId) {
+                                        item.copy(status = 11) // 11 = 구매확정
+                                    } else item
+                                }
+                            )
+                        }
+                    )
+                    _state.value.copy(
+                        orders = updated,
+                        actionMessage = (res.message ?: "").ifBlank { "구매가 확정되었습니다." }
+                    )
+                },
+                onFailure = {
+                    _state.value.copy(actionMessage = "구매 확정 실패: ${it.message}")
+                }
+            )
+        }
+    }
 }
