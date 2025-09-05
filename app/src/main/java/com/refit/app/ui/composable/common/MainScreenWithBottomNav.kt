@@ -80,6 +80,8 @@ import com.refit.app.ui.screen.CombinationRegisterScreen
 import com.refit.app.ui.screen.ProductSelectScreen
 import com.refit.app.data.order.model.decodeDraftOrderRequest
 import com.refit.app.ui.screen.ResultRouterScreen
+import com.refit.app.ui.screen.ChatbotScreen
+import com.refit.app.ui.screen.ProductListScreen
 import com.refit.app.ui.screen.order.OrderSheetScreen
 import com.refit.app.ui.screen.order.PayFailScreen
 import com.refit.app.ui.screen.order.TossWebViewScreen
@@ -503,6 +505,8 @@ fun MainScreenWithBottomNav(
                     )
                 }
 
+                // 챗봇
+                composable("chatbot") { ChatbotScreen(navController) }
 
                 // 문자열 인코딩 유틸
                 fun enc(s: String) = java.net.URLEncoder.encode(s, "utf-8")
@@ -638,6 +642,26 @@ fun MainScreenWithBottomNav(
                         val code = backStackEntry.arguments?.getString("code") ?: "UNKNOWN"
                         val message = backStackEntry.arguments?.getString("message") ?: ""
                         PayFailScreen(navController = navController, code = code, message = message)
+                    }
+
+                    composable(
+                        route = "productList?bhType={bhType}&effectId={effectId}&sort={sort}",
+                        arguments = listOf(
+                            navArgument("bhType")  { type = NavType.IntType;  defaultValue = 0 },
+                            navArgument("effectId"){ type = NavType.IntType;  defaultValue = -1 },
+                            navArgument("sort")    { type = NavType.StringType; defaultValue = "latest" },
+                        )
+                    ) { backStackEntry ->
+                        val bhType   = backStackEntry.arguments?.getInt("bhType") ?: 0
+                        val effectId = backStackEntry.arguments?.getInt("effectId") ?: -1
+                        val sort     = backStackEntry.arguments?.getString("sort") ?: "latest"
+
+                        ProductListScreen(
+                            navController = navController,
+                            bhType = bhType,
+                            effectId = effectId,
+                            sort = sort
+                        )
                     }
                 }
             }
