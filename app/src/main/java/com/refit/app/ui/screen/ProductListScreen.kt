@@ -39,10 +39,10 @@ fun ProductListScreen(
     sort: String = "latest"
 ) {
     // 간단 DI 대체: Api → Repo → UseCase → ViewModel(factory)
-    val api  = remember { RetrofitInstance.create(ChatbotApi::class.java) }                // :contentReference[oaicite:8]{index=8}
-    val repo = remember { ChatbotRepositoryImpl(api) }                                     // :contentReference[oaicite:9]{index=9}
-    val useCase = remember { GetProductsUseCase(repository = repo) }                       // :contentReference[oaicite:10]{index=10}
-    val vm: ProductViewModel = viewModel(factory = remember { ProductViewModelFactory(useCase) }) // :contentReference[oaicite:11]{index=11}
+    val api  = remember { RetrofitInstance.create(ChatbotApi::class.java) }
+    val repo = remember { ChatbotRepositoryImpl(api) }
+    val useCase = remember { GetProductsUseCase(repository = repo) }
+    val vm: ProductViewModel = viewModel(factory = remember { ProductViewModelFactory(useCase) })
 
     val state by vm.uiState.collectAsState()
     var currentSort by rememberSaveable { mutableStateOf(sort) }
@@ -74,7 +74,6 @@ fun ProductListScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
         ) {
             // 상단: 총 개수 + 정렬 버튼
             Row(
@@ -123,7 +122,7 @@ fun ProductListScreen(
             // 그리드 (끝에서 onLoadMore 트리거)
             ProductGrid(
                 navController = navController,
-                items = state.items,                 // contentReference[oaicite:12]{index=12}
+                items = state.items,
                 isLoading = state.isLoading,
                 hasMore = state.hasMore,
                 error = state.error,
@@ -136,7 +135,7 @@ fun ProductListScreen(
                 },
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 8.dp, vertical = 8.dp)
+                    .padding(horizontal = 8.dp)
             )
         }
     }
@@ -160,8 +159,6 @@ fun ProductListScreen(
         )
     }
 }
-
-/* ───────────────────── ViewModel Factory ───────────────────── */
 
 private class ProductViewModelFactory(
     private val useCase: GetProductsUseCase
