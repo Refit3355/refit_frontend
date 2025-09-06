@@ -1,8 +1,10 @@
 package com.refit.app.ui.composable.health
 
 import android.graphics.Canvas
+import android.graphics.LinearGradient
 import android.graphics.Path
 import android.graphics.RectF
+import android.graphics.Shader
 import com.github.mikephil.charting.animation.ChartAnimator
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.highlight.Highlight
@@ -40,17 +42,37 @@ class RoundedBarChartRenderer(
         trans.pointValuesToPixel(buffer.buffer)
 
         var j = 0
-        while (j < buffer.size()) {
-            val left = buffer.buffer[j]
-            val top = buffer.buffer[j + 1]
-            val right = buffer.buffer[j + 2]
+        var barIndex = 0
+        val gradients = dataSet.gradientColors    // gradientColors가 비어있으면 단색 사용
+
+        while (j < buffer.buffer.size) {
+            val left   = buffer.buffer[j]
+            val top    = buffer.buffer[j + 1]
+            val right  = buffer.buffer[j + 2]
             val bottom = buffer.buffer[j + 3]
 
             barRect.set(left, top, right, bottom)
-            drawRoundedBar(c, dataSet.getColor(j / 4), barRect, baseRadiusPx, mRenderPaint)
+
+            // ── 그라데이션/단색 결정
+            if (gradients != null && gradients.isNotEmpty()) {
+                val g = gradients[barIndex % gradients.size]
+                mRenderPaint.shader = LinearGradient(
+                    (left + right) / 2f, top,
+                    (left + right) / 2f, bottom,
+                    g.startColor, g.endColor,
+                    Shader.TileMode.CLAMP
+                )
+            } else {
+                mRenderPaint.shader = null
+                mRenderPaint.color = dataSet.getColor(barIndex)
+            }
+
+            drawRoundedBar(c, barRect, baseRadiusPx, mRenderPaint)
 
             if (drawBorder) c.drawRect(barRect, mBarBorderPaint)
+
             j += 4
+            barIndex++
         }
     }
 
@@ -58,49 +80,48 @@ class RoundedBarChartRenderer(
         val barData = mChart.barData
 
         for (high in indices) {
-            val set = barData.getDataSetByIndex(high.dataSetIndex)
+            val set = barData.getDataSetByIndex(high.dataSetIndex) ?: continue
+            if (!set.isHighlightEnabled) continue
 
-            if (set == null || !set.isHighlightEnabled) continue
-
-            val e: BarEntry? = set.getEntryForXValue(high.x, high.y)
+            val e: BarEntry = set.getEntryForXValue(high.x, high.y) ?: continue
             if (!isInBoundsX(e, set)) continue
 
             val trans = mChart.getTransformer(set.axisDependency)
 
+            // 하이라이트는 단색
+            mHighlightPaint.shader = null
             mHighlightPaint.color = set.highLightColor
             mHighlightPaint.alpha = set.highLightAlpha
 
-            val y1 = e!!.y
+            val y1 = e.y
             val y2 = 0f
 
             prepareBarHighlight(e.x, y1, y2, barData.barWidth / 2f, trans)
-            val barRect = mBarRect
+            val rect = mBarRect
 
-            drawRoundedBar(c, set.highLightColor, barRect, baseRadiusPx, mHighlightPaint)
+            drawRoundedBar(c, rect, baseRadiusPx, mHighlightPaint)
 
-            high.setDraw(barRect.centerX(), barRect.top)
+            high.setDraw(rect.centerX(), rect.top)
         }
     }
 
     private fun drawRoundedBar(
         c: Canvas,
-        color: Int,
         rect: RectF,
         baseRadius: Float,
         paint: android.graphics.Paint
     ) {
         val h = rect.height()
         val r = max(0f, min(baseRadius, h / 2f - 1f))
-        paint.color = color
 
         if (r <= 0f) {
             c.drawRect(rect, paint)
         } else {
             val radii = floatArrayOf(
-                r, r,  // 좌상
-                r, r,  // 우상
-                0f, 0f, // 우하
-                0f, 0f  // 좌하
+                r, r,  // top-left
+                r, r,  // top-right
+                r, r,// bottom-right
+                r, r // bottom-left
             )
             path.reset()
             path.addRoundRect(rect, radii, Path.Direction.CW)

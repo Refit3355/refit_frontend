@@ -8,8 +8,10 @@ import androidx.compose.ui.unit.dp
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.model.GradientColor
 import com.refit.app.ui.composable.health.ChartBox
 import com.refit.app.ui.composable.health.RoundedBarChartRenderer
+import com.refit.app.ui.theme.LightPurple
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.util.common.RoundCommaValueFormatter
 import com.refit.app.util.health.ChartUtils
@@ -31,15 +33,30 @@ fun KcalChart(
     ) { ctx ->
         com.github.mikephil.charting.charts.BarChart(ctx).apply {
             val barDataSet = BarDataSet(kcalEntries, "").apply {
+                // 값 라벨 필요하면 유지/조정
                 setDrawValues(true)
                 setValueTextColor(Color.DarkGray.toArgb())
-                setValueTextSize(12f)
-                colors = kcalEntries.mapIndexed { idx, _ ->
-                    if (idx == kcalEntries.size - 1) MainPurple.toArgb() else Color.LightGray.toArgb()
+                setValueTextSize(10f)
+                valueFormatter = RoundCommaValueFormatter()
+
+                val neutralTop    = Color(0xFFDADADA)
+                val neutralBottom = Color(0xFFF0F0F0)
+
+                val accentTop     = MainPurple.copy(0.4f)
+                val accentBottom  = MainPurple.copy(0.4f)
+
+                gradientColors = kcalEntries.mapIndexed { idx, _ ->
+                    if (idx == kcalEntries.lastIndex) {
+                        GradientColor(accentTop.toArgb(), accentBottom.toArgb())
+                    } else {
+                        GradientColor(neutralTop.toArgb(), neutralBottom.toArgb())
+                    }
                 }
+
                 valueFormatter = RoundCommaValueFormatter()
             }
-            data = BarData(barDataSet).apply { barWidth = 0.4f }
+            data = BarData(barDataSet).apply { barWidth = 0.82f }
+            setFitBars(true)
             renderer = RoundedBarChartRenderer(this, animator, viewPortHandler)
             description.isEnabled = false
             legend.isEnabled = false
@@ -60,9 +77,13 @@ fun KcalChart(
             xAxis.apply {
                 position = XAxis.XAxisPosition.BOTTOM
                 setDrawGridLines(false)
+                setDrawAxisLine(false)
                 granularity = 1f
+                yOffset = 6f
                 setTextColor(Color.DarkGray.toArgb())
                 valueFormatter = indexFormatter
+                textSize = 12f
+                typeface = pretendardBold
             }
             if (chartVisible) {
                 animateY(1000, com.github.mikephil.charting.animation.Easing.EaseOutCubic)

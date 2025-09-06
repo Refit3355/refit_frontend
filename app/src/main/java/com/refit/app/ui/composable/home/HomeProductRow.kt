@@ -27,7 +27,7 @@ fun HomeProductRow(
 
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
         modifier = modifier.heightIn(min = 270.dp)
     ) {
         items(products.take(10)) { p ->

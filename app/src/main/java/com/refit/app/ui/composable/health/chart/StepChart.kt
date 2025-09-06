@@ -30,16 +30,18 @@ fun StepChart(
         onVisible = onVisible
     ) { ctx ->
         com.github.mikephil.charting.charts.BarChart(ctx).apply {
+
             val barDataSet = BarDataSet(stepEntries, "").apply {
                 setDrawValues(true)
                 setValueTextColor(Color.DarkGray.toArgb())
-                setValueTextSize(12f)
+                setValueTextSize(10f)
                 colors = stepEntries.mapIndexed { idx, _ ->
                     if (idx == stepEntries.size - 1) MainPurple.toArgb() else Color.LightGray.toArgb()
                 }
                 valueFormatter = RoundCommaValueFormatter()
             }
-            data = BarData(barDataSet).apply { barWidth = 0.4f }
+            data = BarData(barDataSet).apply { barWidth = 0.82f }
+            setFitBars(true)
             renderer = RoundedBarChartRenderer(this, animator, viewPortHandler)
             description.isEnabled = false
             legend.isEnabled = false
