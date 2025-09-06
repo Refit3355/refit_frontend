@@ -1,21 +1,24 @@
 package com.refit.app.ui.screen
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.ImageLoader
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
 import com.refit.app.R
 import com.refit.app.data.product.model.Product
+import com.refit.app.network.UserPrefs
+import com.refit.app.ui.composable.health.GifCard
 import com.refit.app.ui.composable.product.ProductGrid
-import com.refit.app.ui.theme.Pretendard
+import com.refit.app.ui.theme.MainPurple
 
 @Composable
 fun RecommendationScreen(
@@ -29,47 +32,103 @@ fun RecommendationScreen(
             ?: emptyList()
     }
 
-    val (bannerRes, bannerText) = when (type) {
-        0 -> R.drawable.jellbbo_walk to "걸음 수가 많은 당신을 위한 피부 솔루션"
-        1 -> R.drawable.jellbbo_sleep to "수면 패턴에 맞춘 뷰티 케어"
-        2 -> R.drawable.jellbbo_sunny to "날씨에 맞춘 헤어 솔루션"
-        3 -> R.drawable.jellbbo_doctor to "생활 리듬에 맞춘 건강 케어"
-        4 -> R.drawable.jellbbo_default to "사용 완료한 제품과 효과가 비슷한 상품들이에요"
-        5 -> R.drawable.jellbbo_default to "사용중인 제품과 효과가 비슷한 상품들이에요"
-        else -> R.drawable.jellbbo_default to "추천 상품"
-    }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val imageLoader = ImageLoader.Builder(context)
+        .components {
+            add(GifDecoder.Factory())
+            add(ImageDecoderDecoder.Factory())
+        }
+        .build()
+
+    val nickname = UserPrefs.getNickname() ?: "사용자"
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        // 배너
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(140.dp)
-                .padding(horizontal = 16.dp)
-                .background(
-                    color = androidx.compose.ui.graphics.Color(0xFFE9E4F2),
-                    shape = RoundedCornerShape(12.dp)
+        // ---------------- GIF 카드 ----------------
+        when (type) {
+            0 -> {
+                // 걸음 수 기반 추천
+                GifCard(
+                    nickname = nickname,
+                    imageLoader = imageLoader,
+                    gifRes = R.raw.walking_jellbbo,
+                    message = buildAnnotatedString {
+                        append("${nickname}님의 ")
+                        withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                            append("발걸음 속도")
+                        }
+                        append("에\n")
+                        append("맞춘 추천 상품들이에요.")
+                    }
                 )
-                .padding(12.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = bannerRes),
-                    contentDescription = "배너 이미지",
-                    modifier = Modifier.size(100.dp)
+            }
+
+            1 -> {
+                // 수면 기반 추천
+                GifCard(
+                    nickname = nickname,
+                    imageLoader = imageLoader,
+                    gifRes = R.raw.sleeping_jellbbo,
+                    message = buildAnnotatedString {
+                        append("${nickname}님의 ")
+                        withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                            append("수면 시간")
+                        }
+                        append("을 고려한\n")
+                        append("상품들을 준비해 보았어요.")
+                    }
                 )
+            }
 
-                Spacer(Modifier.width(12.dp))
+            2 -> {
+                // 날씨 기반 추천
+                GifCard(
+                    nickname = nickname,
+                    imageLoader = imageLoader,
+                    gifRes = R.raw.weather_jellbbo,
+                    message = buildAnnotatedString {
+                        append("오늘의 ")
+                        withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                            append("날씨")
+                        }
+                        append("에 필요한\n")
+                        append("상품들을 만나보세요!")
+                    }
+                )
+            }
 
-                Text(
-                    text = bannerText,
-                    style = MaterialTheme.typography.titleMedium.copy(fontFamily = Pretendard),
-                    modifier = Modifier.weight(1f)
+            3 -> {
+                // 생활 리듬 기반 추천
+                GifCard(
+                    nickname = nickname,
+                    imageLoader = imageLoader,
+                    gifRes = R.raw.rhythming_jellbbo,
+                    message = buildAnnotatedString {
+                        append("${nickname}님의 ")
+                        withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                            append("생활 리듬")
+                        }
+                        append("을 고려한\n")
+                        append("건강 관리 솔루션이에요.")
+                    }
+                )
+            }
+
+            else -> {
+                // 기본: 수면 카드 재사용
+                GifCard(
+                    nickname = nickname,
+                    imageLoader = imageLoader,
+                    gifRes = R.raw.sleeping_jellbbo,
+                    message = buildAnnotatedString {
+                        append("${nickname}님을 위한 ")
+                        withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                            append("맞춤형 추천")
+                        }
+                        append("을 준비했어요.\n")
+                        append("필요한 케어 제품을 확인해보세요!")
+                    }
                 )
             }
         }

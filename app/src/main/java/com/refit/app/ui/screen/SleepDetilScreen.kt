@@ -1,7 +1,6 @@
 package com.refit.app.ui.screen
 
-import android.graphics.Color
-import androidx.compose.foundation.Image
+import android.graphics.Typeface
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -11,23 +10,35 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.github.mikephil.charting.charts.LineChart as MpLineChart
-import com.github.mikephil.charting.charts.BarChart as MpBarChart
-import com.github.mikephil.charting.data.*
-import com.github.mikephil.charting.formatter.ValueFormatter
+import coil.ImageLoader
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
+import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.refit.app.R
+import com.refit.app.data.health.modelAndView.HealthViewModel
+import com.refit.app.data.product.modelAndView.RecommendationViewModel
+import com.refit.app.network.UserPrefs
+import com.refit.app.ui.composable.health.ChartHeader
+import com.refit.app.ui.composable.health.GifCard
+import com.refit.app.ui.composable.health.chart.SleepChart
+import com.refit.app.ui.composable.health.chart.SleepCompareAvgChart
+import com.refit.app.ui.composable.health.chart.SleepCompareRecChart
+import com.refit.app.ui.composable.home.HomeProductRow
+import com.refit.app.ui.composable.home.SectionHeader
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
-import com.refit.app.data.health.modelAndView.HealthViewModel
-import androidx.compose.ui.graphics.Color as ComposeColor
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.text.SpanStyle
+import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 
 @Composable
 fun SleepDetailScreen(
@@ -38,24 +49,51 @@ fun SleepDetailScreen(
     val rows = uiState.rows
     val ctx = LocalContext.current
 
+    val recommendVm: RecommendationViewModel = viewModel()
+    val recommendState by recommendVm.state.collectAsState()
+
     LaunchedEffect(Unit) {
-        if (uiState.permissionGranted) {
-            vm.fetch(ctx)
-        } else {
-            vm.onPermissionGranted(ctx)
-        }
+        if (uiState.permissionGranted) vm.fetch(ctx)
+        else vm.onPermissionGranted(ctx)
+        recommendVm.loadRecommendations(type = 0, limit = 100)
     }
 
-    // 데이터
-    val allRows = rows
-    val yesterdaySleep = allRows.lastOrNull()?.sleepMinutes ?: 0
-    val avgSleep = allRows.mapNotNull { it.sleepMinutes }.average().toInt()
-    val minSleep = allRows.mapNotNull { it.sleepMinutes }.minOrNull() ?: 0
-    val maxSleep = allRows.mapNotNull { it.sleepMinutes }.maxOrNull() ?: 0
+    if (rows.isEmpty()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("수면 데이터가 아직 없어요.", style = MaterialTheme.typography.bodyMedium.copy(fontFamily = Pretendard))
+        }
+        return
+    }
 
-    // 한국 평균 & 권장 수면시간
+    val yesterdaySleep = rows.lastOrNull()?.sleepMinutes ?: 0
     val koreanAvgSleep = 387    // 6시간 27분
     val recommendedSleep = 480  // 8시간
+
+    val today = LocalDate.now()
+    val days = (6 downTo 0).map { today.minusDays(it.toLong()) }
+    val xLabels = days.map {
+        if (it == today) "오늘"
+        else it.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.KOREAN)
+    }
+
+    val recentRows = rows.takeLast(7)
+    val sortedData = days.zip(recentRows)
+    val sleepEntries = sortedData.mapIndexed { idx, pair ->
+        BarEntry(idx.toFloat(), (pair.second.sleepMinutes ?: 0).toFloat())
+    }
+
+    val indexFormatter = IndexAxisValueFormatter(xLabels)
+    val pretendardBold: Typeface? = ResourcesCompat.getFont(ctx, R.font.pretendard_bold)
+
+    var chart1Visible by remember { mutableStateOf(false) }
+    var chart2Visible by remember { mutableStateOf(false) }
+    var chart3Visible by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -63,245 +101,124 @@ fun SleepDetailScreen(
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        // ===== 제목 =====
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.jellbbo_doctor),
-                contentDescription = "타이틀 젤뽀",
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(Modifier.width(8.dp))
-            Text("나의 수면 시간 리포트", style = MaterialTheme.typography.titleMedium.copy(fontFamily = Pretendard))
-        }
+        val imageLoader = ImageLoader.Builder(ctx)
+            .components {
+                add(GifDecoder.Factory())
+                add(ImageDecoderDecoder.Factory())
+            }
+            .build()
 
-        Spacer(Modifier.height(16.dp))
+        val nickname = UserPrefs.getNickname() ?: "사용자"
 
-        if (allRows.isEmpty()) {
-            Text("수면 데이터가 아직 없어요.", style = MaterialTheme.typography.bodyMedium.copy(fontFamily = Pretendard))
-            return
-        }
-
-        // ========== 최근 수면 패턴 ==========
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.jellbbo_sleep),
-                contentDescription = "최근 수면 기록 아이콘",
-                modifier = Modifier.size(28.dp)
-            )
-            Spacer(Modifier.width(4.dp))
-            Text("최근 수면 기록", style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Pretendard))
-        }
-        Spacer(Modifier.height(8.dp))
-        AndroidView(
-            modifier = Modifier.fillMaxWidth().height(220.dp),
-            factory = { ctx ->
-                MpLineChart(ctx).apply {
-                    val entries = allRows.mapIndexed { idx, row ->
-                        Entry(idx.toFloat(), (row.sleepMinutes ?: 0).toFloat())
-                    }
-                    data = LineData(LineDataSet(entries, "수면시간").apply {
-                        color = MainPurple.hashCode()
-                        valueTextColor = Color.BLACK
-                        lineWidth = 2f
-                        setDrawCircles(true)
-                        setCircleColor(MainPurple.hashCode())
-                        circleRadius = 4f
-                        valueFormatter = object : ValueFormatter() {
-                            override fun getFormattedValue(value: Float): String {
-                                val h = value.toInt() / 60
-                                val m = value.toInt() % 60
-                                return "${h}시간 ${m}분"
-                            }
-                        }
-                    })
-
-                    description.isEnabled = false
-                    axisRight.isEnabled = false
-                    xAxis.granularity = 1f
-                    xAxis.setDrawGridLines(false)
-                    axisLeft.setDrawGridLines(false)
-                    legend.isEnabled = true
-
-                    val totalSize = allRows.size
-                    xAxis.valueFormatter = object : ValueFormatter() {
-                        override fun getFormattedValue(value: Float): String {
-                            val index = value.toInt()
-                            return when (index) {
-                                totalSize - 1 -> "오늘"
-                                else -> "${totalSize - 1 - index}일 전"
-                            }
-                        }
-                    }
-                    axisLeft.valueFormatter = object : ValueFormatter() {
-                        override fun getFormattedValue(value: Float): String {
-                            val h = value.toInt() / 60
-                            val m = value.toInt() % 60
-                            return "${h}시간 ${m}분"
-                        }
-                    }
+        // ---------------- GIF 카드 ----------------
+        GifCard(
+            nickname = nickname,
+            imageLoader = imageLoader,
+            gifRes = R.raw.sleeping_jellbbo,
+            message = buildAnnotatedString {
+                append("${nickname}님 ")
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                    append("재충전을 위해서\n")
                 }
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                    append("잠시 쉬어가도 ")
+                }
+                append("괜찮아요.")
             }
         )
 
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(20.dp))
 
-        // ========== 어제 수면량, 최소, 최대 ==========
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.jellbbo_sleep),
-                contentDescription = "어제 수면 아이콘",
-                modifier = Modifier.size(28.dp)
-            )
-            Spacer(Modifier.width(4.dp))
-            Text("어제 내가 잔 시간", style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Pretendard))
-        }
-        Spacer(Modifier.height(8.dp))
-        Text(buildAnnotatedString {
-            append("어제는 약 ")
-            withStyle(SpanStyle(color = MainPurple)) {
-                append("${yesterdaySleep / 60}시간 ${yesterdaySleep % 60}분")
+        // ---------------- 1번째 차트 ----------------
+        ChartHeader(
+            iconRes = R.drawable.jellbbo_research,
+            text = buildAnnotatedString {
+                append("최근 7일 동안의 ")
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                    append("수면 기록")
+                }
+                append("을 확인했어요.\n충분한 수면은 피부 ")
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                    append("재생")
+                }
+                append("과 ")
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                    append("면역력")
+                }
+                append(" 유지에 도움을 줍니다.")
             }
-            append("을 잤어요.")
-        }, style = MaterialTheme.typography.bodyMedium.copy(fontFamily = Pretendard))
-
-        Spacer(Modifier.height(8.dp))
-        Column {
-            Text(buildAnnotatedString {
-                append("가장 적게 잔 날은 ")
-                withStyle(SpanStyle(color = ComposeColor.Red)) {
-                    append("${minSleep / 60}시간 ${minSleep % 60}분")
-                }
-            }, style = MaterialTheme.typography.bodySmall.copy(fontFamily = Pretendard))
-
-            Spacer(Modifier.height(4.dp))
-
-            Text(buildAnnotatedString {
-                append("가장 많이 잔 날은 ")
-                withStyle(SpanStyle(color = ComposeColor.Blue)) {
-                    append("${maxSleep / 60}시간 ${maxSleep % 60}분")
-                }
-                append(" 이에요.")
-            }, style = MaterialTheme.typography.bodySmall.copy(fontFamily = Pretendard))
-        }
+        )
+        SleepChart(
+            sleepEntries = sleepEntries,
+            koreanAvgSleep = koreanAvgSleep,
+            pretendardBold = pretendardBold,
+            indexFormatter = indexFormatter,
+            chartVisible = chart1Visible
+        ) { chart1Visible = true }
 
         Spacer(Modifier.height(32.dp))
 
-        // ========== 한국 평균 수면시간과 비교 ==========
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.jellbbo_sleep),
-                contentDescription = "평균 비교 아이콘",
-                modifier = Modifier.size(28.dp)
-            )
-            Spacer(Modifier.width(4.dp))
-            Text("한국인 평균 수면 시간과 비교", style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Pretendard))
-        }
-        Spacer(Modifier.height(8.dp))
-        AndroidView(
-            modifier = Modifier.fillMaxWidth().height(200.dp),
-            factory = { ctx ->
-                MpBarChart(ctx).apply {
-                    val entries = listOf(
-                        BarEntry(0f, yesterdaySleep.toFloat()),
-                        BarEntry(1f, koreanAvgSleep.toFloat())
-                    )
-                    data = BarData(
-                        BarDataSet(listOf(entries[0]), "어제 수면").apply {
-                            color = MainPurple.hashCode(); valueTextColor = Color.BLACK
-                            valueFormatter = object : ValueFormatter() {
-                                override fun getFormattedValue(value: Float): String {
-                                    val h = value.toInt() / 60
-                                    val m = value.toInt() % 60
-                                    return "${h}시간 ${m}분"
-                                }
-                            }
-                        },
-                        BarDataSet(listOf(entries[1]), "한국인 평균").apply {
-                            color = Color.LTGRAY; valueTextColor = Color.BLACK
-                            valueFormatter = object : ValueFormatter() {
-                                override fun getFormattedValue(value: Float): String {
-                                    val h = value.toInt() / 60
-                                    val m = value.toInt() % 60
-                                    return "${h}시간 ${m}분"
-                                }
-                            }
-                        }
-                    ).apply { barWidth = 0.4f; groupBars(0f, 0.3f, 0f) }
-
-                    description.isEnabled = false
-                    axisRight.isEnabled = false
-                    xAxis.isEnabled = false
-                    axisLeft.setDrawGridLines(false)
-                    legend.isEnabled = true
-                    axisLeft.valueFormatter = object : ValueFormatter() {
-                        override fun getFormattedValue(value: Float): String {
-                            val h = value.toInt() / 60
-                            val m = value.toInt() % 60
-                            return "${h}시간 ${m}분"
-                        }
-                    }
+        // ---------------- 2번째 차트 ----------------
+        ChartHeader(
+            iconRes = R.drawable.jellbbo_research,
+            text = buildAnnotatedString {
+                append("오늘 나의 수면 시간과 ")
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                    append("일반인 평균 시간")
                 }
+                append("을 비교해 보았어요.")
+            }
+        )
+        SleepCompareAvgChart(
+            yesterdaySleep = yesterdaySleep,
+            koreanAvgSleep = koreanAvgSleep,
+            chartVisible = chart2Visible
+        ) { chart2Visible = true }
+
+        Spacer(Modifier.height(32.dp))
+
+        // ---------------- 3번째 차트 ----------------
+        ChartHeader(
+            iconRes = R.drawable.jellbbo_research,
+            text = buildAnnotatedString {
+                append("오늘 나의 수면 시간과 ")
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                    append("권장 수면 시간")
+                }
+                append("을 비교해 보았어요.")
+            }
+        )
+        SleepCompareRecChart(
+            yesterdaySleep = yesterdaySleep,
+            recommendedSleep = recommendedSleep,
+            chartVisible = chart3Visible
+        ) { chart3Visible = true }
+
+        Spacer(Modifier.height(32.dp))
+
+        // ---------------- 추천 상품 섹션 ----------------
+        val recommendMsg = buildAnnotatedString {
+            append(nickname)
+            append("님을 위한 ")
+            withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                append("맞춤형 상품들 보러가기")
+            }
+        }
+
+        SectionHeader(
+            title = recommendMsg,
+            onMore = {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    "recommendation_items",
+                    recommendState.items
+                )
+                navController.navigate("recommendation/1")
             }
         )
 
-        Spacer(Modifier.height(32.dp))
-
-        // ========== 권장 수면시간과 비교 ==========
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.jellbbo_sleep),
-                contentDescription = "권장 수면 아이콘",
-                modifier = Modifier.size(28.dp)
-            )
-            Spacer(Modifier.width(4.dp))
-            Text("권장 수면 시간과 비교", style = MaterialTheme.typography.bodyLarge.copy(fontFamily = Pretendard))
-        }
-        Spacer(Modifier.height(8.dp))
-        AndroidView(
-            modifier = Modifier.fillMaxWidth().height(200.dp),
-            factory = { ctx ->
-                MpBarChart(ctx).apply {
-                    val entries = listOf(
-                        BarEntry(0f, yesterdaySleep.toFloat()),
-                        BarEntry(1f, recommendedSleep.toFloat())
-                    )
-                    data = BarData(
-                        BarDataSet(listOf(entries[0]), "어제 수면").apply {
-                            color = MainPurple.hashCode(); valueTextColor = Color.BLACK
-                            valueFormatter = object : ValueFormatter() {
-                                override fun getFormattedValue(value: Float): String {
-                                    val h = value.toInt() / 60
-                                    val m = value.toInt() % 60
-                                    return "${h}시간 ${m}분"
-                                }
-                            }
-                        },
-                        BarDataSet(listOf(entries[1]), "권장 수면").apply {
-                            color = Color.LTGRAY; valueTextColor = Color.BLACK
-                            valueFormatter = object : ValueFormatter() {
-                                override fun getFormattedValue(value: Float): String {
-                                    val h = value.toInt() / 60
-                                    val m = value.toInt() % 60
-                                    return "${h}시간 ${m}분"
-                                }
-                            }
-                        }
-                    ).apply { barWidth = 0.4f; groupBars(0f, 0.3f, 0f) }
-
-                    description.isEnabled = false
-                    axisRight.isEnabled = false
-                    xAxis.isEnabled = false
-                    axisLeft.setDrawGridLines(false)
-                    legend.isEnabled = true
-                    axisLeft.valueFormatter = object : ValueFormatter() {
-                        override fun getFormattedValue(value: Float): String {
-                            val h = value.toInt() / 60
-                            val m = value.toInt() % 60
-                            return "${h}시간 ${m}분"
-                        }
-                    }
-                }
-            }
+        HomeProductRow(
+            products = recommendState.items.take(10),
+            onClick = { p -> navController.navigate("product/${p.id}") }
         )
     }
 }

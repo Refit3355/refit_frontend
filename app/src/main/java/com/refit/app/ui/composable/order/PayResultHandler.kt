@@ -15,10 +15,33 @@ import kotlinx.serialization.json.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.refit.app.R
 import com.refit.app.ui.theme.MainPurple
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class CompleteItemNav(
+    val productId: Long,
+    val brand: String,
+    val productName: String,
+    val price: Long,
+    val originalPrice: Long,
+    val quantity: Int,
+    val thumbnailUrl: String
+)
+
+@Serializable
+data class OrderCompletePayload(
+    val orderPk: Long,
+    val orderCode: String,
+    val orderName: String?,
+    val amount: Long,
+    val method: String?,
+    val thumb: String?,
+    val itemCount: Int?,
+    val items: List<CompleteItemNav>
+)
 
 @Composable
 fun PayResultHandler(
@@ -26,11 +49,7 @@ fun PayResultHandler(
     paymentKey: String,
     orderId: String,
     amount: Long,
-    onSuccessNavigate: (orderPk: Long) -> Unit = { orderPk ->
-        navController.navigate("orders") {
-            popUpTo("splash") { inclusive = false }
-        }
-    },
+    onSuccessNavigate: (OrderCompletePayload) -> Unit,
     onFailNavigate: () -> Unit = {} // 자동 이동 금지
 ) {
     val scope = rememberCoroutineScope()
@@ -63,9 +82,44 @@ fun PayResultHandler(
                     return@launch
                 }
 
-                val orderPk = json["orderPk"]?.jsonPrimitive?.longOrNull ?: 0L
+                val orderPk   = json["orderPk"]?.jsonPrimitive?.longOrNull ?: 0L
+                val orderCode = json["orderCode"]?.jsonPrimitive?.contentOrNull ?: orderId
+                val orderName = json["orderName"]?.jsonPrimitive?.contentOrNull
+                val method    = json["method"]?.jsonPrimitive?.contentOrNull
+                val totalAmt  = json["totalAmount"]?.jsonPrimitive?.longOrNull ?: amount
+                val thumb     = json["firstItemThumb"]?.jsonPrimitive?.contentOrNull
+                val itemCount = json["itemCount"]?.jsonPrimitive?.intOrNull
+
+                //  items 파싱
+                val items: List<CompleteItemNav> =
+                    (json["items"] as? JsonArray)?.mapNotNull { el ->
+                        val obj = el.jsonObject
+                        val pid = obj["productId"]?.jsonPrimitive?.longOrNull ?: return@mapNotNull null
+                        CompleteItemNav(
+                            productId     = pid,
+                            brand         = obj["brandName"]?.jsonPrimitive?.contentOrNull ?: "",
+                            productName   = obj["productName"]?.jsonPrimitive?.contentOrNull ?: "",
+                            price         = obj["price"]?.jsonPrimitive?.longOrNull ?: 0L,
+                            originalPrice = obj["originalPrice"]?.jsonPrimitive?.longOrNull ?: 0L,
+                            quantity      = obj["quantity"]?.jsonPrimitive?.intOrNull ?: 1,
+                            thumbnailUrl  = obj["thumbnailUrl"]?.jsonPrimitive?.contentOrNull ?: ""
+                        )
+                    } ?: emptyList()
+
                 loading = false
-                onSuccessNavigate(orderPk)
+
+                onSuccessNavigate(
+                    OrderCompletePayload(
+                        orderPk    = orderPk,
+                        orderCode  = orderCode,
+                        orderName  = orderName,
+                        amount     = totalAmt,
+                        method     = method,
+                        thumb      = thumb,
+                        itemCount  = itemCount,
+                        items      = items
+                    )
+                )
             }.onFailure { t ->
                 netErr = t.message ?: "결제 확인 실패"
                 loading = false

@@ -1,9 +1,17 @@
-package com.refit.app.ui.composable.myfit
+package com.refit.app.ui.composable.common
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,13 +24,16 @@ import com.refit.app.R
 import com.refit.app.ui.theme.MainPurple
 
 @Composable
-fun ConfirmDialog(
+fun CompleteDialog(
+    visible: Boolean,
     title: String,
-    text: String,
-    confirmText: String,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    message: String,
+    confirmText: String = "확인",
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit = onConfirm
 ) {
+    if (!visible) return
+
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = {
@@ -40,9 +51,9 @@ fun ConfirmDialog(
                 modifier = Modifier.fillMaxWidth()
             )
         },
-        text  = {
+        text = {
             Text(
-                text = text,
+                text = message,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 textAlign = TextAlign.Center,
@@ -54,22 +65,8 @@ fun ConfirmDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(
-                    onClick = onDismiss,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFF2F2F5),
-                        contentColor = Color.Black
-                    ),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
-                    modifier = Modifier
-                        .height(44.dp)
-                        .weight(1f)
-                ) { Text("취소") }
-
                 Button(
                     onClick = onConfirm,
                     shape = RoundedCornerShape(12.dp),
