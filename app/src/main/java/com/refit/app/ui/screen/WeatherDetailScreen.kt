@@ -141,7 +141,7 @@ fun WeatherDetailScreen(
             iconRes = R.drawable.jellbbo_sunny,
             text = buildAnnotatedString {
                 append("최근 7일 동안의 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("기온 변화 (℃)") }
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("기온 변화(℃)") }
                 append("를 확인했어요.\n")
                 append("기온이 낮아지면 혈관 수축으로 피부의 ")
                 withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("혈류량") }
@@ -165,7 +165,7 @@ fun WeatherDetailScreen(
             iconRes = R.drawable.jellbbo_humid,
             text = buildAnnotatedString {
                 append("최근 7일간의 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("습도 (%)") }
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("습도(%)") }
                 append(" 기록이에요.\n")
                 append("습도가 40% 이하로 떨어지면 각질층의 ")
                 withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("NMF(천연보습인자)") }
@@ -190,7 +190,7 @@ fun WeatherDetailScreen(
             iconRes = R.drawable.jellbbo_rainy,
             text = buildAnnotatedString {
                 append("최근 일주일간의 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("강수량 (mm)") }
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("강수량(mm)") }
                 append("을 확인했어요.\n")
                 append("비가 잦으면 대기 중 ")
                 withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("오염 물질") }
@@ -216,7 +216,7 @@ fun WeatherDetailScreen(
             iconRes = R.drawable.jellbbo_snow,
             text = buildAnnotatedString {
                 append("최근 7일간의 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("적설량 (cm)") }
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("적설량(cm)") }
                 append(" 데이터에요.\n")
                 append("눈이 많이 오는 날은 대기 습도가 낮고 난방 사용이 늘어나\n")
                 append("피부의 ")

@@ -8,6 +8,7 @@ import com.github.mikephil.charting.data.*
 import com.refit.app.ui.composable.health.ChartBox
 import com.refit.app.ui.composable.health.RoundedBarChartRenderer
 import com.refit.app.ui.theme.MainPurple
+import com.refit.app.util.common.RoundCommaValueFormatter
 
 @Composable
 fun KcalCompareChart(
@@ -29,18 +30,21 @@ fun KcalCompareChart(
             val female = BarEntry(2f, 2100f)
             val mySet = BarDataSet(listOf(my), "나").apply {
                 color = MainPurple.toArgb()
+                valueFormatter = RoundCommaValueFormatter()
                 setValueTextColor(Color.DarkGray.toArgb())
                 setValueTextSize(10f)
                 setDrawValues(true)
             }
             val maleSet = BarDataSet(listOf(male), "남자 평균").apply {
                 color = navyBlue.toArgb()
+                valueFormatter = RoundCommaValueFormatter()
                 setValueTextColor(Color.DarkGray.toArgb())
                 setValueTextSize(10f)
                 setDrawValues(true)
             }
             val femaleSet = BarDataSet(listOf(female), "여자 평균").apply {
                 color = wineRed.toArgb()
+                valueFormatter = RoundCommaValueFormatter()
                 setValueTextColor(Color.DarkGray.toArgb())
                 setValueTextSize(10f)
                 setDrawValues(true)

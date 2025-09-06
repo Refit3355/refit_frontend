@@ -8,6 +8,7 @@ import com.github.mikephil.charting.data.*
 import com.refit.app.ui.composable.health.ChartBox
 import com.refit.app.ui.composable.health.RoundedBarChartRenderer
 import com.refit.app.ui.theme.MainPurple
+import com.refit.app.util.common.RoundCommaValueFormatter
 
 @Composable
 fun StepCompareChart(
@@ -26,12 +27,14 @@ fun StepCompareChart(
             val avg = BarEntry(1f, koreanAvgSteps)
             val mySet = BarDataSet(listOf(my), "나").apply {
                 color = MainPurple.toArgb()
+                valueFormatter = RoundCommaValueFormatter()
                 setValueTextColor(Color.DarkGray.toArgb())
                 setValueTextSize(10f)
                 setDrawValues(true)
             }
             val avgSet = BarDataSet(listOf(avg), "한국인 평균").apply {
                 color = Color.LightGray.toArgb()
+                valueFormatter = RoundCommaValueFormatter()
                 setValueTextColor(Color.DarkGray.toArgb())
                 setValueTextSize(10f)
                 setDrawValues(true)

@@ -2,9 +2,6 @@ package com.refit.app.ui.composable.health.chart
 
 import android.graphics.Typeface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.toArgb
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
