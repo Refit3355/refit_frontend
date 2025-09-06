@@ -100,10 +100,10 @@ fun ProductDetailBody(
                 // 우측 공유 버튼
                 IconButton(onClick = onShare) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_icon_chat),
+                        painter = painterResource(R.drawable.ic_message_share),
                         contentDescription = "공유",
                         tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(34.dp)
+                        modifier = Modifier.size(26.dp)
                     )
                 }
             }
