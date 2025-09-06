@@ -6,10 +6,10 @@ val beautyRooms = listOf(
     ChatCategory(0, "스킨/토너", ""),
     ChatCategory(1, "에센스/세럼/앰플", ""),
     ChatCategory(2, "크림", ""),
-    ChatCategory(3, "로션", ""),
-    ChatCategory(4, "미스트/오일", ""),
-    ChatCategory(5, "로션/오일/미스트", ""),
-    ChatCategory(6, "샴푸/린스", ""),
+    ChatCategory(3, "로션/바디로션", ""),
+    ChatCategory(4, "미스트", ""),
+    ChatCategory(5, "오일", ""),
+    ChatCategory(6, "샴푸/린스/트리트먼트", ""),
     ChatCategory(7, "헤어케어", "")
 )
 val healthRooms = listOf(

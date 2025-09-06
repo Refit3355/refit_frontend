@@ -57,7 +57,7 @@ fun ChatRoomItem(
                     fontFamily = Pretendard,
                     fontWeight = FontWeight(500),
                     modifier = Modifier.weight(1f),
-                    fontSize = 17.sp
+                    fontSize = 16.sp
 
                 )
                 if (timeBadge != null) {
@@ -66,6 +66,7 @@ fun ChatRoomItem(
                         text = timeBadge,
                         fontFamily = Pretendard,
                         fontWeight = FontWeight(400),
+                        fontSize = 14.sp,
                         color = Color(0xFFB4B4B4)
                     )
                 }

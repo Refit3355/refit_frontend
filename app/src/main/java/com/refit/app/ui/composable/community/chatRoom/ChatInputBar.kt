@@ -70,6 +70,7 @@ fun ChatInputBar(
                 textStyle = TextStyle(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 14.sp,
+                    fontFamily = Pretendard,
                     lineHeight = 18.sp,
                     platformStyle = PlatformTextStyle(includeFontPadding = false)
                 ),
@@ -108,7 +109,7 @@ fun ChatInputBar(
             IconButton(onClick = onPickProduct, modifier = Modifier.fillMaxHeight()) {
                 Icon(Icons.Rounded.Search, contentDescription = "상품 공유")
             }
-            
+
             Box(
                 modifier = Modifier
                     .fillMaxHeight()

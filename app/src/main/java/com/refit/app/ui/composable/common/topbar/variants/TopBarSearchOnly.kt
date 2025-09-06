@@ -28,6 +28,7 @@ import com.refit.app.ui.theme.MainPurple
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import com.refit.app.ui.theme.Pretendard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -111,7 +112,8 @@ internal fun SearchOnlyTopBar(config: AppBarConfig.SearchOnly) {
                             text = if (config.query.isBlank()) "검색어를 입력하세요." else config.query,
                             color = if (config.query.isBlank()) Color(0xFF9E9E9E) else Color.Black,
                             fontSize = 14.sp,
-                            maxLines = 1
+                            maxLines = 1,
+                            fontFamily = Pretendard
                         )
                     }
                 }
@@ -189,7 +191,7 @@ internal fun SearchOnlyTopBar(config: AppBarConfig.SearchOnly) {
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
                     modifier = Modifier.height(36.dp)
                 ) {
-                    Text("검색", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                    Text("검색", fontSize = 14.sp, fontWeight = FontWeight.Medium, fontFamily = Pretendard)
                 }
             }
         }
