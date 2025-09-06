@@ -26,6 +26,7 @@ fun GifCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(horizontal = 12.dp)
             .background(LightPurple, shape = RoundedCornerShape(16.dp))
             .padding(vertical = 12.dp, horizontal = 16.dp),
         contentAlignment = Alignment.Center

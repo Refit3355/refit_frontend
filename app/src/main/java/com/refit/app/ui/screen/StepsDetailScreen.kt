@@ -87,6 +87,7 @@ fun StepsDetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
         val imageLoader = ImageLoader.Builder(context)

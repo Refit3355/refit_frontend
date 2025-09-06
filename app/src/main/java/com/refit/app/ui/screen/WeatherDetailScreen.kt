@@ -194,7 +194,9 @@ fun WeatherDetailScreen(
                 append("습도가 40% 이하로 떨어지면 각질층의 ")
                 withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("NMF(천연보습인자)") }
                 append(" 농도가 낮아지고,\n")
-                append("수분 증발량이 증가해 피부 장벽이 쉽게 손상될 수 있습니다.")
+                append("수분 증발량이 증가해")
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("피부 장벽")}
+                append("이 쉽게 손상될 수 있습니다.")
             }
         )
         ChartBox(
@@ -245,8 +247,11 @@ fun WeatherDetailScreen(
                 append("을 확인했어요.\n")
                 append("비가 잦으면 대기 중 ")
                 withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("오염 물질") }
-                append("이 피부에 붙기 쉬워 모공 막힘과\n")
-                append("염증 반응을 유발할 수 있으니 세안을 철저히 해야 해요.")
+                append("이 피부에 붙기 쉬워\n")
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("모공 막힘") }
+                append("과")
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("염증 반응") }
+                append("을 유발할 수 있으니 세안을 철저히 해야 해요.")
             }
         )
         ChartBox(
@@ -294,7 +299,7 @@ fun WeatherDetailScreen(
             text = buildAnnotatedString {
                 append("최근 7일간의 ")
                 withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("적설량") }
-                append(" 데이터입니다.\n")
+                append(" 데이터에요.\n")
                 append("눈이 많이 오는 날은 대기 습도가 낮고 난방 사용이 늘어나\n")
                 append("피부의 ")
                 withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("수분 증발") }
