@@ -36,9 +36,18 @@
         <package android:name="com.lotte.lottesmartpay" />
         <package android:name="nh.smart.allonepay" />
         <package android:name="com.wooricard.wpay" />
+
+        <package android:name="kvp.jjy.MispAndroid320" />        <!-- ISP 모바일  -->
+        <package android:name="com.kftc.bankpay.android" />      <!-- 금융결제원 BankPay -->
+        <package android:name="kr.co.shiftworks.vguardmobile" /> <!-- V-Guard (키보드/보안) -->
+        <package android:name="com.samsung.android.authfw" />    <!-- Samsung 인증 프레임워크 -->
+        <package android:name="com.lguplus.paynow" />            <!-- U+ Paynow -->
+        <package android:name="com.ahnlab.v3mobileplus" />  <!-- 안심클릭 보안 -->
+        <package android:name="com.TouchEn.mVaccine.webs" /> <!-- 터치앤 백신 -->
     </queries>
 
     <application
+        android:hardwareAccelerated="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -56,6 +65,7 @@
         <!-- MainActivity: 런처 + 딥링크를 하나의 Activity에 묶기 -->
         <activity
             android:name=".MainActivity"
+            android:hardwareAccelerated="true"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Refit"
@@ -79,8 +89,9 @@
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="refitapp" android:host="pay"/>
-                <data android:scheme="refitapp" android:host="pay" android:pathPrefix="/success"/>
-                <data android:scheme="refitapp" android:host="pay" android:pathPrefix="/fail"/>
+                <data android:scheme="refitapp" android:host="pay" android:pathPattern=".*"/>
+<!--                <data android:scheme="refitapp" android:host="pay" android:pathPrefix="/success"/>-->
+<!--                <data android:scheme="refitapp" android:host="pay" android:pathPrefix="/fail"/>-->
             </intent-filter>
 
             <!-- 알림 딥링크: app://notification -->

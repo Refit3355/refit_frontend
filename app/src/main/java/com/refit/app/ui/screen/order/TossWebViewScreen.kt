@@ -13,6 +13,7 @@ import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
@@ -30,6 +31,9 @@ fun TossWebViewScreen(
     successUrl: String,   // "refitapp://pay/success"
     failUrl: String       // "refitapp://pay/fail"
 ) {
+    LaunchedEffect(Unit) {
+        android.util.Log.d("TossWebView", "Starting with orderId=$orderId, method=$method, amount=$amount")
+    }
     val html = """
         <!doctype html>
         <html lang="ko">
@@ -60,7 +64,7 @@ fun TossWebViewScreen(
               var method      = ${jsStr(method)};
               var successUrl  = ${jsStr(successUrl)};
               var failUrl     = ${jsStr(failUrl)};
-
+            
               console.log("[METHOD]", method);
               window.onerror = function(msg, src, line, col, err) {
                 console.log("[JS_ONERROR]", msg, src, line, col, (err && err.stack) || "");
@@ -68,7 +72,7 @@ fun TossWebViewScreen(
               window.onunhandledrejection = function(e) {
                 console.log("[JS_UNHANDLED_REJECTION]", (e && e.reason) || e);
               };
-
+            
               function redirectFail(code, message) {
                 var url = failUrl
                   + "?code=" + encodeURIComponent(code || "CLIENT_ERROR")
@@ -76,7 +80,7 @@ fun TossWebViewScreen(
                 console.log("[REDIRECT_FAIL]", code, message);
                 location.href = url;
               }
-
+            
               function start() {
                 try {
                   if (!window.TossPayments) {
@@ -84,7 +88,7 @@ fun TossWebViewScreen(
                   }
                   var tossPayments = TossPayments(clientKey);
                   var payment = tossPayments.payment({ customerKey: orderId });
-
+            
                   var req = {
                     method: method,
                     amount: { value: amountValue, currency: "KRW" },
@@ -93,10 +97,15 @@ fun TossWebViewScreen(
                     successUrl: successUrl,
                     failUrl: failUrl
                   };
+                  
+                  // 카드 결제 옵션 강화
                   if (method === "CARD") {
-                    req.card = { flowMode: "DEFAULT" };
+                    req.card = { 
+                      flowMode: "DEFAULT",
+                      useEscrow: false  // 에스크로 비활성화
+                    };
                   }
-
+            
                   console.log("[REQUEST_PAYMENT]", req);
                   payment.requestPayment(req).catch(function (e) {
                     var code = (e && e.code) || "CLIENT_ERROR";
@@ -109,30 +118,19 @@ fun TossWebViewScreen(
                   redirectFail("CLIENT_ERROR", e && e.message ? e.message : "예외 발생");
                 }
               }
-
+            
               var s = document.createElement("script");
               s.src = "https://js.tosspayments.com/v2/standard";
               s.onload = function() {
-                var needsGesture = !(method === "CARD" || method === "VIRTUAL_ACCOUNT");
-                if (needsGesture) {
-                  console.log("[READY] SDK loaded; waiting for user gesture");
-                  var msgBox = document.querySelector(".msg");
-                  if (msgBox) msgBox.textContent = "결제를 시작하려면 화면을 탭하세요.";
-                  setTimeout(function(){ try { start(); } catch(_){ } }, 80);
-                  var once = function() {
-                    document.removeEventListener("click", once, true);
-                    console.log("[USER_GESTURE] click -> start()");
-                    start();
-                  };
-                  document.addEventListener("click", once, true);
-                } else {
-                  start();
-                }
+                // 사용자 제스처 없이 즉시 시작 (PIN 입력 시 문제될 수 있음)
+                console.log("[SDK_LOADED] Starting immediately...");
+                setTimeout(start, 100); // 약간의 지연 후 시작
               };
               s.onerror = function(){ redirectFail("CLIENT_ERROR", "SDK를 불러오지 못했습니다."); };
               document.head.appendChild(s);
             })();
           </script>
+
         </body>
         </html>
     """.trimIndent()
@@ -188,22 +186,42 @@ fun TossWebViewScreen(
                 fun handleIntentUrl(view: WebView, url: String): Boolean {
                     return try {
                         val ctx = view.context
+                        android.util.Log.d("TossWebView", "Handling intent URL: $url")
+
                         val intent = android.content.Intent.parseUri(url, android.content.Intent.URI_INTENT_SCHEME)
 
-                        if (launchExternal(ctx, intent)) return true
+                        // 패키지명 로깅
+                        intent.`package`?.let { pkg ->
+                            android.util.Log.d("TossWebView", "Intent package: $pkg")
+                        }
+
+                        if (launchExternal(ctx, intent)) {
+                            android.util.Log.d("TossWebView", "Successfully launched external app")
+                            return true
+                        }
 
                         val fallback = intent.getStringExtra("browser_fallback_url")
                         if (!fallback.isNullOrBlank()) {
+                            android.util.Log.d("TossWebView", "Using fallback URL: $fallback")
                             view.loadUrl(fallback)
                             return true
                         }
 
                         val pkg = intent.`package`
                         if (!pkg.isNullOrBlank()) {
+                            android.util.Log.d("TossWebView", "Redirecting to Play Store for: $pkg")
                             val market = Uri.parse("market://details?id=$pkg")
-                            launchExternal(ctx, android.content.Intent(android.content.Intent.ACTION_VIEW, market))
+                            if (launchExternal(ctx, android.content.Intent(android.content.Intent.ACTION_VIEW, market))) {
+                                return true
+                            }
+
+                            // Play Store가 없으면 웹 버전으로
+                            val webStore = Uri.parse("https://play.google.com/store/apps/details?id=$pkg")
+                            launchExternal(ctx, android.content.Intent(android.content.Intent.ACTION_VIEW, webStore))
                             return true
                         }
+
+                        android.util.Log.w("TossWebView", "No fallback available for intent URL")
                         false
                     } catch (e: Exception) {
                         android.util.Log.e("TossWebView", "handleIntentUrl error: ${e.message}", e)
@@ -252,19 +270,51 @@ fun TossWebViewScreen(
                 // ---------- 헬퍼 끝 ----------
 
                 // 필수 WebView 설정
-                settings.javaScriptEnabled = true
-                settings.domStorageEnabled = true
-                settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                settings.javaScriptCanOpenWindowsAutomatically = true
-                settings.setSupportMultipleWindows(true)
-                settings.cacheMode = WebSettings.LOAD_DEFAULT
+                settings.apply {
+                    javaScriptEnabled = true
+                    domStorageEnabled = true
+                    databaseEnabled = true
+                    allowFileAccess = true
+                    allowContentAccess = true
+                    allowFileAccessFromFileURLs = true
+                    allowUniversalAccessFromFileURLs = true
+                    mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                    javaScriptCanOpenWindowsAutomatically = true
+                    setSupportMultipleWindows(true)
+                    cacheMode = WebSettings.LOAD_DEFAULT
+                    loadsImagesAutomatically = true
+                    blockNetworkImage = false
+                    blockNetworkLoads = false
+
+                    // 추가 설정
+                    mediaPlaybackRequiresUserGesture = false
+                    setSupportZoom(true)
+                    builtInZoomControls = false
+                    displayZoomControls = false
+                    useWideViewPort = true
+                    loadWithOverviewMode = true
+
+                    // User-Agent 설정 (모바일 브라우저로 인식되도록)
+//                    userAgentString = "Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36"
+                }
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                     WebView.setWebContentsDebuggingEnabled(true)
                 }
-                CookieManager.getInstance().setAcceptCookie(true)
-                CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
+
+                // 쿠키 설정 강화
+                val cookieManager = CookieManager.getInstance()
+                cookieManager.setAcceptCookie(true)
+                cookieManager.setAcceptThirdPartyCookies(this, true)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    cookieManager.flush()
+                }
 
                 webChromeClient = object : WebChromeClient() {
+
+                    private var popupDialog: android.app.Dialog? = null
+                    private var popupWebView: WebView? = null
+
                     override fun onConsoleMessage(consoleMessage: ConsoleMessage): Boolean {
                         android.util.Log.d(
                             "TossWebView",
@@ -273,55 +323,151 @@ fun TossWebViewScreen(
                         return true
                     }
 
-                    // window.open 처리
                     override fun onCreateWindow(
                         view: WebView?,
                         isDialog: Boolean,
                         isUserGesture: Boolean,
                         resultMsg: android.os.Message?
                     ): Boolean {
-                        val parent = view ?: return false
-                        val transport = resultMsg?.obj as? WebView.WebViewTransport ?: return false
+                        val ctx = this@apply.context
+                        val child = WebView(ctx).apply {
+                            settings.apply {
+                                javaScriptEnabled = true
+                                domStorageEnabled = true
+                                databaseEnabled = true
+                                allowFileAccess = true
+                                allowContentAccess = true
+                                mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                                javaScriptCanOpenWindowsAutomatically = true
+                                setSupportMultipleWindows(false) // 팝업 내부에서 또 팝업은 금지
+                                cacheMode = WebSettings.LOAD_DEFAULT
+                                loadsImagesAutomatically = true
+                                blockNetworkImage = false
+                                blockNetworkLoads = false
+                                mediaPlaybackRequiresUserGesture = false
 
-                        val popup = WebView(parent.context).apply {
-                            settings.javaScriptEnabled = true
-                            settings.domStorageEnabled = true
-                            settings.setSupportMultipleWindows(false)
+                                // PIN 입력을 위한 추가 설정
+                                setSupportZoom(true)
+                                builtInZoomControls = false
+                                displayZoomControls = false
+                                useWideViewPort = true
+                                loadWithOverviewMode = true
+
+                                // 키보드 입력을 위한 설정
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    safeBrowsingEnabled = false
+                                }
+                            }
+
+                            // 쿠키 설정
+                            val cookieManager = CookieManager.getInstance()
+                            cookieManager.setAcceptCookie(true)
+                            cookieManager.setAcceptThirdPartyCookies(this, true)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                cookieManager.flush()
+                            }
+
                             webViewClient = object : WebViewClient() {
+                                override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                                    super.onPageStarted(view, url, favicon)
+                                    android.util.Log.d("TossWebView", "POPUP onPageStarted: $url")
+                                }
+
+                                override fun onPageFinished(view: WebView?, url: String?) {
+                                    super.onPageFinished(view, url)
+                                    android.util.Log.d("TossWebView", "POPUP onPageFinished: $url")
+                                }
+
+                                override fun onReceivedError(
+                                    view: WebView,
+                                    request: android.webkit.WebResourceRequest,
+                                    error: android.webkit.WebResourceError
+                                ) {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                        android.util.Log.e(
+                                            "TossWebView",
+                                            "onReceivedError url=${request.url} main=${request.isForMainFrame} ${error.errorCode} ${error.description}"
+                                        )
+
+                                        // SSL 에러나 네트워크 에러 처리
+                                        if (request.isForMainFrame) {
+                                            when (error.errorCode) {
+                                                android.webkit.WebViewClient.ERROR_TIMEOUT,
+                                                android.webkit.WebViewClient.ERROR_HOST_LOOKUP,
+                                                android.webkit.WebViewClient.ERROR_CONNECT -> {
+                                                    android.util.Log.e("TossWebView", "Network error occurred")
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                val allowed = listOf("http","https","about","javascript","data","blob")
                                 override fun shouldOverrideUrlLoading(
-                                    v: WebView,
-                                    request: android.webkit.WebResourceRequest
+                                    v: WebView, req: android.webkit.WebResourceRequest
                                 ): Boolean {
-                                    val uri = request.url
+                                    val uri = req.url
                                     val url = uri.toString()
                                     android.util.Log.d("TossWebView", "POPUP NAV $url")
 
                                     if (handleAppDeepLink(uri)) return true
-                                    if (url.startsWith("intent:")) return handleIntentUrl(parent, url)
-                                    if (uri.scheme !in listOf("http", "https", "about", "javascript")) {
-                                        return handleCustomScheme(parent, uri)
+                                    if (url.startsWith("intent:")) return handleIntentUrl(this@apply, url)
+                                    if (uri.scheme !in allowed) {
+                                        return handleCustomScheme(this@apply, uri)
                                     }
-                                    parent.loadUrl(url)
-                                    return true
+                                    return false
                                 }
 
                                 @Deprecated("Deprecated in Java")
                                 override fun shouldOverrideUrlLoading(v: WebView, url: String): Boolean {
                                     val uri = Uri.parse(url)
-                                    android.util.Log.d("TossWebView", "POPUP NAV(legacy) $url")
                                     if (handleAppDeepLink(uri)) return true
-                                    if (url.startsWith("intent:")) return handleIntentUrl(parent, url)
-                                    if (uri.scheme !in listOf("http", "https", "about", "javascript")) {
-                                        return handleCustomScheme(parent, uri)
+                                    if (url.startsWith("intent:")) return handleIntentUrl(this@apply, url)
+                                    if (uri.scheme !in allowed) {
+                                        return handleCustomScheme(this@apply, uri)
                                     }
-                                    parent.loadUrl(url)
+                                    return false
+                                }
+                            }
+
+                            // WebChromeClient 추가 (팝업에서도 필요할 수 있음)
+                            webChromeClient = object : WebChromeClient() {
+                                override fun onConsoleMessage(consoleMessage: ConsoleMessage): Boolean {
+                                    android.util.Log.d(
+                                        "TossWebView",
+                                        "POPUP CONSOLE: ${consoleMessage.message()} (line=${consoleMessage.lineNumber()})"
+                                    )
                                     return true
                                 }
                             }
                         }
-                        transport.webView = popup
+
+                        // 전면 Dialog 위에 붙이기
+                        val dlg = android.app.Dialog(ctx, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+                        dlg.setContentView(child)
+                        dlg.setOnDismissListener {
+                            try { child.destroy() } catch (_: Exception) {}
+                            popupWebView = null
+                            popupDialog = null
+                        }
+                        dlg.show()
+
+                        popupDialog = dlg
+                        popupWebView = child
+
+                        // transport로 연결
+                        val transport = resultMsg?.obj as? WebView.WebViewTransport ?: return false
+                        transport.webView = child
                         resultMsg.sendToTarget()
                         return true
+                    }
+
+                    override fun onCloseWindow(window: WebView?) {
+                        try { popupWebView?.destroy() } catch (_: Exception) {}
+                        popupDialog?.dismiss()
+                        popupWebView = null
+                        popupDialog = null
+                        super.onCloseWindow(window)
                     }
                 }
 
@@ -352,10 +498,17 @@ fun TossWebViewScreen(
                     ) {
                         android.util.Log.e(
                             "TossWebView",
-                            "onReceivedHttpError main=${request.isForMainFrame} ${errorResponse.statusCode}"
+                            "onReceivedHttpError url=${request.url} main=${request.isForMainFrame} status=${errorResponse.statusCode} reason=${errorResponse.reasonPhrase}"
                         )
+
+                        // 메인 프레임의 404 에러가 발생하면 페이지를 다시 로드해보거나 대응
+                        if (request.isForMainFrame && errorResponse.statusCode == 404) {
+                            android.util.Log.w("TossWebView", "Main frame 404 error, attempting recovery...")
+                            // 필요시 복구 로직 추가
+                        }
                     }
 
+                    val allowed = listOf("http","https","about","javascript","data","blob")
                     override fun shouldOverrideUrlLoading(
                         view: WebView,
                         request: android.webkit.WebResourceRequest
@@ -366,7 +519,7 @@ fun TossWebViewScreen(
 
                         if (handleAppDeepLink(uri)) return true
                         if (url.startsWith("intent:")) return handleIntentUrl(view, url)
-                        if (uri.scheme !in listOf("http", "https", "about", "javascript")) {
+                        if (uri.scheme !in allowed) {
                             return handleCustomScheme(view, uri)
                         }
                         return false
@@ -379,7 +532,7 @@ fun TossWebViewScreen(
 
                         if (handleAppDeepLink(uri)) return true
                         if (url.startsWith("intent:")) return handleIntentUrl(view, url)
-                        if (uri.scheme !in listOf("http", "https", "about", "javascript")) {
+                        if (uri.scheme !in allowed) {
                             return handleCustomScheme(view, uri)
                         }
                         return false
@@ -398,7 +551,6 @@ fun TossWebViewScreen(
         }
     )
 }
-
 // 공백을 '+'가 아니라 '%20'로 만들기 위해 Uri.encode 사용
 private fun encQuery(s: String) = Uri.encode(s)
 
