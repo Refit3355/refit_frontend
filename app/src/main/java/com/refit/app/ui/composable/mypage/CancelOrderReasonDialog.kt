@@ -132,8 +132,8 @@ fun CancelOrderReasonDialog(
 
                         // 미리보기(환불 금액)
                         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text("기본 환불액: ${baseRefund.comma()}원")
                             if (shouldChargeShipping) {
+                                Text("기본 환불액: ${baseRefund.comma()}원")
                                 Text("배송비 차감: -${shippingDeduct.comma()}원 \n(취소 후 30,000원 미만)")
                             }
                             Text(
