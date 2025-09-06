@@ -33,6 +33,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.net.URLDecoder
+import kotlinx.serialization.decodeFromString
 import com.refit.app.data.order.flow.CheckoutFlowStore
 import com.refit.app.data.cart.api.CartApi
 import com.refit.app.data.cart.repository.CartRepository
@@ -79,6 +83,8 @@ import com.refit.app.data.product.model.Product
 import com.refit.app.ui.screen.CombinationRegisterScreen
 import com.refit.app.ui.screen.ProductSelectScreen
 import com.refit.app.data.order.model.decodeDraftOrderRequest
+import com.refit.app.ui.composable.order.CompleteItemNav
+import com.refit.app.ui.composable.order.OrderCompleteScreen
 import com.refit.app.ui.screen.ResultRouterScreen
 import com.refit.app.ui.screen.ChatbotScreen
 import com.refit.app.ui.screen.ProductListScreen
@@ -574,6 +580,7 @@ fun MainScreenWithBottomNav(
                         )
                     }
 
+                    // 결제 트랜잭션 처리용 게이트웨이 화면
                     composable(
                         route = "checkout/payResult?paymentKey={paymentKey}&orderId={orderId}&amount={amount}",
                         deepLinks = listOf(
@@ -594,34 +601,42 @@ fun MainScreenWithBottomNav(
                         val cartApi  = remember { RetrofitInstance.create(CartApi::class.java) }
                         val cartRepo = remember { CartRepository(cartApi) }
                         val scope    = rememberCoroutineScope()
+                        fun enc(s: String) = java.net.URLEncoder.encode(s, "utf-8")
 
                         com.refit.app.ui.composable.order.PayResultHandler(
                             navController = navController,
                             paymentKey = paymentKey,
                             orderId = orderId,
                             amount = amount,
-                            onSuccessNavigate = { orderPk ->
-                                // 선택했던 장바구니 항목들 삭제
+                            onSuccessNavigate = { payload ->
+
+                                // 장바구니 정리
                                 scope.launch {
                                     val ids = CheckoutFlowStore.selectedCartIds.value
                                     if (ids.isNotEmpty()) {
-                                        // 서버가 이미 정리하는 경우도 있으니 에러는 무시
                                         runCatching { cartRepo.deleteBulk(ids) }
                                         CheckoutFlowStore.clear()
-                                        // 뱃지/목록 갱신 콜백
                                         onCartChanged()
                                     }
                                 }
 
-                                // 성공 후 이동 로직. orderPk가 없으면 마이페이지로 보내는 등 정책 결정
-                                if (orderPk > 0) {
-                                    navController.navigate("orders") {
-                                        popUpTo(NavRoutes.CheckoutRoot) { inclusive = true }
-                                    }
-                                } else {
-                                    navController.navigate("my") {
-                                        popUpTo(NavRoutes.CheckoutRoot) { inclusive = true }
-                                    }
+                                // items를 JSON으로 직렬화해 쿼리로 전달
+                                val itemsParam = URLEncoder.encode(Json.encodeToString(payload.items), "utf-8")
+
+                                val dest = buildString {
+                                    append("checkout/complete")
+                                    append("?orderCode=${enc(payload.orderCode)}")
+                                    append("&amount=${payload.amount}")
+                                    append("&orderName=${enc(payload.orderName ?: "")}")
+                                    append("&method=${enc(payload.method ?: "")}")
+                                    append("&thumb=${enc(payload.thumb ?: "")}")
+                                    append("&itemCount=${payload.itemCount ?: -1}")
+                                    append("&items=$itemsParam")
+                                }
+
+                                navController.navigate(dest) {
+                                    popUpTo(NavRoutes.CheckoutRoot) { inclusive = true }
+                                    launchSingleTop = true
                                 }
                             },
                             onFailNavigate = {
@@ -642,6 +657,52 @@ fun MainScreenWithBottomNav(
                         val code = backStackEntry.arguments?.getString("code") ?: "UNKNOWN"
                         val message = backStackEntry.arguments?.getString("message") ?: ""
                         PayFailScreen(navController = navController, code = code, message = message)
+                    }
+
+                    // 결제 완료 페이지
+                    composable(
+                        route = "checkout/complete?orderCode={orderCode}&amount={amount}&orderName={orderName}&method={method}&thumb={thumb}&itemCount={itemCount}&items={items}",
+                        arguments = listOf(
+                            navArgument("orderCode") { type = NavType.StringType },
+                            navArgument("amount")    { type = NavType.LongType },
+                            navArgument("orderName") { type = NavType.StringType; nullable = true; defaultValue = null },
+                            navArgument("method")    { type = NavType.StringType; nullable = true; defaultValue = null },
+                            navArgument("thumb")     { type = NavType.StringType; nullable = true; defaultValue = null },
+                            navArgument("itemCount") { type = NavType.IntType;   defaultValue = -1 },
+                            navArgument("items")     { type = NavType.StringType; nullable = true; defaultValue = null }
+                        )
+                    ) { back ->
+                        val orderCode = back.arguments!!.getString("orderCode")!!
+                        val amount    = back.arguments!!.getLong("amount")
+                        val orderName = back.arguments?.getString("orderName")?.let { URLDecoder.decode(it, "utf-8") }
+                        val method    = back.arguments?.getString("method")
+                        val thumb     = back.arguments?.getString("thumb")
+                        val itemCountArg = back.arguments?.getInt("itemCount") ?: -1
+                        val itemCount = if (itemCountArg >= 0) itemCountArg else null
+
+                        val itemsArg = back.arguments?.getString("items")
+                        val items: List<CompleteItemNav> = try {
+                            if (!itemsArg.isNullOrBlank()) {
+                                val decoded = URLDecoder.decode(itemsArg, "utf-8")
+                                val list = Json.decodeFromString<List<CompleteItemNav>>(decoded)
+                                android.util.Log.d("ORDER_COMPLETE", "decoded items = ${list.size}")
+                                list
+                            } else emptyList()
+                        } catch (t: Throwable) {
+                            android.util.Log.e("ORDER_COMPLETE", "decode fail", t)
+                            emptyList()
+                        }
+
+                        OrderCompleteScreen(
+                            navController = navController,
+                            orderCode = orderCode,
+                            amount = amount,
+                            orderName = orderName,
+                            method = method,
+                            thumb = thumb,
+                            itemCount = itemCount,
+                            items = items
+                        )
                     }
 
                     composable(
