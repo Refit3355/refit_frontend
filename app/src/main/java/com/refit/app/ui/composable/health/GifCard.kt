@@ -26,8 +26,7 @@ fun GifCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp)
-            .background(LightPurple, shape = RoundedCornerShape(16.dp))
+            .background(LightPurple)
             .padding(vertical = 12.dp, horizontal = 16.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -42,7 +41,7 @@ fun GifCard(
                 model = gifRes,
                 contentDescription = null,
                 imageLoader = imageLoader,
-                modifier = Modifier.size(70.dp)
+                modifier = Modifier.size(100.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column {
@@ -51,8 +50,8 @@ fun GifCard(
                         append(message)
                     },
                     fontFamily = Pretendard,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
+                    fontWeight = FontWeight(500),
+                    fontSize = 16.sp
                 )
             }
         }

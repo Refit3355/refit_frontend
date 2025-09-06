@@ -61,8 +61,8 @@ fun SleepDetailScreen(
     if (rows.isEmpty()) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+                .padding(16.dp)
+                .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -98,7 +98,6 @@ fun SleepDetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
         val imageLoader = ImageLoader.Builder(ctx)

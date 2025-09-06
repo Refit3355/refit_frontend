@@ -111,7 +111,6 @@ fun WeatherDetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
         // ---------------- GIF + 닉네임 카드 ----------------

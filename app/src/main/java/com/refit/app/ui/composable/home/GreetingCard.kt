@@ -35,14 +35,14 @@ fun GreetingCard(nickname: String, tags: List<String>) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 20.dp),
         tonalElevation = 2.dp,
         shape = RoundedCornerShape(16.dp),
         color = Color.White,
         shadowElevation = 8.dp
     ) {
         Row(
-            Modifier.padding(20.dp),
+            Modifier.padding(22.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // 프사
@@ -57,7 +57,7 @@ fun GreetingCard(nickname: String, tags: List<String>) {
                 contentScale = ContentScale.Crop
             )
 
-            Spacer(Modifier.width(16.dp))
+            Spacer(Modifier.width(22.dp))
 
             Column(Modifier.weight(1f)) {
                 // 닉네임 + 문구
@@ -67,7 +67,7 @@ fun GreetingCard(nickname: String, tags: List<String>) {
                         withStyle(
                             style = SpanStyle(
                                 color = MainPurple,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight(600)
                             )
                         ) {
                             append(nickname)
@@ -76,8 +76,8 @@ fun GreetingCard(nickname: String, tags: List<String>) {
                         // 고정 문구 부분
                         withStyle(
                             style = SpanStyle(
-                                color = Color.Black,
-                                fontWeight = FontWeight.Bold
+                                color = Color(0xFF3A3A3A),
+                                fontWeight = FontWeight(600)
                             )
                         ) {
                             append("님\n오늘 컨디션은 어떠신가요?")

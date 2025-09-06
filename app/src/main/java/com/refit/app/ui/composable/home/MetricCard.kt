@@ -28,7 +28,7 @@ fun MetricCard(item: MetricItem, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .width(120.dp)     // 카드 가로 크기
-            .height(160.dp),   // 카드 세로 크기
+            .height(150.dp),   // 카드 세로 크기
         contentAlignment = Alignment.TopCenter
     ) {
         // 카드 본체
@@ -44,7 +44,7 @@ fun MetricCard(item: MetricItem, modifier: Modifier = Modifier) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 8.dp, vertical = 10.dp),
+                    .padding(horizontal = 8.dp, vertical = 14.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
@@ -52,9 +52,10 @@ fun MetricCard(item: MetricItem, modifier: Modifier = Modifier) {
                 Text(
                     text = item.title,
                     style = MaterialTheme.typography.bodySmall.copy(
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         fontFamily = Pretendard,
-                        color = Color(0xFF6B6B6B)
+                        fontWeight = FontWeight(500),
+                        color = Color(0xFF3A3A3A)
                     ),
                     textAlign = TextAlign.Center,
                     maxLines = 1,
@@ -67,11 +68,11 @@ fun MetricCard(item: MetricItem, modifier: Modifier = Modifier) {
                 Text(
                     text = "${item.value}${item.unit}",
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 15.sp,
+                        fontSize = 16.sp,
                         fontFamily = Pretendard,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight(600),
                         color = if (item.value != "--") MainPurple
-                        else Color(0xFF6B6B6B)
+                        else Color(0xFF3A3A3A)
                     ),
                     textAlign = TextAlign.Center,
                     maxLines = 1,
@@ -87,7 +88,7 @@ fun MetricCard(item: MetricItem, modifier: Modifier = Modifier) {
             contentDescription = null,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .size(90.dp)
+                .size(70.dp)
                 .offset(y = item.iconOffsetY.dp),
             contentScale = ContentScale.Fit
         )
