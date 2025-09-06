@@ -1,27 +1,24 @@
 package com.refit.app.ui.screen
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
-
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.refit.app.R
@@ -32,6 +29,9 @@ import com.refit.app.ui.composable.home.SectionHeader
 import com.refit.app.data.health.model.MetricItem
 import com.refit.app.data.home.modelAndView.HomeViewModel
 import com.refit.app.network.UserPrefs
+import com.refit.app.ui.composable.product.floating.SpeedDialButton
+import com.refit.app.ui.composable.product.floating.SpeedDialItem
+import com.refit.app.ui.composable.product.floating.SpeedDialMenu
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 import com.refit.app.util.home.getWeatherIcon
@@ -51,6 +51,8 @@ fun HomeScreen(
     val nickname = UserPrefs.getNickname()
     val allTags = UserPrefs.getTags()
     val sleepMinutes = uiState.sleepMinutes
+
+    var isFabMenuOpen by remember { mutableStateOf(false) }
 
     // 홈 진입/이탈에 따라 polling 시작/중단
     LaunchedEffect(currentRoute) {
@@ -228,22 +230,39 @@ fun HomeScreen(
             Spacer(Modifier.height(16.dp))
         }
 
-        // ===== 성분 분석 버튼 =====
-        FloatingActionButton(
-            onClick = { navController.navigate("ingredient") },
-            shape = CircleShape,
-            containerColor = MainPurple,
-            contentColor = Color.White,
+        // FAB 뒤로 펼쳐지는 메뉴 (오버레이)
+        SpeedDialMenu(
+            isOpen = isFabMenuOpen,
+            onDismiss = { isFabMenuOpen = false },
+            items = listOf(
+                SpeedDialItem(
+                    label = "성분 분석",
+                    iconRes = R.drawable.ic_floating_search
+                ) { navController.navigate("ingredient") },
+                SpeedDialItem(
+                    label = "챗봇 연결",
+                    iconRes = R.drawable.ic_floating_bot
+                ) { navController.navigate("chatbot") },
+            ),
+            endPadding = 16.dp,
+            bottomPaddingFromFab = 96.dp,
+            modifier = Modifier.zIndex(1f)
+        )
+
+        // FAB 토글 버튼 (오른쪽 하단)
+        Box(
             modifier = Modifier
-                .align(Alignment.BottomEnd)
+                .fillMaxSize()
                 .padding(16.dp)
-                .size(60.dp)
+                .zIndex(2f),
+            contentAlignment = Alignment.BottomEnd
         ) {
-            Text(
-                text = "성분\n분석",
-                fontSize = 15.sp,
-                textAlign = TextAlign.Center,
-                fontFamily = Pretendard,
+            SpeedDialButton(
+                isOpen = isFabMenuOpen,
+                onToggle = { isFabMenuOpen = !isFabMenuOpen },
+                iconRes = R.drawable.ic_jellbbo_chatbot_floating,
+                openBgColor = Color.White,
+                closeIconTint = MainPurple
             )
         }
     }

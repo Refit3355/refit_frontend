@@ -7,10 +7,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.refit.app.R
 import com.refit.app.ui.composable.auth.ChipGroupMulti
@@ -18,6 +20,9 @@ import com.refit.app.ui.composable.auth.ChipGroupSingle
 import com.refit.app.ui.composable.auth.SectionHeader
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.imePadding
 
 object SignupOptions {
     val skinTypes = listOf("건성", "중성", "지성", "복합성", "수부지")
@@ -41,38 +46,41 @@ fun SignupStep2Screen(
     submitEnabled: Boolean
 ) {
     val scroll = rememberScrollState()
+    
+    val hasAllSelected =
+        selectedSkinType != null &&
+                selectedSkinConcerns.isNotEmpty() &&
+                selectedScalpConcerns.isNotEmpty() &&
+                selectedHealthConcerns.isNotEmpty()
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // 상단 진행바
-        Column(
-            modifier = Modifier
+        Box(
+            Modifier
                 .fillMaxWidth()
-                .align(Alignment.TopCenter)
+                .padding(horizontal = 16.dp)
+                .height(4.dp)
+                .clip(RoundedCornerShape(2.dp))
+                .background(Color(0xFFE5E5EA))
         ) {
-            LinearProgressIndicator(
-                progress = { 2f / 3f },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .height(4.dp),
-                color = MainPurple,
-                trackColor = Color(0xFFE5E5EA)
+            Box(
+                Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(2f / 3f)
+                    .background(MainPurple)
             )
         }
 
-        // 본문 스크롤
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(horizontal = 20.dp, vertical = 16.dp)
                 .verticalScroll(scroll)
-                .padding(horizontal = 20.dp)
-                .padding(top = 12.dp)
+                .imePadding()
         ) {
-
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10),
@@ -132,35 +140,63 @@ fun SignupStep2Screen(
                 }
             }
 
-            // 스크롤 내용이 버튼에 가리지 않도록 여유
-            Spacer(Modifier.height(100.dp))
-        }
-
-        // 하단 고정 CTA 버튼
-        Button(
-            onClick = onNextOrSubmit,
-            enabled = submitEnabled,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp)
-                .navigationBarsPadding()
-                .height(60.dp),
-            shape = RoundedCornerShape(10.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MainPurple,
-                contentColor = Color.White,
-                disabledContainerColor = MainPurple.copy(alpha = 0.4f),
-                disabledContentColor = Color.White
-            )
-        ) {
-            Text(
-                text = "가입하기",
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = Pretendard
+            Spacer(Modifier.height(16.dp))
+            
+            Button(
+                onClick = onNextOrSubmit,
+                enabled = submitEnabled && hasAllSelected,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MainPurple,
+                    contentColor = Color.White,
+                    disabledContainerColor = Color(0xFFE5E5EA),
+                    disabledContentColor = Color(0xFF9E9E9E)
                 )
-            )
+            ) {
+                Text(
+                    text = "가입하기",
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = Pretendard
+                    )
+                )
+            }
+
+            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.ime))
         }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 800)
+@Composable
+fun Preview_SignupStep2Screen() {
+    var skinType by remember { mutableStateOf<String?>(null) }
+    var skinConcerns by remember { mutableStateOf(setOf<String>()) }
+    var scalpConcerns by remember { mutableStateOf(setOf<String>()) }
+    var healthConcerns by remember { mutableStateOf(setOf<String>()) }
+
+    MaterialTheme {
+        SignupStep2Screen(
+            selectedSkinType = skinType,
+            selectedSkinConcerns = skinConcerns,
+            selectedScalpConcerns = scalpConcerns,
+            selectedHealthConcerns = healthConcerns,
+            onSkinTypeChange = { skinType = it },
+            onToggleSkinConcern = { opt ->
+                skinConcerns = if (opt in skinConcerns) skinConcerns - opt else skinConcerns + opt
+            },
+            onToggleScalpConcern = { opt ->
+                scalpConcerns = if (opt in scalpConcerns) scalpConcerns - opt else scalpConcerns + opt
+            },
+            onToggleHealthConcern = { opt ->
+                healthConcerns = if (opt in healthConcerns) healthConcerns - opt else healthConcerns + opt
+            },
+            onBack = {},
+            onNextOrSubmit = {},
+            submitEnabled = true
+        )
     }
 }

@@ -47,15 +47,17 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
             )
 
         route in listOf("notifications", "cart", "myfit/register") || route.startsWith("myfit/edit")
-                || route.startsWith("checkout/orderSheet") || route.startsWith("tossPay")
-                || route.startsWith("chat") ->
+                || route.startsWith("checkout/") || route.startsWith("tossPay")
+                || route.startsWith("chat") || route.startsWith("productList") ->
             AppBarConfig.BackOnly(
                 title = if (route == "notifications") "알림함"
                 else if (route == "cart") "장바구니"
                 else if (route == "myfit/register") "상품 등록"
-                else if (route.startsWith("checkout/orderSheet")) "주문/결제"
+                else if (route.startsWith("checkout/")) "주문/결제"
                 else if (route.startsWith("myfit/edit")) "상품 수정"
+                else if (route.startsWith("chatbot")) "챗봇 상담"
                 else if (route.startsWith("chat")) "그룹채팅"
+                else if (route.startsWith("productList")) "추천 상품"
                 else "결제",
                 onBack = { nav.popBackStack() }
             )
@@ -102,20 +104,15 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
             )
 
         route == "ingredient" ->
-            AppBarConfig.BackWithActions(
+            AppBarConfig.BackOnly(
                 title = "성분 분석",
-                onBack = { nav.popBackStack() },
-                onAlarmClick = { nav.navigate("notifications") },
-                onCartClick  = { nav.navigate("cart") },
-                showActions = true
+                onBack = { nav.popBackStack() }
             )
+
         route == "ingredient/result" ->
-            AppBarConfig.BackWithActions(
+            AppBarConfig.BackOnly(
                 title = "분석 결과",
-                onBack = { nav.popBackStack() },
-                onAlarmClick = { nav.navigate("notifications") },
-                onCartClick  = { nav.navigate("cart") },
-                showActions = true
+                onBack = { nav.popBackStack() }
             )
 
         route.startsWith("productSelect") ->

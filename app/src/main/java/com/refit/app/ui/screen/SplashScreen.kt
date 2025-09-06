@@ -29,7 +29,7 @@ import kotlinx.coroutines.delay
 fun SplashScreen(
     onDecide: (loggedIn: Boolean) -> Unit,
     preview: Boolean = false,
-    minDurationMs: Long = 1000L  // 최소 노출 시간
+    minDurationMs: Long = 800L  // 최소 노출 시간
 ) {
     // val context = LocalContext.current
 
@@ -59,9 +59,9 @@ fun SplashScreen(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Image(
-                painter = painterResource(id = R.drawable.ic_icon_logo),
+                painter = painterResource(id = R.drawable.ic_splash_logo),
                 contentDescription = null,
-                modifier = Modifier.size(250.dp)
+                modifier = Modifier.size(270.dp)
             )
         }
     }

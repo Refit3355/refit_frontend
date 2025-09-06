@@ -79,6 +79,16 @@ fun OrderListScreen(
                 }
             }
         }
+
+        launch {
+            snapshotFlow { state.actionMessage }
+                .collect { msg ->
+                    if (!msg.isNullOrBlank()) {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        snackbarHostState.showSnackbar(message = msg)
+                    }
+                }
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -153,7 +163,9 @@ fun OrderListScreen(
                                             onCartChanged = onCartChanged,
                                             navController = navController,
                                             snackbarHostState = snackbarHostState,
-                                            scope = scope
+                                            scope = scope,
+                                            orderOriginalMerchTotal = order.originalMerchandiseTotal,
+                                            orderCurrentMerchSubtotal = order.currentMerchandiseSubtotal
                                         )
                                         Spacer(Modifier.height(12.dp))
                                     }

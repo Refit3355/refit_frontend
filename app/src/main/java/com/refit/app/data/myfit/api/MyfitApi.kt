@@ -2,6 +2,7 @@ package com.refit.app.data.myfit.api
 
 import com.refit.app.data.myfit.model.CreateMemberProductRequest
 import com.refit.app.data.myfit.model.MemberProductListResponse
+import com.refit.app.data.myfit.model.ProductRecommendationDto
 import com.refit.app.data.myfit.model.PurchasedProductResponse
 import com.refit.app.data.myfit.model.UpdateMemberProductRequest
 import retrofit2.Response
@@ -50,4 +51,12 @@ interface MyfitApi {
     suspend fun createFromOrderItem(
         @Path("orderItemId") id: Long
     ): Response<Unit>
+
+    @GET("member-products/recommendation/{memberProductId}")
+    @Headers("Requires-Auth: true")
+    suspend fun getRecommendations(
+        @Path("memberProductId") memberProductId: Long,
+        @Query("topKPerBase") topKPerBase: Int = 35,
+        @Query("finalLimit") finalLimit: Int = 10
+    ): List<ProductRecommendationDto>
 }

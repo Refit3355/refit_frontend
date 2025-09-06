@@ -29,8 +29,14 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.net.URLDecoder
+import kotlinx.serialization.decodeFromString
 import com.refit.app.data.order.flow.CheckoutFlowStore
 import com.refit.app.data.cart.api.CartApi
 import com.refit.app.data.cart.repository.CartRepository
@@ -40,9 +46,9 @@ import com.refit.app.ui.screen.CategoryScreen
 import com.refit.app.ui.screen.CommunityScreen
 import com.refit.app.ui.screen.HomeScreen
 import com.refit.app.ui.screen.LoginScreen
-import com.refit.app.ui.screen.MyfitEditScreen
-import com.refit.app.ui.screen.MyfitRegisterScreen
-import com.refit.app.ui.screen.MyfitScreen
+import com.refit.app.ui.screen.myfit.MyfitEditScreen
+import com.refit.app.ui.screen.myfit.MyfitRegisterScreen
+import com.refit.app.ui.screen.myfit.MyfitScreen
 import com.refit.app.ui.screen.NotificationScreen
 import com.refit.app.ui.screen.ProductDetailScreen
 import com.refit.app.ui.screen.RecommendationScreen
@@ -68,27 +74,20 @@ import com.refit.app.ui.screen.MypageScreen
 import com.refit.app.ui.screen.OrderListScreen
 import com.refit.app.ui.screen.EditBasicInfoScreen
 import com.refit.app.ui.screen.HealthEditScreen
-import com.refit.app.ui.screen.SignupFlowScreen
 import com.refit.app.data.auth.modelAndView.FormMode
 import com.refit.app.data.auth.modelAndView.KakaoFlowStore
 import com.refit.app.data.myfit.viewmodel.MyfitViewModel
 import com.refit.app.data.auth.modelAndView.SignupViewModel
 import com.refit.app.ui.screen.ChatRoomScreen
 import com.refit.app.data.product.model.Product
-import com.refit.app.ui.screen.AnalysisResultScreen
-import com.refit.app.ui.screen.AnalysisScreen
-import com.refit.app.ui.screen.AnalysisUiState
-import com.refit.app.ui.screen.CombinationDetailScreen
 import com.refit.app.ui.screen.CombinationRegisterScreen
-import com.refit.app.ui.screen.CreatedCombinationListScreen
-import com.refit.app.ui.screen.LikedCombinationListScreen
-import com.refit.app.ui.screen.MypageScreen
-import com.refit.app.ui.screen.OrderListScreen
-import com.refit.app.ui.screen.EditBasicInfoScreen
-import com.refit.app.ui.screen.HealthEditScreen
 import com.refit.app.ui.screen.ProductSelectScreen
-import com.refit.app.ui.screen.SignupFlowScreen
 import com.refit.app.data.order.model.decodeDraftOrderRequest
+import com.refit.app.ui.composable.order.CompleteItemNav
+import com.refit.app.ui.composable.order.OrderCompleteScreen
+import com.refit.app.ui.screen.ResultRouterScreen
+import com.refit.app.ui.screen.ChatbotScreen
+import com.refit.app.ui.screen.ProductListScreen
 import com.refit.app.ui.screen.order.OrderSheetScreen
 import com.refit.app.ui.screen.order.PayFailScreen
 import com.refit.app.ui.screen.order.TossWebViewScreen
@@ -106,17 +105,36 @@ fun MainScreenWithBottomNav(
 )
 {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route ?: "home"
+
+    val currentRoute = navBackStackEntry?.destination?.route.orEmpty()
+    val isRouteResolved = navBackStackEntry != null
+
+    var leftSplash by remember { mutableStateOf(false) }
+    LaunchedEffect(isRouteResolved, currentRoute) {
+        if (isRouteResolved && currentRoute != "splash") {
+            leftSplash = true
+        }
+    }
 
     val bottomTabs = listOf("home", "category", "myfit", "community", "my", "sleepDetail",
-        "stepsDetail", "weatherDetail", "ingredient")
+        "stepsDetail", "weatherDetail")
     val noBottomTabs = listOf("myfit/register", "myfit/edit", "checkout/")
 
-    // 스플래시/인증 경로에서는 상단 및 하단 바 숨김 처리
-    val hideBars = currentRoute == "splash" || currentRoute.startsWith("auth/login")
+    val inAuth = currentRoute.startsWith("auth/login")
+    val inSplash = !isRouteResolved || currentRoute == "splash"
+
+    // 스플래시 중이거나 인증 플로우면 숨김
+    val hideBarsBase = inSplash || inAuth
+
+    // 스플래시 “이후” + 탭 라우트일 때만
+    val showBottomBar = leftSplash &&
+            !hideBarsBase &&
+            noBottomTabs.none { currentRoute.startsWith(it) } &&
+            bottomTabs.any { currentRoute.startsWith(it) }
+
     Scaffold(
         topBar = {
-            if (!hideBars) {
+            if (leftSplash && !hideBarsBase) {
                 Box(Modifier.padding(vertical = 8.dp)) {
                     RefitTopBar(
                         config = appBarFor(
@@ -128,10 +146,7 @@ fun MainScreenWithBottomNav(
             }
         },
         bottomBar = {
-            if (!hideBars &&
-                noBottomTabs.none { currentRoute.startsWith(it) } &&
-                bottomTabs.any { currentRoute.startsWith(it) }
-            ) {
+            if (showBottomBar) {
                 BottomBar(navController = navController)
             }
         }
@@ -146,7 +161,6 @@ fun MainScreenWithBottomNav(
                 startDestination = startDestination,
                 modifier = Modifier.padding(innerPadding)
             ) {
-                // Splash
                 composable("splash") {
                     SplashScreen(
                         onDecide = { loggedIn ->
@@ -312,7 +326,6 @@ fun MainScreenWithBottomNav(
                     )
                 }
 
-                // 성분 분석 (부모 라우트에 VM 스코프 고정)
                 composable("ingredient") { backStackEntry ->
                     val app = LocalContext.current.applicationContext as Application
 
@@ -325,14 +338,13 @@ fun MainScreenWithBottomNav(
 
                 composable("ingredient/result") { backStackEntry ->
                     val app = LocalContext.current.applicationContext as Application
+
                     val parentEntry = remember(backStackEntry) {
-                        // 아래 라우트가 백스택에 남아 있으므로 이 엔트리를 통해 같은 VM 인스턴스를 재사용
                         navController.getBackStackEntry("ingredient")
                     }
                     val vm: AnalysisViewModel =
                         viewModel(parentEntry, factory = AnalysisViewModelFactory(app))
-
-                    AnalysisResultScreen(ui = vm.ui.value)
+                    ResultRouterScreen(vm = vm)
                 }
 
                 // 검색/알림/장바구니
@@ -499,6 +511,8 @@ fun MainScreenWithBottomNav(
                     )
                 }
 
+                // 챗봇
+                composable("chatbot") { ChatbotScreen(navController) }
 
                 // 문자열 인코딩 유틸
                 fun enc(s: String) = java.net.URLEncoder.encode(s, "utf-8")
@@ -523,7 +537,6 @@ fun MainScreenWithBottomNav(
                         OrderSheetScreen(
                             navController = navController,
                             draftReq = draftReq,
-                            clientKey = BuildConfig.TOSS_CLIENT_KEY,
                             successUrl = "refitapp://pay/success",
                             failUrl = "refitapp://pay/fail"
                         )
@@ -567,6 +580,7 @@ fun MainScreenWithBottomNav(
                         )
                     }
 
+                    // 결제 트랜잭션 처리용 게이트웨이 화면
                     composable(
                         route = "checkout/payResult?paymentKey={paymentKey}&orderId={orderId}&amount={amount}",
                         deepLinks = listOf(
@@ -587,34 +601,42 @@ fun MainScreenWithBottomNav(
                         val cartApi  = remember { RetrofitInstance.create(CartApi::class.java) }
                         val cartRepo = remember { CartRepository(cartApi) }
                         val scope    = rememberCoroutineScope()
+                        fun enc(s: String) = java.net.URLEncoder.encode(s, "utf-8")
 
                         com.refit.app.ui.composable.order.PayResultHandler(
                             navController = navController,
                             paymentKey = paymentKey,
                             orderId = orderId,
                             amount = amount,
-                            onSuccessNavigate = { orderPk ->
-                                // 선택했던 장바구니 항목들 삭제
+                            onSuccessNavigate = { payload ->
+
+                                // 장바구니 정리
                                 scope.launch {
                                     val ids = CheckoutFlowStore.selectedCartIds.value
                                     if (ids.isNotEmpty()) {
-                                        // 서버가 이미 정리하는 경우도 있으니 에러는 무시
                                         runCatching { cartRepo.deleteBulk(ids) }
                                         CheckoutFlowStore.clear()
-                                        // 뱃지/목록 갱신 콜백
                                         onCartChanged()
                                     }
                                 }
 
-                                // 성공 후 이동 로직. orderPk가 없으면 마이페이지로 보내는 등 정책 결정
-                                if (orderPk > 0) {
-                                    navController.navigate("orders") {
-                                        popUpTo(NavRoutes.CheckoutRoot) { inclusive = true }
-                                    }
-                                } else {
-                                    navController.navigate("my") {
-                                        popUpTo(NavRoutes.CheckoutRoot) { inclusive = true }
-                                    }
+                                // items를 JSON으로 직렬화해 쿼리로 전달
+                                val itemsParam = URLEncoder.encode(Json.encodeToString(payload.items), "utf-8")
+
+                                val dest = buildString {
+                                    append("checkout/complete")
+                                    append("?orderCode=${enc(payload.orderCode)}")
+                                    append("&amount=${payload.amount}")
+                                    append("&orderName=${enc(payload.orderName ?: "")}")
+                                    append("&method=${enc(payload.method ?: "")}")
+                                    append("&thumb=${enc(payload.thumb ?: "")}")
+                                    append("&itemCount=${payload.itemCount ?: -1}")
+                                    append("&items=$itemsParam")
+                                }
+
+                                navController.navigate(dest) {
+                                    popUpTo(NavRoutes.CheckoutRoot) { inclusive = true }
+                                    launchSingleTop = true
                                 }
                             },
                             onFailNavigate = {
@@ -635,6 +657,72 @@ fun MainScreenWithBottomNav(
                         val code = backStackEntry.arguments?.getString("code") ?: "UNKNOWN"
                         val message = backStackEntry.arguments?.getString("message") ?: ""
                         PayFailScreen(navController = navController, code = code, message = message)
+                    }
+
+                    // 결제 완료 페이지
+                    composable(
+                        route = "checkout/complete?orderCode={orderCode}&amount={amount}&orderName={orderName}&method={method}&thumb={thumb}&itemCount={itemCount}&items={items}",
+                        arguments = listOf(
+                            navArgument("orderCode") { type = NavType.StringType },
+                            navArgument("amount")    { type = NavType.LongType },
+                            navArgument("orderName") { type = NavType.StringType; nullable = true; defaultValue = null },
+                            navArgument("method")    { type = NavType.StringType; nullable = true; defaultValue = null },
+                            navArgument("thumb")     { type = NavType.StringType; nullable = true; defaultValue = null },
+                            navArgument("itemCount") { type = NavType.IntType;   defaultValue = -1 },
+                            navArgument("items")     { type = NavType.StringType; nullable = true; defaultValue = null }
+                        )
+                    ) { back ->
+                        val orderCode = back.arguments!!.getString("orderCode")!!
+                        val amount    = back.arguments!!.getLong("amount")
+                        val orderName = back.arguments?.getString("orderName")?.let { URLDecoder.decode(it, "utf-8") }
+                        val method    = back.arguments?.getString("method")
+                        val thumb     = back.arguments?.getString("thumb")
+                        val itemCountArg = back.arguments?.getInt("itemCount") ?: -1
+                        val itemCount = if (itemCountArg >= 0) itemCountArg else null
+
+                        val itemsArg = back.arguments?.getString("items")
+                        val items: List<CompleteItemNav> = try {
+                            if (!itemsArg.isNullOrBlank()) {
+                                val decoded = URLDecoder.decode(itemsArg, "utf-8")
+                                val list = Json.decodeFromString<List<CompleteItemNav>>(decoded)
+                                android.util.Log.d("ORDER_COMPLETE", "decoded items = ${list.size}")
+                                list
+                            } else emptyList()
+                        } catch (t: Throwable) {
+                            android.util.Log.e("ORDER_COMPLETE", "decode fail", t)
+                            emptyList()
+                        }
+
+                        OrderCompleteScreen(
+                            navController = navController,
+                            orderCode = orderCode,
+                            amount = amount,
+                            orderName = orderName,
+                            method = method,
+                            thumb = thumb,
+                            itemCount = itemCount,
+                            items = items
+                        )
+                    }
+
+                    composable(
+                        route = "productList?bhType={bhType}&effectId={effectId}&sort={sort}",
+                        arguments = listOf(
+                            navArgument("bhType")  { type = NavType.IntType;  defaultValue = 0 },
+                            navArgument("effectId"){ type = NavType.IntType;  defaultValue = -1 },
+                            navArgument("sort")    { type = NavType.StringType; defaultValue = "latest" },
+                        )
+                    ) { backStackEntry ->
+                        val bhType   = backStackEntry.arguments?.getInt("bhType") ?: 0
+                        val effectId = backStackEntry.arguments?.getInt("effectId") ?: -1
+                        val sort     = backStackEntry.arguments?.getString("sort") ?: "latest"
+
+                        ProductListScreen(
+                            navController = navController,
+                            bhType = bhType,
+                            effectId = effectId,
+                            sort = sort
+                        )
                     }
                 }
             }

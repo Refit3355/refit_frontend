@@ -73,20 +73,14 @@
                 <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
             </intent-filter>
 
-            <!-- Toss 결제 성공 콜백 -->
+            <!-- Toss 결제 콜백 -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="refitapp" android:host="pay" android:path="/success"/>
-            </intent-filter>
-
-            <!-- Toss 결제 실패 콜백 -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="refitapp" android:host="pay" android:path="/fail"/>
+                <data android:scheme="refitapp" android:host="pay"/>
+                <data android:scheme="refitapp" android:host="pay" android:pathPrefix="/success"/>
+                <data android:scheme="refitapp" android:host="pay" android:pathPrefix="/fail"/>
             </intent-filter>
 
             <!-- 알림 딥링크: app://notification -->

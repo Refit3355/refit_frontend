@@ -63,7 +63,7 @@ fun SummaryCard(summary: String, icon: @Composable (() -> Unit)? = null) {
                 fontSize = 16.sp,
                 lineHeight = 20.sp,
                 fontFamily = Pretendard,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.Medium
             )
         }
     }

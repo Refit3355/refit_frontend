@@ -6,7 +6,7 @@ data class PurchasedProductDto(
     val thumbnailUrl: String,
     val brandName: String,
     val productName: String,
-    val itemCount: Int,
+    val remainingCount: Int,
     val price: Int,
     val discountRate: Int,
     val discountedPrice: Int,

@@ -13,12 +13,21 @@ import com.refit.app.ui.composable.auth.*
 import com.refit.app.ui.theme.MainPurple
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.refit.app.data.auth.modelAndView.FormMode
 import com.refit.app.ui.theme.Pretendard
 import com.refit.app.data.auth.modelAndView.SignupViewModel
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 
 @Composable
 fun SignupStep1Screen(
@@ -44,15 +53,21 @@ fun SignupStep1Screen(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        LinearProgressIndicator(
-            progress = { 1f / 3f },
-            modifier = Modifier
+        Box(
+            Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
-                .height(4.dp),
-            color = MainPurple,
-            trackColor = Color(0xFFE5E5EA)
-        )
+                .height(4.dp)
+                .clip(RoundedCornerShape(2.dp))
+                .background(Color(0xFFE5E5EA))
+        ) {
+            Box(
+                Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(1f / 3f)
+                    .background(MainPurple)
+            )
+        }
 
         val scroll = rememberScrollState()
         Column(
@@ -60,6 +75,7 @@ fun SignupStep1Screen(
                 .fillMaxSize()
                 .padding(horizontal = 20.dp, vertical = 16.dp)
                 .verticalScroll(scroll)
+                .imePadding()
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -128,6 +144,7 @@ fun SignupStep1Screen(
             ) {
                 Text("다음", fontFamily = Pretendard)
             }
+            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.ime))
         }
     }
 
@@ -138,5 +155,29 @@ fun SignupStep1Screen(
                 vm.onZipcode(zone); vm.onRoad(road); showDialog.value = false
             }
         )
+    }
+}
+
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 800)
+@Composable
+fun Preview_SignupStep1Screen() {
+    val owner = remember {
+        object : ViewModelStoreOwner {
+            override val viewModelStore: ViewModelStore = ViewModelStore()
+        }
+    }
+
+    CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
+        MaterialTheme {
+            SignupStep1Screen(
+                mode = FormMode.SIGNUP,
+                onBack = {},
+                onNextOrSubmit = {},
+                onSearchAddress = {},
+                prefillNickname = "리핏",
+                prefillEmail = "soo@example.com"
+            )
+        }
     }
 }

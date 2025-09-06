@@ -10,10 +10,13 @@ import com.refit.app.data.myfit.repository.MyfitRepository
 import com.refit.app.network.TokenManager
 import kotlinx.coroutines.launch
 import android.util.Log
+import com.refit.app.data.myfit.model.ProductRecommendationDto
 import com.refit.app.data.myfit.model.PurchasedProductDto
 import com.refit.app.network.UserPrefs
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import retrofit2.HttpException
 import java.net.SocketTimeoutException
@@ -51,6 +54,9 @@ class MyfitViewModel(
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
+
+    private val _recommendations = MutableStateFlow<List<ProductRecommendationDto>>(emptyList())
+    val recommendations: StateFlow<List<ProductRecommendationDto>> = _recommendations
 
     init {
         refreshNickname()
@@ -163,4 +169,19 @@ class MyfitViewModel(
             }
         _isLoading.value = false
     }
+
+    suspend fun fetchRecommendations(item: MemberProductItem): List<ProductRecommendationDto> =
+        withContext(Dispatchers.IO) {
+            try {
+                repo.getRecommendations(
+                    memberProductId = item.memberProductId,
+                    topKPerBase = 35,
+                    finalLimit = 10
+                )
+            } catch (e: Exception) {
+                // 화면 공통 에러 상태도 같이 업데이트
+                ui = ui.copy(error = e.toErrorUi())
+                emptyList()
+            }
+        }
 }

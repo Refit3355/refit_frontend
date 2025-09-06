@@ -146,12 +146,36 @@ class MainActivity : ComponentActivity() {
 
     //  딥링크 → NavController 라우팅
     private fun handleDeeplink(nav: androidx.navigation.NavController, uri: Uri) {
+        // Toss 결제 콜백 처리
+        if (uri.scheme == "refitapp" && uri.host == "pay") {
+            when (uri.lastPathSegment) {
+                "success" -> {
+                    val paymentKey = uri.getQueryParameter("paymentKey").orEmpty()
+                    val ordId      = uri.getQueryParameter("orderId").orEmpty()
+                    val amt        = uri.getQueryParameter("amount")?.toLongOrNull() ?: 0L
+                    android.util.Log.i("DeepLink", "PAY SUCCESS paymentKey=$paymentKey, orderId=$ordId, amount=$amt")
+                    nav.navigate(
+                        "checkout/payResult?paymentKey=${Uri.encode(paymentKey)}&orderId=${Uri.encode(ordId)}&amount=$amt"
+                    )
+                }
+                "fail" -> {
+                    val code = uri.getQueryParameter("code") ?: "UNKNOWN"
+                    val msg  = uri.getQueryParameter("message") ?: "결제에 실패했어요"
+                    android.util.Log.w("DeepLink", "PAY FAIL code=$code, message=$msg")
+                    nav.navigate(
+                        "checkout/payFail?code=${Uri.encode(code)}&message=${Uri.encode(msg)}"
+                    )
+                }
+            }
+            return
+        }
+
+        // app://... 라우팅 유지
         when (uri.host) {
             "myfit"   -> nav.navigate("myfit")
             "orders"  -> {
                 val id = uri.pathSegments.firstOrNull()?.toLongOrNull()
                 if (id != null) {
-                    // 주문 상세 라우트가 따로 있으면 거기에 맞춰 이동
                     // nav.navigate("orders/$id")
                     nav.navigate("orders")
                 } else {

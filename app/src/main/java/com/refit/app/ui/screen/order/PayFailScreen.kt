@@ -16,6 +16,11 @@ fun PayFailScreen(
     code: String,
     message: String
 ) {
+    // 진입할 때 실패 사유 로그
+    androidx.compose.runtime.LaunchedEffect(code, message) {
+        android.util.Log.w("TOSS_FAIL", "code=$code, message=$message")
+    }
+
     Surface(Modifier.fillMaxSize()) {
         Column(
             Modifier
