@@ -15,7 +15,7 @@ internal fun BackOnlyTopBar(config: AppBarConfig.BackOnly) {
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White),
         navigationIcon = { BackButton(config.onBack) },
         title = {
-            Text(config.title, fontSize = 18.sp, fontWeight = FontWeight.Medium, maxLines = 1)
+            Text(config.title, fontSize = 18.sp, fontWeight = FontWeight(500), maxLines = 1)
         }
     )
 }

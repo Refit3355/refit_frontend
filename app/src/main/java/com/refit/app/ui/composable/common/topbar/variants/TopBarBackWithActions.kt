@@ -1,26 +1,29 @@
 package com.refit.app.ui.composable.common.topbar.variants
 
-import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import com.refit.app.data.basic.model.AppBarConfig
-import com.refit.app.ui.composable.common.topbar.*
+import com.refit.app.ui.composable.common.topbar.BackButton
+import com.refit.app.ui.composable.common.topbar.ActionsRowCompact
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun BackWithActionsTopBar(config: AppBarConfig.BackWithActions) {
-    TopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White),
         navigationIcon = { BackButton(config.onBack) },
         title = {
-            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Text(config.title, fontSize = 18.sp, fontWeight = FontWeight.Medium)
-            }
+            Text(
+                text = config.title,
+                fontSize = 18.sp,
+                fontWeight = FontWeight(500),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         },
         actions = {
             if (config.showActions) {
@@ -28,8 +31,6 @@ internal fun BackWithActionsTopBar(config: AppBarConfig.BackWithActions) {
                     onAlarmClick = config.onAlarmClick,
                     onCartClick  = config.onCartClick
                 )
-            } else {
-                Spacer(Modifier.width(TopBarTokens.SymWidth))
             }
         }
     )
