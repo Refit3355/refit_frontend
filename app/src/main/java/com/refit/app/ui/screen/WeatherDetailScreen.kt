@@ -10,7 +10,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -27,19 +26,21 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.LocationServices
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.refit.app.R
+import com.refit.app.data.product.modelAndView.RecommendationViewModel
 import com.refit.app.data.weather.modelAndView.WeatherViewModel
 import com.refit.app.network.UserPrefs
-import com.refit.app.ui.composable.health.ChartBox
 import com.refit.app.ui.composable.health.ChartHeader
 import com.refit.app.ui.composable.health.GifCard
-import com.refit.app.ui.composable.health.RoundedBarChartRenderer
+import com.refit.app.ui.composable.home.HomeProductRow
+import com.refit.app.ui.composable.home.SectionHeader
+import com.refit.app.ui.composable.weather.chart.WeatherHumidChart
+import com.refit.app.ui.composable.weather.chart.WeatherPrecipChart
+import com.refit.app.ui.composable.weather.chart.WeatherSnowChart
+import com.refit.app.ui.composable.weather.chart.WeatherTempChart
 import com.refit.app.ui.theme.MainPurple
-import com.refit.app.ui.theme.Pretendard
-import com.refit.app.util.health.ChartUtils
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.*
@@ -56,6 +57,9 @@ fun WeatherDetailScreen(
 
     val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
 
+    val recommendVm: RecommendationViewModel = viewModel()
+    val recommendState by recommendVm.state.collectAsState()
+
     LaunchedEffect(permissionState.status) {
         if (permissionState.status.isGranted) {
             val fusedLocationClient = LocationServices.getFusedLocationProviderClient(ctx)
@@ -65,6 +69,7 @@ fun WeatherDetailScreen(
         } else {
             permissionState.launchPermissionRequest()
         }
+        recommendVm.loadRecommendations(type = 0, limit = 100)
     }
 
     if (uiState.loading) {
@@ -136,7 +141,7 @@ fun WeatherDetailScreen(
             iconRes = R.drawable.jellbbo_sunny,
             text = buildAnnotatedString {
                 append("최근 7일 동안의 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("기온 변화") }
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("기온 변화 (℃)") }
                 append("를 확인했어요.\n")
                 append("기온이 낮아지면 혈관 수축으로 피부의 ")
                 withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("혈류량") }
@@ -145,42 +150,13 @@ fun WeatherDetailScreen(
                 append("이 커질 수 있어요.")
             }
         )
-        ChartBox(
-            height = 220.dp,
-            visible = chart1Visible,
+        WeatherTempChart(
+            temps = temps,
+            indexFormatter = indexFormatter,
+            pretendardBold = pretendardBold,
+            chartVisible = chart1Visible,
             onVisible = { chart1Visible = true }
-        ) { context ->
-            com.github.mikephil.charting.charts.BarChart(context).apply {
-                val dataSet = BarDataSet(temps, "").apply {
-                    setDrawValues(true)
-                    setValueTextSize(12f)
-                    setValueTextColor(androidx.compose.ui.graphics.Color.DarkGray.toArgb())
-                    colors = temps.mapIndexed { idx, _ ->
-                        if (idx == temps.size - 1) MainPurple.toArgb() else androidx.compose.ui.graphics.Color.LightGray.toArgb()
-                    }
-                }
-                data = BarData(dataSet).apply { barWidth = 0.4f }
-                renderer = RoundedBarChartRenderer(this, animator, viewPortHandler)
-                description.isEnabled = false
-                legend.isEnabled = false
-                axisRight.isEnabled = false
-                axisLeft.apply {
-                    isEnabled = false
-                    axisMinimum = 0f
-                    axisMaximum = (temps.maxOfOrNull { it.y } ?: 0f) * 1.1f
-                    removeAllLimitLines()
-                    addLimitLine(
-                        ChartUtils.createLimitLine(25f, "쾌적 기준 25℃", pretendardBold)
-                    )
-                }
-                xAxis.apply {
-                    position = XAxis.XAxisPosition.BOTTOM
-                    setDrawGridLines(false)
-                    valueFormatter = indexFormatter
-                }
-                if (chart1Visible) animateY(1000)
-            }
-        }
+        )
 
         Spacer(Modifier.height(32.dp))
 
@@ -189,7 +165,7 @@ fun WeatherDetailScreen(
             iconRes = R.drawable.jellbbo_humid,
             text = buildAnnotatedString {
                 append("최근 7일간의 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("습도") }
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("습도 (%)") }
                 append(" 기록이에요.\n")
                 append("습도가 40% 이하로 떨어지면 각질층의 ")
                 withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("NMF(천연보습인자)") }
@@ -199,42 +175,13 @@ fun WeatherDetailScreen(
                 append("이 쉽게 손상될 수 있습니다.")
             }
         )
-        ChartBox(
-            height = 220.dp,
-            visible = chart2Visible,
+        WeatherHumidChart(
+            humids = humids,
+            indexFormatter = indexFormatter,
+            pretendardBold = pretendardBold,
+            chartVisible = chart2Visible,
             onVisible = { chart2Visible = true }
-        ) { context ->
-            com.github.mikephil.charting.charts.BarChart(context).apply {
-                val dataSet = BarDataSet(humids, "").apply {
-                    setDrawValues(true)
-                    setValueTextSize(12f)
-                    setValueTextColor(androidx.compose.ui.graphics.Color.DarkGray.toArgb())
-                    colors = humids.mapIndexed { idx, _ ->
-                        if (idx == humids.size - 1) MainPurple.toArgb() else androidx.compose.ui.graphics.Color.LightGray.toArgb()
-                    }
-                }
-                data = BarData(dataSet).apply { barWidth = 0.4f }
-                renderer = RoundedBarChartRenderer(this, animator, viewPortHandler)
-                description.isEnabled = false
-                legend.isEnabled = false
-                axisRight.isEnabled = false
-                axisLeft.apply {
-                    isEnabled = false
-                    axisMinimum = 0f
-                    axisMaximum = 100f
-                    removeAllLimitLines()
-                    addLimitLine(
-                        ChartUtils.createLimitLine(50f, "적정습도 50%", pretendardBold)
-                    )
-                }
-                xAxis.apply {
-                    position = XAxis.XAxisPosition.BOTTOM
-                    setDrawGridLines(false)
-                    valueFormatter = indexFormatter
-                }
-                if (chart2Visible) animateY(1000)
-            }
-        }
+        )
 
         Spacer(Modifier.height(32.dp))
 
@@ -243,7 +190,7 @@ fun WeatherDetailScreen(
             iconRes = R.drawable.jellbbo_rainy,
             text = buildAnnotatedString {
                 append("최근 일주일간의 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("강수량") }
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("강수량 (mm)") }
                 append("을 확인했어요.\n")
                 append("비가 잦으면 대기 중 ")
                 withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("오염 물질") }
@@ -254,42 +201,13 @@ fun WeatherDetailScreen(
                 append("을 유발할 수 있으니 세안을 철저히 해야 해요.")
             }
         )
-        ChartBox(
-            height = 200.dp,
-            visible = chart3Visible,
+        WeatherPrecipChart(
+            precs = precs,
+            indexFormatter = indexFormatter,
+            pretendardBold = pretendardBold,
+            chartVisible = chart3Visible,
             onVisible = { chart3Visible = true }
-        ) { context ->
-            com.github.mikephil.charting.charts.BarChart(context).apply {
-                val dataSet = BarDataSet(precs, "").apply {
-                    setDrawValues(true)
-                    setValueTextSize(12f)
-                    setValueTextColor(androidx.compose.ui.graphics.Color.DarkGray.toArgb())
-                    colors = precs.mapIndexed { idx, _ ->
-                        if (idx == precs.size - 1) MainPurple.toArgb() else androidx.compose.ui.graphics.Color.LightGray.toArgb()
-                    }
-                }
-                data = BarData(dataSet).apply { barWidth = 0.4f }
-                renderer = RoundedBarChartRenderer(this, animator, viewPortHandler)
-                description.isEnabled = false
-                legend.isEnabled = false
-                axisRight.isEnabled = false
-                axisLeft.apply {
-                    isEnabled = false
-                    axisMinimum = 0f
-                    axisMaximum = (precs.maxOfOrNull { it.y } ?: 0f) * 1.1f  // 강수량 최대치
-                    removeAllLimitLines()
-                    addLimitLine(
-                        ChartUtils.createLimitLine(10f, "기준 10mm", pretendardBold)
-                    )
-                }
-                xAxis.apply {
-                    position = XAxis.XAxisPosition.BOTTOM
-                    setDrawGridLines(false)
-                    valueFormatter = indexFormatter
-                }
-                if (chart3Visible) animateY(1000)
-            }
-        }
+        )
 
         Spacer(Modifier.height(32.dp))
 
@@ -298,7 +216,7 @@ fun WeatherDetailScreen(
             iconRes = R.drawable.jellbbo_snow,
             text = buildAnnotatedString {
                 append("최근 7일간의 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("적설량") }
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("적설량 (cm)") }
                 append(" 데이터에요.\n")
                 append("눈이 많이 오는 날은 대기 습도가 낮고 난방 사용이 늘어나\n")
                 append("피부의 ")
@@ -306,41 +224,39 @@ fun WeatherDetailScreen(
                 append("이 증가하여 건조·가려움이 심해질 수 있어요.")
             }
         )
-        ChartBox(
-            height = 200.dp,
-            visible = chart4Visible,
+        WeatherSnowChart(
+            snows = snows,
+            indexFormatter = indexFormatter,
+            pretendardBold = pretendardBold,
+            chartVisible = chart4Visible,
             onVisible = { chart4Visible = true }
-        ) { context ->
-            com.github.mikephil.charting.charts.BarChart(context).apply {
-                val dataSet = BarDataSet(snows, "").apply {
-                    setDrawValues(true)
-                    setValueTextSize(12f)
-                    setValueTextColor(androidx.compose.ui.graphics.Color.DarkGray.toArgb())
-                    colors = snows.mapIndexed { idx, _ ->
-                        if (idx == snows.size - 1) MainPurple.toArgb() else androidx.compose.ui.graphics.Color.LightGray.toArgb()
-                    }
-                }
-                data = BarData(dataSet).apply { barWidth = 0.4f }
-                renderer = RoundedBarChartRenderer(this, animator, viewPortHandler)
-                description.isEnabled = false
-                legend.isEnabled = false
-                axisRight.isEnabled = false
-                axisLeft.apply {
-                    isEnabled = false
-                    axisMinimum = 0f
-                    axisMaximum = (snows.maxOfOrNull { it.y } ?: 0f) * 1.1f  // 적설량 최대치
-                    removeAllLimitLines()
-                    addLimitLine(
-                        ChartUtils.createLimitLine(5f, "주의 기준 5cm", pretendardBold)
-                    )
-                }
-                xAxis.apply {
-                    position = XAxis.XAxisPosition.BOTTOM
-                    setDrawGridLines(false)
-                    valueFormatter = indexFormatter
-                }
-                if (chart4Visible) animateY(1000)
+        )
+
+        Spacer(Modifier.height(32.dp))
+
+        // ---------------- 추천 상품 섹션 ----------------
+        val recommendMsg = buildAnnotatedString {
+            append(nickname)
+            append("님을 위한 ")
+            withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                append("맞춤형 상품들 보러가기")
             }
         }
+
+        SectionHeader(
+            title = recommendMsg,
+            onMore = {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    "recommendation_items",
+                    recommendState.items
+                )
+                navController.navigate("recommendation/2")
+            }
+        )
+
+        HomeProductRow(
+            products = recommendState.items.take(10),
+            onClick = { p -> navController.navigate("product/${p.id}") }
+        )
     }
 }

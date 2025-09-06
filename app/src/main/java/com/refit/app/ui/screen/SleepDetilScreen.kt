@@ -9,7 +9,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -22,20 +21,21 @@ import androidx.navigation.NavController
 import coil.ImageLoader
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.refit.app.R
 import com.refit.app.data.health.modelAndView.HealthViewModel
+import com.refit.app.data.product.modelAndView.RecommendationViewModel
 import com.refit.app.network.UserPrefs
-import com.refit.app.ui.composable.health.ChartBox
 import com.refit.app.ui.composable.health.ChartHeader
 import com.refit.app.ui.composable.health.GifCard
-import com.refit.app.ui.composable.health.RoundedBarChartRenderer
+import com.refit.app.ui.composable.health.chart.SleepChart
+import com.refit.app.ui.composable.health.chart.SleepCompareAvgChart
+import com.refit.app.ui.composable.health.chart.SleepCompareRecChart
+import com.refit.app.ui.composable.home.HomeProductRow
+import com.refit.app.ui.composable.home.SectionHeader
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
-import com.refit.app.util.health.ChartUtils
-import com.refit.app.util.health.SleepFormatter
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
@@ -49,9 +49,13 @@ fun SleepDetailScreen(
     val rows = uiState.rows
     val ctx = LocalContext.current
 
+    val recommendVm: RecommendationViewModel = viewModel()
+    val recommendState by recommendVm.state.collectAsState()
+
     LaunchedEffect(Unit) {
         if (uiState.permissionGranted) vm.fetch(ctx)
         else vm.onPermissionGranted(ctx)
+        recommendVm.loadRecommendations(type = 0, limit = 100)
     }
 
     if (rows.isEmpty()) {
@@ -85,12 +89,11 @@ fun SleepDetailScreen(
     }
 
     val indexFormatter = IndexAxisValueFormatter(xLabels)
+    val pretendardBold: Typeface? = ResourcesCompat.getFont(ctx, R.font.pretendard_bold)
 
     var chart1Visible by remember { mutableStateOf(false) }
     var chart2Visible by remember { mutableStateOf(false) }
     var chart3Visible by remember { mutableStateOf(false) }
-
-    val pretendardBold: Typeface? = ResourcesCompat.getFont(ctx, R.font.pretendard_bold)
 
     Column(
         modifier = Modifier
@@ -145,60 +148,13 @@ fun SleepDetailScreen(
                 append(" 유지에 도움을 줍니다.")
             }
         )
-        ChartBox(
-            height = 220.dp,
-            visible = chart1Visible,
-            onVisible = { chart1Visible = true }
-        ) { context ->
-            com.github.mikephil.charting.charts.BarChart(context).apply {
-                val barDataSet = BarDataSet(sleepEntries, "").apply {
-                    setDrawValues(true)
-                    setValueTextColor(androidx.compose.ui.graphics.Color.DarkGray.toArgb())
-                    setValueTextSize(12f)
-                    colors = sleepEntries.mapIndexed { idx, _ ->
-                        if (idx == sleepEntries.size - 1) MainPurple.toArgb() else androidx.compose.ui.graphics.Color.LightGray.toArgb()
-                    }
-                    valueFormatter = SleepFormatter()
-                }
-                data = BarData(barDataSet).apply { barWidth = 0.4f }
-                renderer = RoundedBarChartRenderer(this, animator, viewPortHandler)
-                description.isEnabled = false
-                legend.isEnabled = false
-                axisRight.isEnabled = false
-                axisLeft.apply {
-                    isEnabled = true
-                    setDrawLabels(false)
-                    setDrawGridLines(false)
-                    setDrawAxisLine(false)
-                    axisMinimum = 0f
-
-                    val maxVal = maxOf(
-                        sleepEntries.maxOfOrNull { it.y } ?: 0f,
-                        koreanAvgSleep.toFloat()
-                    )
-                    axisMaximum = maxVal * 1.1f
-
-                    removeAllLimitLines()
-                    addLimitLine(
-                        ChartUtils.createLimitLine(
-                            koreanAvgSleep.toFloat(),
-                            "일반인 평균 ${koreanAvgSleep / 60}h ${koreanAvgSleep % 60}m",
-                            pretendardBold
-                        )
-                    )
-                }
-                xAxis.apply {
-                    position = XAxis.XAxisPosition.BOTTOM
-                    setDrawGridLines(false)
-                    granularity = 1f
-                    setTextColor(androidx.compose.ui.graphics.Color.DarkGray.toArgb())
-                    valueFormatter = indexFormatter
-                }
-                if (chart1Visible) {
-                    animateY(1000, com.github.mikephil.charting.animation.Easing.EaseOutCubic)
-                }
-            }
-        }
+        SleepChart(
+            sleepEntries = sleepEntries,
+            koreanAvgSleep = koreanAvgSleep,
+            pretendardBold = pretendardBold,
+            indexFormatter = indexFormatter,
+            chartVisible = chart1Visible
+        ) { chart1Visible = true }
 
         Spacer(Modifier.height(32.dp))
 
@@ -213,52 +169,11 @@ fun SleepDetailScreen(
                 append("을 비교해 보았어요.")
             }
         )
-        ChartBox(
-            height = 200.dp,
-            visible = chart2Visible,
-            onVisible = { chart2Visible = true }
-        ) { context ->
-            com.github.mikephil.charting.charts.BarChart(context).apply {
-                val my = BarEntry(0f, yesterdaySleep.toFloat())
-                val avg = BarEntry(1f, koreanAvgSleep.toFloat())
-                val mySet = BarDataSet(listOf(my), "나").apply {
-                    color = MainPurple.toArgb()
-                    setValueTextColor(androidx.compose.ui.graphics.Color.DarkGray.toArgb())
-                    setValueTextSize(10f)
-                    setDrawValues(true)
-                    valueFormatter = SleepFormatter()
-                }
-                val avgSet = BarDataSet(listOf(avg), "한국 평균").apply {
-                    color = androidx.compose.ui.graphics.Color.LightGray.toArgb()
-                    setValueTextColor(androidx.compose.ui.graphics.Color.DarkGray.toArgb())
-                    setValueTextSize(10f)
-                    setDrawValues(true)
-                    valueFormatter = SleepFormatter()
-                }
-                val groupSpace = 0.4f
-                val barSpace = 0.05f
-                val barWidth = 0.2f
-                data = BarData(mySet, avgSet).apply { this.barWidth = barWidth }
-                val groupWidth = data.getGroupWidth(groupSpace, barSpace)
-                xAxis.axisMinimum = 0f
-                xAxis.axisMaximum = groupWidth
-                groupBars(0f, groupSpace, barSpace)
-                renderer = RoundedBarChartRenderer(this, animator, viewPortHandler)
-                description.isEnabled = false
-                axisLeft.apply {
-                    isEnabled = false
-                    axisMinimum = 0f
-                    val maxVal = maxOf(yesterdaySleep.toFloat(), koreanAvgSleep.toFloat())
-                    axisMaximum = maxVal * 1.1f
-                }
-                axisRight.isEnabled = false
-                xAxis.isEnabled = false
-                legend.isEnabled = true
-                if (chart2Visible) {
-                    animateY(1000, com.github.mikephil.charting.animation.Easing.EaseOutCubic)
-                }
-            }
-        }
+        SleepCompareAvgChart(
+            yesterdaySleep = yesterdaySleep,
+            koreanAvgSleep = koreanAvgSleep,
+            chartVisible = chart2Visible
+        ) { chart2Visible = true }
 
         Spacer(Modifier.height(32.dp))
 
@@ -273,51 +188,37 @@ fun SleepDetailScreen(
                 append("을 비교해 보았어요.")
             }
         )
-        ChartBox(
-            height = 200.dp,
-            visible = chart3Visible,
-            onVisible = { chart3Visible = true }
-        ) { context ->
-            com.github.mikephil.charting.charts.BarChart(context).apply {
-                val my = BarEntry(0f, yesterdaySleep.toFloat())
-                val rec = BarEntry(1f, recommendedSleep.toFloat())
-                val mySet = BarDataSet(listOf(my), "나").apply {
-                    color = MainPurple.toArgb()
-                    setValueTextColor(androidx.compose.ui.graphics.Color.DarkGray.toArgb())
-                    setValueTextSize(10f)
-                    setDrawValues(true)
-                    valueFormatter = SleepFormatter()
-                }
-                val recSet = BarDataSet(listOf(rec), "권장 수면").apply {
-                    color = androidx.compose.ui.graphics.Color.LightGray.toArgb()
-                    setValueTextColor(androidx.compose.ui.graphics.Color.DarkGray.toArgb())
-                    setValueTextSize(10f)
-                    setDrawValues(true)
-                    valueFormatter = SleepFormatter()
-                }
-                val groupSpace = 0.4f
-                val barSpace = 0.05f
-                val barWidth = 0.2f
-                data = BarData(mySet, recSet).apply { this.barWidth = barWidth }
-                val groupWidth = data.getGroupWidth(groupSpace, barSpace)
-                xAxis.axisMinimum = 0f
-                xAxis.axisMaximum = groupWidth
-                groupBars(0f, groupSpace, barSpace)
-                renderer = RoundedBarChartRenderer(this, animator, viewPortHandler)
-                description.isEnabled = false
-                axisLeft.apply {
-                    isEnabled = false
-                    axisMinimum = 0f
-                    val maxVal = maxOf(yesterdaySleep.toFloat(), recommendedSleep.toFloat())
-                    axisMaximum = maxVal * 1.1f
-                }
-                axisRight.isEnabled = false
-                xAxis.isEnabled = false
-                legend.isEnabled = true
-                if (chart3Visible) {
-                    animateY(1000, com.github.mikephil.charting.animation.Easing.EaseOutCubic)
-                }
+        SleepCompareRecChart(
+            yesterdaySleep = yesterdaySleep,
+            recommendedSleep = recommendedSleep,
+            chartVisible = chart3Visible
+        ) { chart3Visible = true }
+
+        Spacer(Modifier.height(32.dp))
+
+        // ---------------- 추천 상품 섹션 ----------------
+        val recommendMsg = buildAnnotatedString {
+            append(nickname)
+            append("님을 위한 ")
+            withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                append("맞춤형 상품들 보러가기")
             }
         }
+
+        SectionHeader(
+            title = recommendMsg,
+            onMore = {
+                navController.currentBackStackEntry?.savedStateHandle?.set(
+                    "recommendation_items",
+                    recommendState.items
+                )
+                navController.navigate("recommendation/1")
+            }
+        )
+
+        HomeProductRow(
+            products = recommendState.items.take(10),
+            onClick = { p -> navController.navigate("product/${p.id}") }
+        )
     }
 }
