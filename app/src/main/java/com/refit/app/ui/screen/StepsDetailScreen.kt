@@ -174,7 +174,7 @@ fun StepsDetailScreen(
                 append("을 유지하는 데 도움을 줍니다.")
             }
         )
-        StepChart(stepEntries, maxSteps, koreanAvgSteps, pretendardBold, chart1Visible) {
+        StepChart(stepEntries, maxSteps, koreanAvgSteps, pretendardBold, indexFormatter, chart1Visible) {
             chart1Visible = true
         }
 
@@ -194,7 +194,7 @@ fun StepsDetailScreen(
                 append("에도 긍정적입니다.")
             }
         )
-        KcalChart(kcalEntries, maxKcal, kcalAvg, pretendardBold, chart2Visible) {
+        KcalChart(kcalEntries, maxKcal, kcalAvg, pretendardBold, indexFormatter, chart2Visible) {
             chart2Visible = true
         }
 

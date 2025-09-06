@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.refit.app.ui.composable.health.ChartBox
 import com.refit.app.ui.composable.health.RoundedBarChartRenderer
 import com.refit.app.ui.theme.MainPurple
@@ -19,6 +20,7 @@ fun StepChart(
     maxSteps: Float,
     koreanAvgSteps: Float,
     pretendardBold: Typeface?,
+    indexFormatter: IndexAxisValueFormatter,
     chartVisible: Boolean,
     onVisible: () -> Unit
 ) {
@@ -60,7 +62,7 @@ fun StepChart(
                 setDrawGridLines(false)
                 granularity = 1f
                 setTextColor(Color.DarkGray.toArgb())
-                valueFormatter = RoundCommaValueFormatter()
+                valueFormatter = indexFormatter
             }
             if (chartVisible) {
                 animateY(1000, com.github.mikephil.charting.animation.Easing.EaseOutCubic)
