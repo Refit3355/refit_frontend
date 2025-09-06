@@ -25,6 +25,7 @@ import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -52,6 +53,7 @@ import com.refit.app.ui.theme.Pretendard
 import com.refit.app.data.order.model.DraftOrderRequest
 import com.refit.app.data.order.model.encodeDraftOrderRequest
 import com.refit.app.data.order.model.OrderSource
+import com.refit.app.ui.theme.DarkBlack
 
 @Composable
 fun CombinationDetailScreen(
@@ -142,7 +144,8 @@ fun CombinationDetailScreen(
                                 if (isSaved) R.drawable.ic_bookmark_purple else R.drawable.ic_bookmark_basic
                             ),
                             contentDescription = "저장",
-                            modifier = Modifier.height(24.dp)
+                            modifier = Modifier.height(24.dp),
+                            colorFilter = ColorFilter.tint(if (isSaved) MainPurple else DarkBlack)
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
@@ -152,7 +155,7 @@ fun CombinationDetailScreen(
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 14.sp
                             ),
-                            color = if (isSaved) MainPurple else MaterialTheme.colorScheme.onSurface
+                            color = if (isSaved) MainPurple else DarkBlack
                         )
                     }
 
