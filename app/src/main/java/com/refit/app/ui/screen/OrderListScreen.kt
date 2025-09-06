@@ -163,7 +163,9 @@ fun OrderListScreen(
                                             onCartChanged = onCartChanged,
                                             navController = navController,
                                             snackbarHostState = snackbarHostState,
-                                            scope = scope
+                                            scope = scope,
+                                            orderOriginalMerchTotal = order.originalMerchandiseTotal,
+                                            orderCurrentMerchSubtotal = order.currentMerchandiseSubtotal
                                         )
                                         Spacer(Modifier.height(12.dp))
                                     }

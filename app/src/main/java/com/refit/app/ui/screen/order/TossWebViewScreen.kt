@@ -10,7 +10,10 @@ import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import java.net.URLEncoder
@@ -36,7 +39,13 @@ fun TossWebViewScreen(
           <title>Toss Pay</title>
           <style>
             html,body{margin:0;padding:0;height:100%;font-family:system-ui,-apple-system,Segoe UI,Roboto}
-            .wrap{display:flex;align-items:center;justify-content:center;height:100%}
+            .wrap{
+                position: fixed;      
+                inset: 0;             
+                display: flex;
+                align-items: center; 
+                justify-content: center; 
+            }
             .msg{opacity:.7}
           </style>
         </head>
@@ -129,6 +138,8 @@ fun TossWebViewScreen(
     """.trimIndent()
 
     AndroidView(
+        modifier = Modifier
+            .fillMaxSize(),
         factory = { ctx ->
             WebView(ctx).apply {
 
