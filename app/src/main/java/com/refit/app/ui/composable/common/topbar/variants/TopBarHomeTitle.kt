@@ -26,7 +26,7 @@ internal fun HomeTitleTopBar(config: AppBarConfig.HomeTitle) {
         },
         title = {
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Text(config.title, fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                Text(config.title, fontSize = 18.sp, fontWeight = FontWeight(500))
             }
         },
         actions = {

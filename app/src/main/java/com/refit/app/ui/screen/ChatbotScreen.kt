@@ -36,6 +36,11 @@ fun ChatbotScreen(
     var input by remember { mutableStateOf(TextFieldValue("")) }
     var suggestions by remember { mutableStateOf(emptyList<FaqEntry>()) }
 
+    val density = LocalDensity.current
+    val imePx = WindowInsets.ime.getBottom(density)
+    val navPx = WindowInsets.navigationBars.getBottom(density)
+    val effectiveImeDp = with(density) { (imePx - navPx).coerceAtLeast(0).toDp() }
+
     // 최초 진입 보정
     LaunchedEffect(Unit) {
         if (messages.isEmpty()) vm.reset(startTemplateId)
@@ -48,33 +53,26 @@ fun ChatbotScreen(
     }
 
     // 새 메시지 추가/키보드 뜰 때 하단 스크롤
-    val imeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
-    LaunchedEffect(messages.size, imeVisible) {
+    LaunchedEffect(messages.size, imePx) {
         if (messages.isNotEmpty()) {
-            val base = messages.lastIndex
-            val target = if (imeVisible) base + 1 else base
-            listState.animateScrollToItem(target)
-        }
-    }
-    LaunchedEffect(messages.size) {
-        if (messages.isEmpty()) return@LaunchedEffect
-        val lastIndex = (listState.layoutInfo.totalItemsCount - 1).coerceAtLeast(0)
-        if (!firstScrollDone) {
-            listState.scrollToItem(lastIndex)
-            firstScrollDone = true
-        } else {
-            listState.animateScrollToItem(lastIndex)
+            if (!firstScrollDone) {
+                listState.scrollToItem(messages.lastIndex)
+                firstScrollDone = true
+            } else {
+                androidx.compose.runtime.withFrameNanos { }
+                listState.animateScrollToItem(messages.lastIndex)
+            }
         }
     }
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0,0,0,0),
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             Column(
-                modifier = Modifier
-                    .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime))
+                Modifier
+                    .padding(bottom = effectiveImeDp + 10                                                                                      .dp)
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 6.dp)
+                    .padding(horizontal = 8.dp, vertical = 0.dp)
             ) {
                 InputSuggestionsBar(
                     suggestions = suggestions,
@@ -113,8 +111,9 @@ fun ChatbotScreen(
                         1.00f to Color(0xFFE1F2F0)
                     )
                 )
-                .padding(12.dp)
-                .padding(innerPadding),
+                .padding(horizontal = 12.dp)
+                .padding(innerPadding)
+                .consumeWindowInsets(innerPadding),
             contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp)
         ) {
             items(messages.size) { i ->

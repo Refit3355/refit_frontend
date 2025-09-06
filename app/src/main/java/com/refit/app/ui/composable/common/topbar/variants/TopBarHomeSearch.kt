@@ -20,6 +20,7 @@ import com.refit.app.R
 import com.refit.app.data.basic.model.AppBarConfig
 import com.refit.app.ui.composable.common.topbar.TopBarTokens
 import com.refit.app.ui.composable.common.topbar.ActionsRowCompact
+import com.refit.app.ui.theme.Pretendard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,6 +49,7 @@ internal fun HomeSearchTopBar(config: AppBarConfig.HomeSearch) {
                         text = "검색어를 입력하세요",
                         color = Color(0xFF9E9E9E),
                         fontSize = 14.sp,
+                        fontFamily = Pretendard,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f)
