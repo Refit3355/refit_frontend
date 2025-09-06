@@ -1,21 +1,11 @@
 package com.refit.app.ui.composable.mypage
 
-import android.view.LayoutInflater
-import android.widget.TextView
-import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import com.refit.app.R
-import androidx.compose.material3.Icon
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,16 +14,14 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavController
+import com.refit.app.R
 import com.refit.app.data.me.model.OrderItemDto
 import com.refit.app.data.me.modelAndView.OrderViewModel
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.navigation.NavController
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
 import com.refit.app.util.common.PriceUtil
 import com.refit.app.util.order.OrderStatusMapper
@@ -43,6 +31,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun OrderItemRow(
     item: OrderItemDto,
+    orderOriginalMerchTotal: Long,
+    orderCurrentMerchSubtotal: Long,
+
     vm: OrderViewModel,
     cartVm: CartEditViewModel,
     onCartChanged: () -> Unit,
@@ -50,15 +41,12 @@ fun OrderItemRow(
     snackbarHostState: SnackbarHostState,
     scope: CoroutineScope
 ) {
-    val context = LocalContext.current
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
     ) {
-        // 상태 텍스트
-        val statusText = OrderStatusMapper.getStatusText(item.status)
+        val statusText = OrderStatusMapper.getStatusText(item.status.toInt())
 
         Text(
             text = statusText,
@@ -72,9 +60,7 @@ fun OrderItemRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {
-                    navController.navigate("product/${item.productId}")
-                },
+                .clickable { navController.navigate("product/${item.productId}") },
             verticalAlignment = Alignment.CenterVertically
         ) {
             // 상품 이미지
@@ -97,16 +83,16 @@ fun OrderItemRow(
                 // 가격/수량
                 Row {
                     Text(
-                        text = PriceUtil.formatPrice(item.price.toLong()),
+                        text = PriceUtil.formatPrice(item.unitPrice),
                         fontFamily = Pretendard,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.alignByBaseline()
                     )
-                    if (item.originalPrice > item.price) {
+                    if (item.originalUnitPrice > item.unitPrice) {
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            text = PriceUtil.formatPrice(item.originalPrice.toLong()),
+                            text = PriceUtil.formatPrice(item.originalUnitPrice),
                             fontFamily = Pretendard,
                             fontSize = 12.sp,
                             color = Color.Gray,
@@ -125,17 +111,19 @@ fun OrderItemRow(
                 }
 
                 // 주문취소 버튼 (결제완료일 때만)
-                if (item.status == 1) {
+                if (item.status == 1L) {
                     var showCancelDialog by remember { mutableStateOf(false) }
 
                     if (showCancelDialog) {
                         CancelOrderReasonDialog(
                             orderItemId = item.orderItemId,
-                            unitPrice = item.price,
-                            maxQty = item.quantity,
+                            unitPrice = item.unitPrice,
+                            maxQty = item.quantityRemaining.toInt().coerceAtLeast(0), //  남은 수량
+                            originalMerchandiseTotal = orderOriginalMerchTotal,       // 주문 당시 총액
+                            currentMerchandiseSubtotal = orderCurrentMerchSubtotal,   // 현재 남은 총액
                             onDismiss = { showCancelDialog = false },
                             onConfirmCancel = { id, reason, count ->
-                                vm.requestCancel(id, item.price, count, reason)
+                                vm.requestCancel(id, item.unitPrice.toInt(), count, reason)
                             }
                         )
                     }
@@ -149,10 +137,9 @@ fun OrderItemRow(
                 }
 
                 // 교환/반품 버튼 (배송완료일 때만)
-                if (item.status == 6) {
+                if (item.status == 6L) {
                     var showDialog by remember { mutableStateOf(false) }
 
-                    // 교환/반품 다이얼로그
                     if (showDialog) {
                         ExchangeReturnReasonDialog(
                             orderItemId = item.orderItemId,
@@ -182,9 +169,9 @@ fun OrderItemRow(
                         )
                     }
                 }
-
             }
 
+            // 장바구니 담기 버튼
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
@@ -195,7 +182,6 @@ fun OrderItemRow(
                         cartVm.addOne(item.productId, 1)
                         scope.launch {
                             snackbarHostState.currentSnackbarData?.dismiss()
-
                             val result = snackbarHostState.showSnackbar(
                                 message = "${item.productName}을 장바구니에 담았어요.",
                                 actionLabel = "바로가기",

@@ -19,12 +19,16 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun CancelOrderReasonDialog(
     orderItemId: Long,
-    unitPrice: Int,
-    maxQty: Int,           // 최대 취소 가능 수량 (UI 상에선 item.quantity 사용)
+    unitPrice: Long,
+    maxQty: Int,      // quantityRemaining
+    originalMerchandiseTotal: Long,   // 주문 당시 상품 총액(배송비 제외)
+    currentMerchandiseSubtotal: Long, // 이번 취소 직전 남아있는 상품 총액
     onDismiss: () -> Unit,
     onConfirmCancel: (orderItemId: Long, reason: String, count: Int) -> Unit
 ) {
@@ -33,6 +37,16 @@ fun CancelOrderReasonDialog(
     var selectedCount by remember { mutableStateOf(1) }
 
     val reasons = listOf("상품이 마음에 들지 않음", "더 저렴한 상품을 발견함", "잘못된 상품을 주문함")
+
+    val freeShippingThreshold = 30_000L
+    val shippingFee = 3_000L
+
+    val baseRefund: Long = unitPrice * selectedCount
+    val remainAfterThisCancel: Long = currentMerchandiseSubtotal - baseRefund
+    val originallyFree = originalMerchandiseTotal >= freeShippingThreshold
+    val shouldChargeShipping = originallyFree && (remainAfterThisCancel < freeShippingThreshold)
+    val shippingDeduct = if (shouldChargeShipping) shippingFee else 0L
+    val expectedRefund = (baseRefund - shippingDeduct).coerceAtLeast(0L)
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -117,13 +131,16 @@ fun CancelOrderReasonDialog(
                         }
 
                         // 미리보기(환불 금액)
-                        Text(
-                            text = "환불 예정 금액: ${unitPrice * selectedCount}원",
-                            fontFamily = Pretendard,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 14.sp,
-                            color = MainPurple
-                        )
+                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            Text("기본 환불액: ${baseRefund.comma()}원")
+                            if (shouldChargeShipping) {
+                                Text("배송비 차감: -${shippingDeduct.comma()}원 \n(취소 후 30,000원 미만)")
+                            }
+                            Text(
+                                "환불 예정 금액: ${expectedRefund.comma()}원",
+                                color = MainPurple, fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
 
                     if (step == 2) {
@@ -161,3 +178,6 @@ fun CancelOrderReasonDialog(
         }
     }
 }
+
+fun Long.comma(): String = NumberFormat.getNumberInstance(Locale.KOREA).format(this)
+fun Int.comma(): String  = NumberFormat.getNumberInstance(Locale.KOREA).format(this)

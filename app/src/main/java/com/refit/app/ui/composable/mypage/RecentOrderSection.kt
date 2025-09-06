@@ -8,9 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,10 +22,7 @@ import com.refit.app.data.me.model.OrderResponse
 import com.refit.app.ui.theme.LightPurple
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.refit.app.R
@@ -37,7 +32,6 @@ import com.refit.app.util.common.PriceUtil
 import com.refit.app.util.order.OrderStatusMapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-
 
 @Composable
 fun RecentOrderSection(
@@ -50,8 +44,6 @@ fun RecentOrderSection(
     snackbarHostState: SnackbarHostState,
     scope: CoroutineScope
 ) {
-    val context = LocalContext.current
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -102,7 +94,6 @@ fun RecentOrderSection(
 
         Spacer(Modifier.height(8.dp))
 
-        // 주문 내역 카드 → 흰색
         Card(
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -160,9 +151,7 @@ fun RecentOrderSection(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp)
-                                .clickable {
-                                    navController.navigate("product/${item.productId}")
-                                },
+                                .clickable { navController.navigate("product/${item.productId}") },
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -175,7 +164,7 @@ fun RecentOrderSection(
                                 Spacer(Modifier.width(12.dp))
                                 Column {
                                     Text(
-                                        text = OrderStatusMapper.getStatusText(item.status),
+                                        text = OrderStatusMapper.getStatusText(item.status.toInt()),
                                         color = MainPurple,
                                         fontSize = 12.sp,
                                         fontFamily = Pretendard,
@@ -190,16 +179,16 @@ fun RecentOrderSection(
                                     )
                                     Row {
                                         Text(
-                                            text = PriceUtil.formatPrice(item.price.toLong()),
+                                            text = PriceUtil.formatPrice(item.unitPrice),
                                             fontSize = 13.sp,
                                             fontWeight = FontWeight.Bold,
                                             fontFamily = Pretendard,
                                             modifier = Modifier.alignByBaseline()
                                         )
-                                        if (item.originalPrice > item.price) {
+                                        if (item.originalUnitPrice > item.unitPrice) {
                                             Spacer(Modifier.width(6.dp))
                                             Text(
-                                                text = PriceUtil.formatPrice(item.originalPrice.toLong()),
+                                                text = PriceUtil.formatPrice(item.originalUnitPrice),
                                                 fontSize = 12.sp,
                                                 fontFamily = Pretendard,
                                                 color = Color.Gray,
@@ -218,35 +207,21 @@ fun RecentOrderSection(
                                     }
 
                                     // 결제완료 → 주문취소 버튼
-                                    if (item.status == 1) {
+                                    if (item.status.toInt() == 1) {
                                         var showCancelDialog by remember { mutableStateOf(false) }
 
                                         if (showCancelDialog) {
-                                            // 남은 취소 가능 수량 계산
-                                            // item.canceledCount 가 없다면 아래 remainQty는 item.quantity 로 둠
-                                            val remainQty = run {
-                                                val canceled = try {
-                                                    @Suppress("UNUSED_VARIABLE")
-                                                    (item::class.java.getDeclaredField("canceledCount")
-                                                        .apply { isAccessible = true }
-                                                        .get(item) as? Int) ?: 0
-                                                } catch (_: Exception) {
-                                                    0
-                                                }
-                                                val q = item.quantity - canceled
-                                                if (q < 1) 1 else q
-                                            }
-
                                             CancelOrderReasonDialog(
                                                 orderItemId = item.orderItemId,
-                                                unitPrice = item.price,
-                                                maxQty = remainQty,
+                                                unitPrice = item.unitPrice,
+                                                maxQty = item.quantityRemaining.toInt().coerceAtLeast(0),
+                                                originalMerchandiseTotal = order.originalMerchandiseTotal,   // 주문 당시 총액
+                                                currentMerchandiseSubtotal = order.currentMerchandiseSubtotal, // 현재 남은 총액
                                                 onDismiss = { showCancelDialog = false },
                                                 onConfirmCancel = { id, reason, count ->
-                                                    //  cancelAmount = unitPrice * count 으로 요청
                                                     vm.requestCancel(
                                                         orderItemId = id,
-                                                        unitPrice = item.price,
+                                                        unitPrice = item.unitPrice.toInt(),
                                                         count = count,
                                                         reason = reason
                                                     )
@@ -265,7 +240,7 @@ fun RecentOrderSection(
                                     }
 
                                     // 배송완료 → 교환/반품 신청 버튼
-                                    if (item.status == 6) {
+                                    if (item.status.toInt() == 6) {
                                         var showDialog by remember { mutableStateOf(false) }
 
                                         if (showDialog) {
@@ -289,6 +264,7 @@ fun RecentOrderSection(
                                 }
                             }
 
+                            // 장바구니 담기
                             Box(
                                 modifier = Modifier
                                     .align(Alignment.CenterVertically)
@@ -299,7 +275,6 @@ fun RecentOrderSection(
                                         cartVm.addOne(item.productId, 1)
                                         scope.launch {
                                             snackbarHostState.currentSnackbarData?.dismiss()
-
                                             val result = snackbarHostState.showSnackbar(
                                                 message = "${item.productName}을 장바구니에 담았어요.",
                                                 actionLabel = "바로가기",
@@ -329,10 +304,5 @@ fun RecentOrderSection(
     }
 }
 
-private fun String.limitWithEllipsis(maxLength: Int): String {
-    return if (this.length > maxLength) {
-        this.take(maxLength) + "..."
-    } else {
-        this
-    }
-}
+private fun String.limitWithEllipsis(maxLength: Int): String =
+    if (this.length > maxLength) this.take(maxLength) + "..." else this
