@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 import com.refit.app.ui.theme.GreyText
+import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun BrandPill(
@@ -16,7 +17,8 @@ fun BrandPill(
         text = text,
         style = MaterialTheme.typography.labelMedium.copy(
             fontSize = 12.sp,
-            lineHeight = 14.sp
+            fontFamily = Pretendard,
+            lineHeight = 12.sp
         ),
         color = GreyText,
         modifier = modifier

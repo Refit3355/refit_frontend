@@ -14,12 +14,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.refit.app.R
 import com.refit.app.data.myfit.model.MemberProductItem
 import com.refit.app.ui.theme.DarkBlack
 import com.refit.app.ui.theme.GreyOutline
 import com.refit.app.ui.theme.MainPurple
+import com.refit.app.ui.theme.Pretendard
 import com.refit.app.ui.theme.RedCaution
 
 @Composable
@@ -70,15 +72,17 @@ fun MyfitUsingCard(
 
                     Text(
                         text = item.productName,
-                        style = MaterialTheme.typography.labelMedium,
+                        fontFamily = Pretendard,
+                        fontWeight = FontWeight(500),
                         color = DarkBlack,
                         maxLines = 2,
-                        minLines = 2,
+                        minLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        fontSize = 13.sp
+                        fontSize = 14.sp,
+                        lineHeight = 14.sp
                     )
                 }
-                Spacer(Modifier.height(2.dp))
+                Spacer(Modifier.height(6.dp))
 
                 // 아래쪽: 프로그레스(+ 남은일) + (필요 시) 경고 문구
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -96,7 +100,10 @@ fun MyfitUsingCard(
                         Text(
                             item.displayRemaining.orEmpty(),
                             color = MainPurple,
-                            style = MaterialTheme.typography.labelMedium
+                            fontFamily = Pretendard,
+                            fontWeight = FontWeight(500),
+                            fontSize = 12.sp,
+                            lineHeight = 12.sp
                         )
                     }
 
@@ -134,13 +141,14 @@ fun OverdueHint(
             painter = painterResource(id = R.drawable.ic_exclamation),
             contentDescription = null,
             tint = RedCaution,
-            modifier = Modifier.size(10.dp)
+            modifier = Modifier.size(12.dp)
         )
         Text(
             text = "권장 사용기한 초과 - 교체 추천",
-            style = MaterialTheme.typography.labelSmall,
+            fontFamily = Pretendard,
             color = RedCaution,
-            fontSize = 10.sp
+            fontSize = 12.sp,
+            lineHeight = 12.sp
         )
     }
 }

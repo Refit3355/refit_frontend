@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -28,6 +29,7 @@ import com.refit.app.data.myfit.viewmodel.MyfitUiState
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.DarkBlack
 import com.refit.app.ui.theme.GreyText
+import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun MyfitBanner(ui: MyfitUiState) {
@@ -72,13 +74,13 @@ fun MyfitBanner(ui: MyfitUiState) {
         Spacer(Modifier.height(18.dp))
         Text(
             text = text,
-            style = MaterialTheme.typography.titleMedium,
+            fontFamily = Pretendard,
+            fontWeight = FontWeight(500),
             textAlign = TextAlign.Center,
             fontSize = 17.sp,
-            lineHeight = 29.sp
         )
         if(ui.tab == MyfitTab.USING) {
-            Spacer(Modifier.height(19.dp))
+            Spacer(Modifier.height(10.dp))
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -92,9 +94,9 @@ fun MyfitBanner(ui: MyfitUiState) {
 
                 Text(
                     text = "왼쪽으로 슬라이드해서 수정/삭제",
-                    style = MaterialTheme.typography.titleMedium,
+                    fontFamily = Pretendard,
                     textAlign = TextAlign.Center,
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     color = GreyText
                 )
             }
