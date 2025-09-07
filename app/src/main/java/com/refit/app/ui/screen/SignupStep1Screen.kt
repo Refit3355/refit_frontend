@@ -28,6 +28,8 @@ import com.refit.app.data.auth.modelAndView.SignupViewModel
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun SignupStep1Screen(
@@ -142,7 +144,9 @@ fun SignupStep1Screen(
                     contentColor = Color.White
                 )
             ) {
-                Text("다음", fontFamily = Pretendard)
+                Text("다음", style = MaterialTheme.typography.labelLarge.copy(
+                    fontSize = 18.sp, fontWeight = FontWeight.Bold, fontFamily = Pretendard
+                ))
             }
             Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.ime))
         }

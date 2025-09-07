@@ -23,6 +23,10 @@ import com.refit.app.ui.theme.Pretendard
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.sp
 
 object SignupOptions {
     val skinTypes = listOf("건성", "중성", "지성", "복합성", "수부지")
@@ -88,8 +92,8 @@ fun SignupStep2Screen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(18.dp)
+                    modifier = Modifier.padding(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     SectionHeader(
                         title = "피부 타입",
@@ -101,6 +105,8 @@ fun SignupStep2Screen(
                         selected = selectedSkinType,
                         onChange = onSkinTypeChange
                     )
+
+                    Spacer(Modifier.height(8.dp))
 
                     SectionHeader(
                         title = "피부 고민",
@@ -114,6 +120,8 @@ fun SignupStep2Screen(
                         exclusiveOption = "해당없음"
                     )
 
+                    Spacer(Modifier.height(8.dp))
+
                     SectionHeader(
                         title = "두피/모발 고민",
                         iconResId = R.drawable.ic_hair_concern,
@@ -125,6 +133,8 @@ fun SignupStep2Screen(
                         onToggle = onToggleScalpConcern,
                         exclusiveOption = "해당없음"
                     )
+
+                    Spacer(Modifier.height(8.dp))
 
                     SectionHeader(
                         title = "건강 고민",
@@ -140,7 +150,7 @@ fun SignupStep2Screen(
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(40.dp))
             
             Button(
                 onClick = onNextOrSubmit,
@@ -159,8 +169,7 @@ fun SignupStep2Screen(
                 Text(
                     text = "가입하기",
                     style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = Pretendard
+                        fontSize = 18.sp, fontWeight = FontWeight.Bold, fontFamily = Pretendard
                     )
                 )
             }

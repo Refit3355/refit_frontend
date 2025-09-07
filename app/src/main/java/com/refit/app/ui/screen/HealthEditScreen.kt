@@ -44,9 +44,8 @@ fun HealthEditScreen(
                 onClick = { vm.save(onSaved, onError = { /* TODO: 스낵바 */ }) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 16.dp)
-                    .navigationBarsPadding()
-                    .height(60.dp),
+                    .padding(horizontal = 16.dp, vertical = 5.dp)
+                    .height(56.dp),
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MainPurple,
@@ -70,18 +69,17 @@ fun HealthEditScreen(
                 .fillMaxSize()
                 .background(Color.White)
                 .padding(pad)
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 16.dp)
                 .verticalScroll(scroll),
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                Column(Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     SectionHeader(
                         title = "피부 타입",
                         iconResId = R.drawable.ic_skin_signup,
@@ -92,6 +90,8 @@ fun HealthEditScreen(
                         selected = vm.skinType,
                         onChange = vm::updateSkinType
                     )
+
+                    Spacer(Modifier.height(8.dp))
 
                     SectionHeader(
                         title = "피부 고민",
@@ -105,6 +105,8 @@ fun HealthEditScreen(
                         exclusiveOption = "해당없음"
                     )
 
+                    Spacer(Modifier.height(8.dp))
+
                     SectionHeader(
                         title = "두피/모발 고민",
                         iconResId = R.drawable.ic_hair_concern,
@@ -116,6 +118,8 @@ fun HealthEditScreen(
                         onToggle = vm::toggleScalp,
                         exclusiveOption = "해당없음"
                     )
+
+                    Spacer(Modifier.height(8.dp))
 
                     SectionHeader(
                         title = "건강 고민",
@@ -153,7 +157,7 @@ private fun HealthEditScreenPreview() {
                     onClick = {},
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 0.dp)
+                        .padding(horizontal = 16.dp)
                         .height(60.dp),
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(

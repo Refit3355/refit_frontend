@@ -26,16 +26,15 @@ fun SelectableChip(
         color = bg,
         contentColor = fg,
         shape = RoundedCornerShape(24.dp),
-        border = if (selected) null else BorderStroke(2.dp, Color.LightGray),
+        border = if (selected) null else BorderStroke(1.dp, Color.LightGray),
         onClick = onClick
     ) {
         Text(
             text = text,
-            modifier = Modifier.padding(horizontal = 25.dp, vertical = 8.dp),
+            modifier = Modifier.padding(horizontal = 15.dp, vertical = 6.dp),
             style = MaterialTheme.typography.labelLarge.copy(
                 fontSize = 15.sp,
-                fontWeight = FontWeight.SemiBold,
-                lineHeight = 20.sp,
+                fontWeight = FontWeight(500),
                 fontFamily = Pretendard,
             ),
             color = fg

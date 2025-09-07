@@ -26,8 +26,8 @@ fun PurpleButton(
         onClick = onClick,
         modifier = modifier
             .width(382.dp)
-            .height(60.dp),
-        shape = RoundedCornerShape(10.dp),
+            .height(55.dp),
+        shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = MainPurple,
             contentColor = Color.White
@@ -35,7 +35,7 @@ fun PurpleButton(
     ) {
         Text(
             text= text,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight(500),
             fontFamily = Pretendard,
             fontSize = 18.sp)
     }
