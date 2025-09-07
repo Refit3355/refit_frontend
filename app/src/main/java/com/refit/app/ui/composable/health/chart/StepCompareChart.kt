@@ -86,7 +86,7 @@ fun StepCompareChart(
                 setDrawAxisLine(false)
                 granularity = 1f
                 valueFormatter = IndexAxisValueFormatter(listOf("나", "평균"))
-                textSize = 12f
+                textSize = 13f
             }
 
             if (chartVisible) {

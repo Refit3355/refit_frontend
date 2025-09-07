@@ -34,7 +34,7 @@ fun StepChart(
             val barDataSet = BarDataSet(stepEntries, "").apply {
                 setDrawValues(true)
                 setValueTextColor(Color.DarkGray.toArgb())
-                setValueTextSize(12f)
+                setValueTextSize(13f)
                 valueFormatter = RoundCommaValueFormatter()
 
                 val neutralTop    = Color(0xFFDADADA)
@@ -87,7 +87,7 @@ fun StepChart(
                 yOffset = 6f
                 setTextColor(Color.DarkGray.toArgb())
                 valueFormatter = indexFormatter
-                textSize = 12f
+                textSize = 13f
                 typeface = pretendardBold
             }
 

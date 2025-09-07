@@ -95,7 +95,7 @@ fun KcalCompareChart(
                 setDrawAxisLine(false)
                 granularity = 1f
                 valueFormatter = IndexAxisValueFormatter(listOf("나", "남자", "여자"))
-                textSize = 12f
+                textSize = 13f
             }
 
             if (chartVisible) {
