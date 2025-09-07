@@ -32,10 +32,7 @@ import com.refit.app.R
 import com.refit.app.data.product.modelAndView.RecommendationViewModel
 import com.refit.app.data.weather.modelAndView.WeatherViewModel
 import com.refit.app.network.UserPrefs
-import com.refit.app.ui.composable.health.ChartHeader
 import com.refit.app.ui.composable.health.GifCard
-import com.refit.app.ui.composable.home.HomeProductRow
-import com.refit.app.ui.composable.home.SectionHeader
 import com.refit.app.ui.composable.weather.chart.WeatherHumidChart
 import com.refit.app.ui.composable.weather.chart.WeatherPrecipChart
 import com.refit.app.ui.composable.weather.chart.WeatherSnowChart
@@ -44,6 +41,8 @@ import com.refit.app.ui.theme.MainPurple
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.*
+import com.refit.app.ui.composable.health.chartHeader.TitleLine
+import com.refit.app.ui.composable.health.chartHeader.InfoCallout
 
 @OptIn(ExperimentalPermissionsApi::class)
 @SuppressLint("MissingPermission")
@@ -127,135 +126,106 @@ fun WeatherDetailScreen(
             imageLoader = imageLoader,
             gifRes = R.raw.weather_jellbbo,
             message = buildAnnotatedString {
-                append("${nickname}님, 오늘은\n")
+                append("${nickname}님,")
+                append("오늘 ")
                 withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("날씨") }
-                append("도 함께 살펴봐요!")
+                append("에 \n 맞춰 루틴을 가볍게 조정해봐요.")
             }
         )
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(30.dp))
 
-        // ---------------- 1번 차트: 기온 ----------------
-        ChartHeader(
-            iconRes = R.drawable.jellbbo_sunny,
-            text = buildAnnotatedString {
-                append("최근 7일 동안의 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("기온 변화(℃)") }
-                append("를 확인했어요.\n")
-                append("기온이 낮아지면 혈관 수축으로 피부의 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("혈류량") }
-                append("이 줄어들고,\n높아지면 땀과 피지 분비가 증가해 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("수분 손실") }
-                append("이 커질 수 있어요.")
-            }
-        )
-        WeatherTempChart(
-            temps = temps,
-            indexFormatter = indexFormatter,
-            pretendardBold = pretendardBold,
-            chartVisible = chart1Visible,
-            onVisible = { chart1Visible = true }
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+        ) {
+            // ---------------- 1) 기온 ----------------
+            TitleLine(iconRes = R.drawable.jellbbo_sunny, title = "최근 7일 기온")
+            Spacer(Modifier.height(10.dp))
+            InfoCallout(
+                text = buildAnnotatedString {
+                    append("기온 변화는 피부 수분 상태에 영향을 줘요. ")
+                    append("온도가 낮아지면 혈관 수축으로 ")
+                    withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("혈류량") }
+                    append("이 줄고,\n높아지면 땀·피지로 ")
+                    withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("수분 손실") }
+                    append("이 커질 수 있어요.")
+                }
+            )
+            Spacer(Modifier.height(16.dp))
+            WeatherTempChart(
+                temps = temps,
+                indexFormatter = indexFormatter,
+                pretendardBold = pretendardBold,
+                chartVisible = chart1Visible,
+                onVisible = { chart1Visible = true }
+            )
 
-        Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(80.dp))
 
-        // ---------------- 2번 차트: 습도 ----------------
-        ChartHeader(
-            iconRes = R.drawable.jellbbo_humid,
-            text = buildAnnotatedString {
-                append("최근 7일간의 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("습도(%)") }
-                append(" 기록이에요.\n")
-                append("습도가 40% 이하로 떨어지면 각질층의 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("NMF(천연보습인자)") }
-                append(" 농도가 낮아지고,\n")
-                append("수분 증발량이 증가해")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("피부 장벽")}
-                append("이 쉽게 손상될 수 있습니다.")
-            }
-        )
-        WeatherHumidChart(
-            humids = humids,
-            indexFormatter = indexFormatter,
-            pretendardBold = pretendardBold,
-            chartVisible = chart2Visible,
-            onVisible = { chart2Visible = true }
-        )
+            // ---------------- 2) 습도 ----------------
+            TitleLine(iconRes = R.drawable.jellbbo_humid, title = "최근 7일 습도")
+            Spacer(Modifier.height(10.dp))
+            InfoCallout(
+                text = buildAnnotatedString {
+                    append("습도가 낮으면 각질층의 NMF 농도가 떨어지고 ")
+                    withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("피부 장벽") }
+                    append("이 약해질 수 있어요.")
+                }
+            )
+            Spacer(Modifier.height(16.dp))
+            WeatherHumidChart(
+                humids = humids,
+                indexFormatter = indexFormatter,
+                pretendardBold = pretendardBold,
+                chartVisible = chart2Visible,
+                onVisible = { chart2Visible = true }
+            )
 
-        Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(80.dp))
 
-        // ---------------- 3번 차트: 강수량 ----------------
-        ChartHeader(
-            iconRes = R.drawable.jellbbo_rainy,
-            text = buildAnnotatedString {
-                append("최근 일주일간의 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("강수량(mm)") }
-                append("을 확인했어요.\n")
-                append("비가 잦으면 대기 중 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("오염 물질") }
-                append("이 피부에 붙기 쉬워\n")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("모공 막힘") }
-                append("과")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("염증 반응") }
-                append("을 유발할 수 있으니 세안을 철저히 해야 해요.")
-            }
-        )
-        WeatherPrecipChart(
-            precs = precs,
-            indexFormatter = indexFormatter,
-            pretendardBold = pretendardBold,
-            chartVisible = chart3Visible,
-            onVisible = { chart3Visible = true }
-        )
+            // ---------------- 3) 강수량 ----------------
+            TitleLine(iconRes = R.drawable.jellbbo_rainy, title = "최근 7일 강수량")
+            Spacer(Modifier.height(10.dp))
+            InfoCallout(
+                text = buildAnnotatedString {
+                    append("비가 잦은 날은 오염 물질이 피부에 더 쉽게 붙어요. ")
+                    append("세안·보습을 챙겨 ")
+                    withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("모공 막힘/염증") }
+                    append("을 예방해요.")
+                }
+            )
+            Spacer(Modifier.height(16.dp))
+            WeatherPrecipChart(
+                precs = precs,
+                indexFormatter = indexFormatter,
+                pretendardBold = pretendardBold,
+                chartVisible = chart3Visible,
+                onVisible = { chart3Visible = true }
+            )
 
-        Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(80.dp))
 
-        // ---------------- 4번 차트: 적설량 ----------------
-        ChartHeader(
-            iconRes = R.drawable.jellbbo_snow,
-            text = buildAnnotatedString {
-                append("최근 7일간의 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("적설량(cm)") }
-                append(" 데이터에요.\n")
-                append("눈이 많이 오는 날은 대기 습도가 낮고 난방 사용이 늘어나\n")
-                append("피부의 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("수분 증발") }
-                append("이 증가하여 건조·가려움이 심해질 수 있어요.")
-            }
-        )
-        WeatherSnowChart(
-            snows = snows,
-            indexFormatter = indexFormatter,
-            pretendardBold = pretendardBold,
-            chartVisible = chart4Visible,
-            onVisible = { chart4Visible = true }
-        )
-
-        Spacer(Modifier.height(32.dp))
-
-        // ---------------- 추천 상품 섹션 ----------------
-        val recommendMsg = buildAnnotatedString {
-            append(nickname)
-            append("님을 위한 ")
-            withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
-                append("맞춤형 상품들 보러가기")
-            }
+            // ---------------- 4) 적설량 ----------------
+            TitleLine(iconRes = R.drawable.jellbbo_snow, title = "최근 7일 적설량")
+            Spacer(Modifier.height(10.dp))
+            InfoCallout(
+                text = buildAnnotatedString {
+                    append("눈 오는 날은 실내 난방으로 공기가 건조해져요. ")
+                    append("저녁엔 ")
+                    withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("보습 레이어링") }
+                    append("을 권장해요.")
+                }
+            )
+            Spacer(Modifier.height(10.dp))
+            WeatherSnowChart(
+                snows = snows,
+                indexFormatter = indexFormatter,
+                pretendardBold = pretendardBold,
+                chartVisible = chart4Visible,
+                onVisible = { chart4Visible = true }
+            )
         }
-
-        SectionHeader(
-            title = recommendMsg,
-            onMore = {
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "recommendation_items",
-                    recommendState.items
-                )
-                navController.navigate("recommendation/2")
-            }
-        )
-
-        HomeProductRow(
-            products = recommendState.items.take(10),
-            onClick = { p -> navController.navigate("product/${p.id}") }
-        )
     }
 }

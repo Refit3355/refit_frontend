@@ -21,44 +21,58 @@ fun WeatherHumidChart(
     chartVisible: Boolean,
     onVisible: () -> Unit
 ) {
-    ChartBox(
-        height = androidx.compose.ui.unit.Dp(220f),
-        visible = chartVisible,
-        onVisible = onVisible
-    ) { ctx ->
+    ChartBox(height = androidx.compose.ui.unit.Dp(220f), visible = chartVisible, onVisible = onVisible) { ctx ->
         com.github.mikephil.charting.charts.BarChart(ctx).apply {
+            val neutralTop = androidx.compose.ui.graphics.Color(0xFFDADADA)
+            val neutralBot = androidx.compose.ui.graphics.Color(0xFFF0F0F0)
+            val accentTop  = MainPurple.copy(alpha = 0.4f)
+            val accentBot  = MainPurple.copy(alpha = 0.4f)
+
             val dataSet = BarDataSet(humids, "").apply {
                 setDrawValues(true)
-                setValueTextSize(12f)
+                setValueTextSize(13f)
                 setValueTextColor(androidx.compose.ui.graphics.Color.DarkGray.toArgb())
-                colors = humids.mapIndexed { idx, _ ->
-                    if (idx == humids.size - 1) MainPurple.toArgb() else androidx.compose.ui.graphics.Color.LightGray.toArgb()
+                gradientColors = humids.mapIndexed { idx, _ ->
+                    if (idx == humids.lastIndex)
+                        com.github.mikephil.charting.model.GradientColor(accentTop.toArgb(), accentBot.toArgb())
+                    else
+                        com.github.mikephil.charting.model.GradientColor(neutralTop.toArgb(), neutralBot.toArgb())
                 }
+                highLightAlpha = 0
+                valueFormatter = com.refit.app.util.common.RoundCommaValueFormatter()
             }
-            data = BarData(dataSet).apply { barWidth = 0.4f }
-            renderer = RoundedBarChartRenderer(this, animator, viewPortHandler)
-            description.isEnabled = false
-            legend.isEnabled = false
-            axisRight.isEnabled = false
+
+            data = BarData(dataSet).apply { barWidth = 0.82f }
+            renderer = com.refit.app.ui.composable.health.RoundedBarChartRenderer(this, animator, viewPortHandler)
+
+            setTouchEnabled(false); setHighlightPerTapEnabled(false); setHighlightPerDragEnabled(false)
+            setScaleEnabled(false); setPinchZoom(false); isDoubleTapToZoomEnabled = false
+
+            description.isEnabled = false; legend.isEnabled = false; axisRight.isEnabled = false
+
+            setMinOffset(0f); setViewPortOffsets(6f, 8f, 6f, 18f)
+
             axisLeft.apply {
                 isEnabled = true
-                setDrawAxisLine(false)
-                setDrawGridLines(false)
-                setDrawLabels(false)
-                axisMinimum = 0f
-                axisMaximum = 100f
+                setDrawAxisLine(false); setDrawGridLines(false); setDrawLabels(false)
+                axisMinimum = 0f; axisMaximum = 100f
                 removeAllLimitLines()
-                addLimitLine(
-                    ChartUtils.createLimitLine(50f, "적정습도 50%", pretendardBold)
-                )
                 setDrawLimitLinesBehindData(false)
             }
             xAxis.apply {
                 position = XAxis.XAxisPosition.BOTTOM
-                setDrawGridLines(false)
+                setDrawGridLines(false); setDrawAxisLine(false)
+                granularity = 1f; yOffset = 6f
                 valueFormatter = indexFormatter
+                textSize = 13f
+                val firstX = humids.firstOrNull()?.x ?: 0f
+                val lastX  = humids.lastOrNull()?.x ?: 0f
+                axisMinimum = firstX - 0.5f
+                axisMaximum = lastX + 0.5f
+                setAvoidFirstLastClipping(true)
             }
-            if (chartVisible) animateY(1000)
+
+            if (chartVisible) animateY(1000, com.github.mikephil.charting.animation.Easing.EaseOutCubic)
         }
     }
 }
