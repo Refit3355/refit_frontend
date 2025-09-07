@@ -55,16 +55,17 @@ fun FullAnalysisResponse.toUiResult(
         }
         ProductTypeUi.HEALTH -> {
             val benefits = supplementBenefits
-                ?.trim()
-                ?.takeUnless { it.isBlank() }
+                ?.joinToString("\n") { it.trim() }
+                ?.takeUnless { it.isNullOrBlank() }
                 ?: summary.nn()
 
             val cautions = supplementConditionCautions
-                ?.trim()
-                ?.takeUnless { it.isBlank() }
+                ?.joinToString("\n") { it.trim() }
+                ?.takeUnless { it.isNullOrBlank() }
                 ?: cautionText?.trim().takeUnless { it.isNullOrBlank() }
                 ?: riskyText?.trim().takeUnless { it.isNullOrBlank() }
                 ?: null
+
 
             val nothing = benefits.isBlank() && cautions.isNullOrBlank()
             if (nothing) return UiResult.Empty
