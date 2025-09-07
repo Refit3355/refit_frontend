@@ -24,7 +24,7 @@ fun SectionCard(
     icon: @Composable (() -> Unit)? = null,
     body: String,
     bodyColor: Color = Color(0xFF2B2B2B),
-    bodySize: Int = 14 // ← 기존 파라미터 유지하되, LocalTextStyle이 있으면 그걸 우선 사용
+    bodySize: Int = 14
 ) {
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -44,8 +44,6 @@ fun SectionCard(
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            // ★ LocalTextStyle에 폰트 크기가 지정되어 있으면 그걸 사용,
-            //    아니면 bodySize를 fallback으로 사용
             val effectiveFontSize =
                 if (LocalTextStyle.current.fontSize.isUnspecified) bodySize.sp
                 else LocalTextStyle.current.fontSize
@@ -57,10 +55,6 @@ fun SectionCard(
                 fontFamily = Pretendard,
                 fontWeight = FontWeight.Medium,
                 fontSize = effectiveFontSize,
-                // LocalTextStyle의 lineHeight 등 다른 속성도 함께 적용하고 싶으면 merge 사용:
-                // style = LocalTextStyle.current.merge(
-                //     TextStyle(color = bodyColor, fontFamily = Pretendard, fontWeight = FontWeight.Medium)
-                // )
             )
         }
     }

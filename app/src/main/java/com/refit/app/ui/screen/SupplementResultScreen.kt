@@ -33,7 +33,6 @@ fun SupplementResultScreen(data: UiResult.Supplement) {
 
     var largeText by rememberSaveable { mutableStateOf(false) }
 
-    // ★ 화장품 화면과 동일한 본문 글자 크기/줄간격
     val baseTextStyle: TextStyle =
         if (largeText) MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp, lineHeight = 26.sp)
         else MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp, lineHeight = 21.sp)
@@ -46,7 +45,6 @@ fun SupplementResultScreen(data: UiResult.Supplement) {
     ) {
         SupplementHeaderBanner(memberName = data.memberName)
 
-        // 큰 글씨 토글
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -64,15 +62,13 @@ fun SupplementResultScreen(data: UiResult.Supplement) {
 
         Spacer(Modifier.height(24.dp))
 
-        // ★ 본문 전체를 LocalTextStyle로 감싸서 글씨 크기만 통일 증대
         CompositionLocalProvider(LocalTextStyle provides baseTextStyle) {
             Column(Modifier.padding(horizontal = 20.dp)) {
 
-                // 제목은 디자인 유지(고정), 본문은 LocalTextStyle을 따라감
                 SectionCard(
                     title = "전체 요약",
                     titleColor = Color(0xFF5F0080),
-                    titleSize = 18, // 제목은 기존 그대로
+                    titleSize = 18,
                     icon = {
                         Icon(
                             painter = painterResource(R.drawable.ic_ai_analysis),
@@ -83,7 +79,7 @@ fun SupplementResultScreen(data: UiResult.Supplement) {
                     },
                     body = summarySafe,
                     bodyColor = Color.DarkGray,
-                    bodySize = -1 // ← 의미 없음(SectionCard에서 LocalTextStyle 우선)
+                    bodySize = -1
                 )
 
                 Spacer(Modifier.height(36.dp))
@@ -92,7 +88,7 @@ fun SupplementResultScreen(data: UiResult.Supplement) {
                     SectionCard(
                         title = "주의 사항",
                         titleColor = Color(0xFFF86755),
-                        titleSize = 18, // 제목 고정
+                        titleSize = 18,
                         icon = {
                             Icon(
                                 painter = painterResource(R.drawable.ic_ai_danger),
@@ -103,7 +99,7 @@ fun SupplementResultScreen(data: UiResult.Supplement) {
                         },
                         body = caution,
                         bodyColor = Color.DarkGray,
-                        bodySize = -1 // ← LocalTextStyle 우선
+                        bodySize = -1
                     )
                 }
 

@@ -31,7 +31,6 @@ fun IngredientSection(
         ) {
             Box(Modifier.size(28.dp), contentAlignment = Alignment.Center) { icon() }
             Spacer(Modifier.width(8.dp))
-            // 제목은 디자인 유지(고정)
             Text(
                 text = title,
                 color = titleColor,

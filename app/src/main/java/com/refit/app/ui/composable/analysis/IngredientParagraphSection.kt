@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.refit.app.ui.theme.Pretendard
 
-/** 단순하게(문단) 전용 섹션 */
 @Composable
 fun IngredientParagraphSection(
     title: String,
@@ -31,7 +30,6 @@ fun IngredientParagraphSection(
         ) {
             Box(Modifier.size(28.dp), contentAlignment = Alignment.Center) { icon() }
             Spacer(Modifier.width(8.dp))
-            // 제목(고정 디자인 유지)
             Text(
                 text = title,
                 color = titleColor,
@@ -48,10 +46,8 @@ fun IngredientParagraphSection(
                 .background(Color(0xFFF0F0F0))
                 .padding(14.dp)
         ) {
-            // ⬇️ 본문: LocalTextStyle을 기준으로 색/폰트 지정만 merge
             val bodyStyle = LocalTextStyle.current.merge(
                 TextStyle(
-                    // lineHeight는 현재 폰트크기에 맞춰 살짝 여유
                     lineHeight = (LocalTextStyle.current.fontSize.value + 4).sp,
                     fontFamily = Pretendard,
                     fontWeight = FontWeight.Medium,

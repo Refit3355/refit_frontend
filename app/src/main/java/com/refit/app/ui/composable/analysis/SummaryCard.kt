@@ -28,7 +28,6 @@ fun SummaryCard(summary: String, icon: @Composable (() -> Unit)? = null) {
                 Box(Modifier.size(22.dp), contentAlignment = Alignment.Center) { it() }
                 Spacer(Modifier.width(8.dp))
             }
-            // 제목(고정 디자인 유지)
             Text(
                 text = "전체 요약",
                 color = MainPurple,
@@ -45,7 +44,6 @@ fun SummaryCard(summary: String, icon: @Composable (() -> Unit)? = null) {
                 .background(Color(0xFFF5F0FA))
                 .padding(16.dp)
         ) {
-            // ⬇️ 본문: LocalTextStyle 기반으로 색/폰트만 merge
             val bodyStyle = LocalTextStyle.current.merge(
                 TextStyle(
                     lineHeight = (LocalTextStyle.current.fontSize.value + 4).sp,

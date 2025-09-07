@@ -18,7 +18,6 @@ import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun IngredientChip(text: String) {
-    // 화면에서 CompositionLocalProvider(LocalTextStyle …)로 내려준 글자 크기를 그대로 따름
     val labelStyle = LocalTextStyle.current.merge(
         TextStyle(
             fontFamily = Pretendard,
