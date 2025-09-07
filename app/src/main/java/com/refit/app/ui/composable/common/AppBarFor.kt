@@ -40,16 +40,17 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                     route == "my" -> "마이페이지"
                     else -> "Re:fit"
                 },
-                onLogoClick  = { nav.navigate("home") },
+                onLogoClick = { nav.navigate("home") },
                 onAlarmClick = { nav.navigate("notifications") },
-                onCartClick  = { nav.navigate("cart") },
+                onCartClick = { nav.navigate("cart") },
                 showActions = true
             )
 
         route in listOf("notifications", "cart", "myfit/register") || route.startsWith("myfit/edit")
                 || route.startsWith("checkout/") || route.startsWith("tossPay")
                 || route.startsWith("chat") || route.startsWith("productList")
-                || route.startsWith("wish") ->
+                || route.startsWith("wish") || route.startsWith("liked_combinations")
+                || route.startsWith("created_combinations") ->
             AppBarConfig.BackOnly(
                 title = if (route == "notifications") "알림함"
                 else if (route == "cart") "장바구니"
@@ -60,6 +61,8 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
                 else if (route.startsWith("chat")) "그룹채팅"
                 else if (route.startsWith("productList")) "추천 상품"
                 else if (route.startsWith("wish")) "찜 목록"
+                else if (route.startsWith("liked_combinations")) "저장한 조합 목록"
+                else if (route.startsWith("created_combinations")) "내가 생성한 조합"
                 else "결제",
                 onBack = { nav.popBackStack() }
             )
@@ -133,13 +136,12 @@ fun appBarFor(route: String, nav: NavHostController): AppBarConfig {
             AppBarConfig.BackWithActions(
                 title = when {
                     route.startsWith("product") -> "상품 상세"
-                    route.startsWith("liked_combinations") -> "저장한 조합 목록"
-                    route.startsWith("created_combinations") -> "내가 생성한 조합"
                     route.startsWith("orders") -> "주문 내역"
                     route.startsWith("stepsDetail") -> "걸음 수 리포트"
                     route.startsWith("sleepDetail") -> "수면 리포트"
                     route.startsWith("weatherDetail") -> "날씨 리포트"
                     route.startsWith("combinationDetail") -> "조합 상세"
+                    route.startsWith("recommendation") -> "추천 상품"
                     else -> "Re:fit"
                 },
                 onBack = { nav.popBackStack() },
