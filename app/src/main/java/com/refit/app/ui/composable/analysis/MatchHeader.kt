@@ -29,11 +29,10 @@ fun MatchHeader(
     memberName: String,
     matchRate: Int
 ) {
-    // 배경을 가로 끝까지
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFFF1EBF7)) // 연보라, 좌우 끝까지
+            .background(Color(0xFFF1EBF7))
             .padding(horizontal = 20.dp, vertical = 18.dp)
     ) {
         val text = buildAnnotatedString {

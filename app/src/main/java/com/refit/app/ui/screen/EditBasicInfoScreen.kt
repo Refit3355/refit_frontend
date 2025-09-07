@@ -65,7 +65,14 @@ fun EditBasicInfoScreen(
             }
         }
     ) { pad ->
-        Column(Modifier.padding(pad).padding(16.dp).background(Color.White).verticalScroll(rememberScrollState())) {
+        Column(
+            Modifier
+                .padding(pad)
+                .imePadding()
+                .background(Color.White)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+        ) {
             BasicInfoForm(
                 mode = FormMode.EDIT,
                 // 상태
@@ -109,7 +116,7 @@ fun EditBasicInfoScreen(
                 emailReadOnly = true
             )
 
-            Spacer(Modifier.height(60.dp))
+            Spacer(Modifier.height(10.dp))
 
         }
     }
