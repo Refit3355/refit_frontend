@@ -57,7 +57,7 @@ fun IngredientSection(
                     val emptyStyle = LocalTextStyle.current.merge(
                         TextStyle(color = Color(0xFF9E9E9E), fontFamily = Pretendard)
                     )
-                    Text("해당되는 성분이 없어요", style = emptyStyle)
+                    Text("해당되는 성분은 없습니다.", style = emptyStyle)
                 }
             }
         }

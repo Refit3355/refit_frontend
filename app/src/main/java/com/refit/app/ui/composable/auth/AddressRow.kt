@@ -24,6 +24,11 @@ fun AddressRow(
     onSearchAddress: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // 각 입력란용 Modifier 준비
+    val zipBringModifier   = bringIntoViewOnFocusModifier()
+    val roadBringModifier  = bringIntoViewOnFocusModifier()
+    val detailBringModifier= bringIntoViewOnFocusModifier()
+
     Column(modifier = modifier) {
         // 우편번호 + [주소검색] 버튼
         FieldWithSideButton(
@@ -34,7 +39,8 @@ fun AddressRow(
             buttonText = "주소검색",
             buttonEnabled = true,
             onButtonClick = onSearchAddress,
-            showButton = true
+            showButton = true,
+            textFieldModifier = zipBringModifier          // ★ 추가
         )
 
         Spacer(Modifier.height(10.dp))
@@ -45,7 +51,8 @@ fun AddressRow(
             value = road,
             onValueChange = onRoad,
             placeholder = "도로명 주소",
-            showButton = false
+            showButton = false,
+            textFieldModifier = roadBringModifier         // ★ 추가
         )
 
         Spacer(Modifier.height(10.dp))
@@ -56,7 +63,8 @@ fun AddressRow(
             value = detail,
             onValueChange = onDetail,
             placeholder = "상세 주소",
-            showButton = false
+            showButton = false,
+            textFieldModifier = detailBringModifier       // ★ 추가
         )
     }
 }
