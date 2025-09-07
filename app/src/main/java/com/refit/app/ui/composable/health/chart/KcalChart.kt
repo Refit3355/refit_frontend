@@ -11,10 +11,8 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.model.GradientColor
 import com.refit.app.ui.composable.health.ChartBox
 import com.refit.app.ui.composable.health.RoundedBarChartRenderer
-import com.refit.app.ui.theme.LightPurple
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.util.common.RoundCommaValueFormatter
-import com.refit.app.util.health.ChartUtils
 
 @Composable
 fun KcalChart(
@@ -27,7 +25,7 @@ fun KcalChart(
     onVisible: () -> Unit
 ) {
     ChartBox(
-        height = 220.dp,
+        height = 180.dp,
         visible = chartVisible,
         onVisible = onVisible
     ) { ctx ->
@@ -36,7 +34,7 @@ fun KcalChart(
                 // 값 라벨 필요하면 유지/조정
                 setDrawValues(true)
                 setValueTextColor(Color.DarkGray.toArgb())
-                setValueTextSize(10f)
+                setValueTextSize(13f)
                 valueFormatter = RoundCommaValueFormatter()
 
                 val neutralTop    = Color(0xFFDADADA)
@@ -54,9 +52,17 @@ fun KcalChart(
                 }
 
                 valueFormatter = RoundCommaValueFormatter()
+                setTouchEnabled(false)            // 터치 자체 비활성화
+                setHighlightPerTapEnabled(false)  // 탭 하이라이트 비활성화
+                setHighlightPerDragEnabled(false) // 드래그 하이라이트 비활성화
+                setScaleEnabled(false)            // 핀치/더블탭 줌 비활성화
+                setPinchZoom(false)               // 핀치줌 비활성화
+                isDoubleTapToZoomEnabled = false  // 더블탭 줌 비활성화
+                setOnChartValueSelectedListener(null) // 값 선택 리스너 제거(안 쓰더라도 안전하게)
             }
             data = BarData(barDataSet).apply { barWidth = 0.82f }
-            setFitBars(true)
+            setMinOffset(0f)
+            setViewPortOffsets(0f, 8f, 0f, 18f)
             renderer = RoundedBarChartRenderer(this, animator, viewPortHandler)
             description.isEnabled = false
             legend.isEnabled = false
@@ -70,9 +76,6 @@ fun KcalChart(
                 axisMinimum = 0f
                 axisMaximum = (maxVal * 1.1f)
                 removeAllLimitLines()
-                addLimitLine(
-                    ChartUtils.createLimitLine(kcalAvg, "일반인 평균 ${kcalAvg.toInt()} kcal", pretendardBold)
-                )
             }
             xAxis.apply {
                 position = XAxis.XAxisPosition.BOTTOM
@@ -82,7 +85,7 @@ fun KcalChart(
                 yOffset = 6f
                 setTextColor(Color.DarkGray.toArgb())
                 valueFormatter = indexFormatter
-                textSize = 12f
+                textSize = 13f
                 typeface = pretendardBold
             }
             if (chartVisible) {
