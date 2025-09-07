@@ -1,4 +1,3 @@
-// FieldWithSideButton.kt
 package com.refit.app.ui.composable.auth
 
 import androidx.compose.foundation.layout.*
@@ -25,9 +24,10 @@ fun FieldWithSideButton(
     buttonText: String = "",
     buttonEnabled: Boolean = false,
     onButtonClick: () -> Unit = {},
+    textFieldModifier: Modifier = Modifier,   // ← 여길 쓰게 됨
     showButton: Boolean = true,
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    fieldModifier: Modifier = Modifier,
+    fieldModifier: Modifier = Modifier,       // (선택) 기존 유지
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
@@ -48,9 +48,11 @@ fun FieldWithSideButton(
                 readOnly = readOnly,
                 enabled = enabled,
                 visualTransformation = visualTransformation,
-                modifier = fieldModifier
+                modifier = Modifier
                     .weight(1f)
-                    .height(50.dp)
+                    .height(FieldHeight)
+                    .then(textFieldModifier)     // ★ 추가: bringIntoView 등 외부에서 전달한 Modifier 적용
+                    .then(fieldModifier)         // (선택) 기존 fieldModifier도 이어서 적용
             )
 
             if (showButton) {

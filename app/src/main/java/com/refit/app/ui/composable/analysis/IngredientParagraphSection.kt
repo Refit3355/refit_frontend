@@ -46,15 +46,7 @@ fun IngredientParagraphSection(
                 .background(Color(0xFFF0F0F0))
                 .padding(14.dp)
         ) {
-            val bodyStyle = LocalTextStyle.current.merge(
-                TextStyle(
-                    lineHeight = (LocalTextStyle.current.fontSize.value + 4).sp,
-                    fontFamily = Pretendard,
-                    fontWeight = FontWeight.Medium,
-                    color = Color(0xFF8A8A8A)
-                )
-            )
-            Text(text = text, style = bodyStyle)
+            Text(text = text, style = AnalysisBodyTextStyle())
         }
         Spacer(Modifier.height(18.dp))
     }
