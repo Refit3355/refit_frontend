@@ -11,6 +11,7 @@ interface ProductRecommendationApi {
     @Headers("Requires-Auth: true")
     suspend fun getRecommendations(
         @Path("type") type: Int, // 0: 전체, 1: 뷰티, 2: 헤어, 3: 건강기능식품
-        @Query("limit") limit: Int = 10
+        @Query("limit") limit: Int = 10,
+        @Query("concernCode") concernCode: String
     ): RecommendationResponse
 }
