@@ -7,6 +7,7 @@ import com.refit.app.data.auth.model.HairInfoDto
 import com.refit.app.data.auth.model.HealthInfoDto
 import com.refit.app.data.auth.model.SkinInfoDto
 import com.refit.app.util.common.toTags
+import java.security.MessageDigest
 
 object UserPrefs {
     private const val PREFS_NAME = "refit_user_prefs"
@@ -18,6 +19,7 @@ object UserPrefs {
     private const val KEY_PROFILE_URL = "profile_url"
     private const val DEFAULT_PROFILE_URL =
         "https://refit-s3.s3.ap-northeast-2.amazonaws.com/default_profile/default.png"
+    private const val KEY_CONCERN_CODE = "user_concern_code"
 
     private lateinit var prefs: SharedPreferences
     private val gson by lazy { Gson() }
@@ -40,6 +42,7 @@ object UserPrefs {
             putString(KEY_HAIR,   hair?.let { gson.toJson(it) }   ?: "")
             putString(KEY_SKIN,   skin?.let { gson.toJson(it) }   ?: "")
         }.apply()
+        updateConcernCode()
     }
 
     fun getMemberId(): Long? {
@@ -81,14 +84,17 @@ object UserPrefs {
 
     fun setHealth(health: HealthInfoDto?) {
         prefs.edit().putString(KEY_HEALTH, health?.let { gson.toJson(it) } ?: "").apply()
+        updateConcernCode()
     }
 
     fun setHair(hair: HairInfoDto?) {
         prefs.edit().putString(KEY_HAIR, hair?.let { gson.toJson(it) } ?: "").apply()
+        updateConcernCode()
     }
 
     fun setSkin(skin: SkinInfoDto?) {
         prefs.edit().putString(KEY_SKIN, skin?.let { gson.toJson(it) } ?: "").apply()
+        updateConcernCode()
     }
 
     fun setProfileUrl(url: String?) {
@@ -113,4 +119,25 @@ object UserPrefs {
         return tags
     }
 
+    private fun String.sha256(): String {
+        val bytes = MessageDigest.getInstance("SHA-256").digest(this.toByteArray())
+        return bytes.joinToString("") { "%02x".format(it) }
+    }
+
+    fun updateConcernCode() {
+        if (!::prefs.isInitialized) return
+
+        val healthJson = prefs.getString(KEY_HEALTH, "") ?: ""
+        val hairJson   = prefs.getString(KEY_HAIR, "") ?: ""
+        val skinJson   = prefs.getString(KEY_SKIN, "") ?: ""
+
+        val combined = healthJson + "|" + hairJson + "|" + skinJson
+        val hash = combined.sha256()
+
+        prefs.edit().putString(KEY_CONCERN_CODE, hash).apply()
+    }
+
+    fun getConcernCode(): String? =
+        if (!::prefs.isInitialized) null
+        else prefs.getString(KEY_CONCERN_CODE, null)
 }
