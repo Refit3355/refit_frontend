@@ -50,14 +50,9 @@ fun WeatherSnowChart(
                 axisMinimum = 0f
                 axisMaximum = (maxVal.takeIf { it > 0f } ?: 5f) * 1.2f
                 removeAllLimitLines()
-                val limitLine = ChartUtils.createLimitLine(
-                    5f,
-                    "주의 기준 5cm",
-                    pretendardBold
-                ).apply {
-                    labelPosition = LimitLine.LimitLabelPosition.RIGHT_TOP
-                }
-                addLimitLine(limitLine)
+                addLimitLine(
+                    ChartUtils.createLimitLine(5f, "주의 기준 5cm", pretendardBold)
+                )
                 setDrawLimitLinesBehindData(true)
             }
             xAxis.apply {

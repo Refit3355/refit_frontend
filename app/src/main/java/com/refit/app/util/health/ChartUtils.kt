@@ -14,6 +14,7 @@ object ChartUtils {
             textColor = Color(0, 128, 128).toArgb()
             textSize = 11f
             this.typeface = typeface
+            labelPosition = LimitLine.LimitLabelPosition.LEFT_TOP
         }
     }
 }
