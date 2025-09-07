@@ -15,11 +15,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import coil.compose.AsyncImage
 import com.refit.app.R
 import com.refit.app.ui.theme.GreyOutline
 import com.refit.app.ui.theme.MainPurple
+import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun MyfitThumb(url: String?, modifier: Modifier = Modifier, size: Dp = 80.dp) {
@@ -92,8 +94,14 @@ fun CircleOutlineIconButton(
                 modifier = Modifier.size(circleSize * iconScale)
             )
         }
-        Spacer(Modifier.height(6.dp))
-        Text(label, color = MainPurple, style = MaterialTheme.typography.labelMedium)
+        Spacer(Modifier.height(4.dp))
+        Text(
+            label,
+            color = MainPurple,
+            fontFamily = Pretendard,
+            fontWeight = FontWeight(500),
+            fontSize = 12.sp
+        )
     }
 }
 

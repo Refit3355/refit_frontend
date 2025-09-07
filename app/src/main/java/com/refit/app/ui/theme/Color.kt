@@ -22,4 +22,4 @@ val GreyText = Color(0xFF808080)
 val GreyOutline = Color(0xFFD5D2D2)
 val GreyInput = Color(0xFF7A7A7A)
 
-val RedCaution = Color(0xFFFF3535)
+val RedCaution = Color(0xFFF44336)
