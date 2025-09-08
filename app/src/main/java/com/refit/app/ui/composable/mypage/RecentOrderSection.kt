@@ -184,9 +184,8 @@ fun RecentOrderSection(
                                         fontSize = 14.sp,
                                         lineHeight = 16.sp,
                                         fontFamily = Pretendard,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        fontWeight = FontWeight(500)
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis
                                     )
                                     Row {
                                         Text(
