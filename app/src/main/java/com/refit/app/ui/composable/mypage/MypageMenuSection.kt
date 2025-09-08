@@ -1,5 +1,6 @@
 package com.refit.app.ui.composable.mypage
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -14,7 +15,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,16 +26,18 @@ import com.refit.app.data.push.PushRegistrar
 import com.refit.app.data.push.repository.NotificationRepository
 import com.refit.app.network.TokenManager
 import com.refit.app.network.UserPrefs
+import com.refit.app.ui.theme.DarkBlack
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 import kotlinx.coroutines.launch
+import com.refit.app.R
 
 @Composable
 fun MypageMenuSection(navController: NavController) {
     val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
 
-    Column(Modifier.padding(horizontal = 16.dp)) {
+    Column(Modifier.padding(horizontal = 24.dp)) {
         // 찜 목록
         Row(
             Modifier
@@ -40,9 +45,14 @@ fun MypageMenuSection(navController: NavController) {
                 .clickable { navController.navigate("wish") }
                 .padding(vertical = 12.dp)
         ) {
-            Icon(Icons.Default.Favorite, contentDescription = null, tint = MainPurple)
+            Image(
+                painter = painterResource(id = R.drawable.ic_heart_empty),
+                contentDescription = "찜하기",
+                modifier = Modifier.size(24.dp),
+                colorFilter = ColorFilter.tint(MainPurple)
+            )
             Spacer(Modifier.width(12.dp))
-            Text("찜 목록", fontSize = 16.sp, fontWeight = FontWeight.Medium, fontFamily = Pretendard, color = MainPurple)
+            Text("찜 목록", fontSize = 16.sp, fontWeight = FontWeight.Medium, fontFamily = Pretendard, color = DarkBlack)
         }
 
         Spacer(Modifier.height(4.dp))
@@ -56,10 +66,11 @@ fun MypageMenuSection(navController: NavController) {
                 .clickable { navController.navigate("liked_combinations") }
                 .padding(vertical = 12.dp)
         ) {
-            Icon(
-                imageVector = Icons.Filled.Bookmark,
-                contentDescription = null,
-                tint = MainPurple
+            Image(
+                painter = painterResource(id = R.drawable.ic_bookmark_basic),
+                contentDescription = "찜하기",
+                modifier = Modifier.size(20.dp),
+                colorFilter = ColorFilter.tint(MainPurple)
             )
             Spacer(Modifier.width(12.dp))
             Text(
@@ -67,7 +78,7 @@ fun MypageMenuSection(navController: NavController) {
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = Pretendard,
-                color = MainPurple
+                color = DarkBlack
             )
         }
 
@@ -83,7 +94,7 @@ fun MypageMenuSection(navController: NavController) {
         ) {
             Icon(Icons.AutoMirrored.Filled.ListAlt, contentDescription = null, tint = MainPurple)
             Spacer(Modifier.width(12.dp))
-            Text("내가 생성한 조합", fontSize = 16.sp, fontWeight = FontWeight.Medium, fontFamily = Pretendard, color = MainPurple)
+            Text("내가 생성한 조합", fontSize = 16.sp, fontWeight = FontWeight.Medium, fontFamily = Pretendard, color = DarkBlack)
         }
 
         Spacer(Modifier.height(4.dp))
@@ -116,7 +127,7 @@ fun MypageMenuSection(navController: NavController) {
         ) {
             Icon(Icons.Default.Logout, contentDescription = null, tint = MainPurple)
             Spacer(Modifier.width(12.dp))
-            Text("로그아웃", fontSize = 16.sp, fontWeight = FontWeight.Medium, fontFamily = Pretendard, color = MainPurple)
+            Text("로그아웃", fontSize = 16.sp, fontWeight = FontWeight.Medium, fontFamily = Pretendard, color = DarkBlack)
         }
 
         Spacer(Modifier.height(4.dp))

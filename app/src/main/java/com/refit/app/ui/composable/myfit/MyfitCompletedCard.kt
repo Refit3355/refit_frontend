@@ -8,12 +8,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.refit.app.data.myfit.model.MemberProductItem
 import com.refit.app.ui.theme.DarkBlack
 import com.refit.app.ui.theme.GreyOutline
+import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun MyfitCompletedCard(
@@ -35,18 +37,22 @@ fun MyfitCompletedCard(
                 BrandPill(item.brandName); Spacer(Modifier.height(6.dp))
                 Text(
                     item.productName,
-                    style = MaterialTheme.typography.labelMedium,
+                    fontFamily = Pretendard,
+                    fontWeight = FontWeight(500),
                     maxLines = 2,
-                    minLines = 2,
+                    minLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = DarkBlack,
-                    fontSize = 13.sp
+                    fontSize = 14.sp,
+                    lineHeight = 14.sp
                 )
                 item.usagePeriodText?.let {
                     Spacer(Modifier.height(6.dp));
                     Text(
                         it,
-                        style = MaterialTheme.typography.bodySmall
+                        fontFamily = Pretendard,
+                        fontSize = 11.sp,
+                        lineHeight = 12.sp
                     )
                 }
             }

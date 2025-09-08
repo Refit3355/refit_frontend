@@ -28,12 +28,10 @@ data class AnalysisUiState(
     val memberName: String = "",
     val matchRate: Int = 0,
 
-    // 자세하게(칩)용
     val risky: List<String> = emptyList(),
     val caution: List<String> = emptyList(),
     val safe: List<String> = emptyList(),
 
-    // 단순하게(문단)용 — 칩과 별개 데이터!
     val riskyText: String = "",
     val cautionText: String = "",
     val safeText: String = "",
@@ -76,7 +74,6 @@ fun AnalysisResultScreen(
                 Spacer(Modifier.height(12.dp))
 
                 if (tab == DetailTab.Simple) {
-                    // 단순하게: 설명형 문단 사용 (칩 X)
                     IngredientParagraphSection(
                         title = "위험 성분",
                         titleColor = Color(0xFFF86755),
@@ -114,7 +111,6 @@ fun AnalysisResultScreen(
                         text = ui.safeText.ifBlank { "해당되는 설명이 없어요." }
                     )
                 } else {
-                    // 자세하게: 칩 리스트 사용 (필요시 SIMPLE_LIMIT로 미리보기 제한 가능)
                     IngredientSection(
                         title = "위험 성분",
                         titleColor = Color(0xFFF86755),

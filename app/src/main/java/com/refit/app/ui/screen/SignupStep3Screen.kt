@@ -78,7 +78,7 @@ fun SignupStep3Screen(
 
             Text(
                 text = buildAnnotatedString {
-                    withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                    withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight(500))) {
                         append(displayName)
                     }
                     append("님 반가워요!\n")
@@ -86,24 +86,24 @@ fun SignupStep3Screen(
                         append("회원가입이 완료되었어요.")
                     }
                 },
-                fontSize = 20.sp,
+                fontSize = 18.sp,
                 lineHeight = 36.sp,
                 color = Color.Black,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight(500),
                 fontFamily = Pretendard,
             )
 
             Text(
                 text = buildAnnotatedString {
-                    withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                    withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight(500))) {
                         append("리핏")
                     }
                     append("과 함께\n나만의 뷰티·헬스 루틴을 시작해요!")
                 },
-                fontSize = 20.sp,
+                fontSize = 18.sp,
                 lineHeight = 36.sp,
                 color = Color.Black,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight(500),
                 fontFamily = Pretendard,
             )
 
@@ -112,8 +112,8 @@ fun SignupStep3Screen(
                 contentDescription = null,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .width(450.dp)
-                    .heightIn(min = 450.dp)
+                    .width(400.dp)
+                    .heightIn(min = 400.dp)
                     .aspectRatio(1f),
                 contentScale = ContentScale.Fit
             )

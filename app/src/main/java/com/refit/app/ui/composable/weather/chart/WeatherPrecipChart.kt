@@ -21,45 +21,59 @@ fun WeatherPrecipChart(
     chartVisible: Boolean,
     onVisible: () -> Unit
 ) {
-    ChartBox(
-        height = androidx.compose.ui.unit.Dp(200f),
-        visible = chartVisible,
-        onVisible = onVisible
-    ) { ctx ->
+    ChartBox(height = androidx.compose.ui.unit.Dp(200f), visible = chartVisible, onVisible = onVisible) { ctx ->
         com.github.mikephil.charting.charts.BarChart(ctx).apply {
+            val neutralTop = androidx.compose.ui.graphics.Color(0xFFDADADA)
+            val neutralBot = androidx.compose.ui.graphics.Color(0xFFF0F0F0)
+            val accentTop  = MainPurple.copy(alpha = 0.4f)
+            val accentBot  = MainPurple.copy(alpha = 0.4f)
+
             val dataSet = BarDataSet(precs, "").apply {
                 setDrawValues(true)
-                setValueTextSize(12f)
+                setValueTextSize(13f)
                 setValueTextColor(androidx.compose.ui.graphics.Color.DarkGray.toArgb())
-                colors = precs.mapIndexed { idx, _ ->
-                    if (idx == precs.size - 1) MainPurple.toArgb() else androidx.compose.ui.graphics.Color.LightGray.toArgb()
+                gradientColors = precs.mapIndexed { idx, _ ->
+                    if (idx == precs.lastIndex)
+                        com.github.mikephil.charting.model.GradientColor(accentTop.toArgb(), accentBot.toArgb())
+                    else
+                        com.github.mikephil.charting.model.GradientColor(neutralTop.toArgb(), neutralBot.toArgb())
                 }
+                highLightAlpha = 0
+                valueFormatter = com.refit.app.util.common.RoundCommaValueFormatter()
             }
-            data = BarData(dataSet).apply { barWidth = 0.4f }
-            renderer = RoundedBarChartRenderer(this, animator, viewPortHandler)
-            description.isEnabled = false
-            legend.isEnabled = false
-            axisRight.isEnabled = false
+
+            data = BarData(dataSet).apply { barWidth = 0.82f }
+            renderer = com.refit.app.ui.composable.health.RoundedBarChartRenderer(this, animator, viewPortHandler)
+
+            setTouchEnabled(false); setHighlightPerTapEnabled(false); setHighlightPerDragEnabled(false)
+            setScaleEnabled(false); setPinchZoom(false); isDoubleTapToZoomEnabled = false
+
+            description.isEnabled = false; legend.isEnabled = false; axisRight.isEnabled = false
+
+            setMinOffset(0f); setViewPortOffsets(6f, 8f, 6f, 18f)
+
             axisLeft.apply {
                 isEnabled = true
-                setDrawAxisLine(false)
-                setDrawGridLines(false)
-                setDrawLabels(false)
+                setDrawAxisLine(false); setDrawGridLines(false); setDrawLabels(false)
                 val maxVal = (precs.maxOfOrNull { it.y } ?: 0f)
-                axisMinimum = 0f
-                axisMaximum = maxVal * 1.1f
+                axisMinimum = 0f; axisMaximum = maxVal * 1.1f
                 removeAllLimitLines()
-                addLimitLine(
-                    ChartUtils.createLimitLine(10f, "기준 10mm", pretendardBold)
-                )
                 setDrawLimitLinesBehindData(false)
             }
             xAxis.apply {
                 position = XAxis.XAxisPosition.BOTTOM
-                setDrawGridLines(false)
+                setDrawGridLines(false); setDrawAxisLine(false)
+                granularity = 1f; yOffset = 6f
                 valueFormatter = indexFormatter
+                textSize = 13f
+                val firstX = precs.firstOrNull()?.x ?: 0f
+                val lastX  = precs.lastOrNull()?.x ?: 0f
+                axisMinimum = firstX - 0.5f
+                axisMaximum = lastX + 0.5f
+                setAvoidFirstLastClipping(true)
             }
-            if (chartVisible) animateY(1000)
+
+            if (chartVisible) animateY(1000, com.github.mikephil.charting.animation.Easing.EaseOutCubic)
         }
     }
 }

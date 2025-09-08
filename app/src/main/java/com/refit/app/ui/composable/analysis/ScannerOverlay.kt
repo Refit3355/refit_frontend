@@ -22,9 +22,7 @@ fun ScannerOverlay(wRatio: Float, hRatio: Float) {
         val right = left + boxW
         val bottom = top + boxH
 
-        // 어두운 마스크
         drawRect(Color.Black.copy(alpha = 0.45f), size = size)
-        // 가운데 투명 영역
         drawRect(
             color = Color.Transparent,
             topLeft = Offset(left, top),
@@ -37,7 +35,6 @@ fun ScannerOverlay(wRatio: Float, hRatio: Float) {
         fun line(ax: Float, ay: Float, bx: Float, by: Float) =
             drawLine(Color.White, Offset(ax, ay), Offset(bx, by), strokeWidth = stroke, cap = StrokeCap.Round)
 
-        // 네 모서리 ㄴ자
         line(left, top + corner, left, top)
         line(left, top, left + corner, top)
 

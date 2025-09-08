@@ -1,5 +1,6 @@
 package com.refit.app.ui.composable.mypage
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,11 +24,13 @@ import com.refit.app.ui.theme.LightPurple
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.refit.app.R
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
 import com.refit.app.data.me.modelAndView.OrderViewModel
+import com.refit.app.ui.theme.DarkBlack
 import com.refit.app.util.common.PriceUtil
 import com.refit.app.util.order.OrderStatusMapper
 import kotlinx.coroutines.CoroutineScope
@@ -48,7 +51,7 @@ fun RecentOrderSection(
         modifier = Modifier
             .fillMaxWidth()
             .background(LightPurple)
-            .padding(16.dp)
+            .padding(vertical = 16.dp, horizontal = 24.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -67,7 +70,8 @@ fun RecentOrderSection(
                     text = "최근 주문 내역",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    fontFamily = Pretendard
+                    fontFamily = Pretendard,
+                    color = DarkBlack
                 )
             }
             TextButton(
@@ -78,15 +82,13 @@ fun RecentOrderSection(
                     Text(
                         "전체보기",
                         fontFamily = Pretendard,
-                        color = MainPurple
+                        color = DarkBlack
                     )
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = "전체보기 이동",
-                        tint = MainPurple,
-                        modifier = Modifier
-                            .size(18.dp)
-                            .padding(start = 2.dp)
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_arrow_more),
+                        contentDescription = "전체보기",
+                        modifier = Modifier.size(18.dp),
+                        colorFilter = ColorFilter.tint(DarkBlack)
                     )
                 }
             }
@@ -127,18 +129,18 @@ fun RecentOrderSection(
                     if (firstItem != null) {
                         Column {
                             Text(
-                                text = firstItem.createdAt.take(10).replace("-", "."),
+                                text = firstItem.createdAt.take(10).replace("-", ".").drop(2),
                                 fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight(500),
                                 fontFamily = Pretendard,
-                                color = MainPurple
+                                color = DarkBlack
                             )
                             Spacer(Modifier.height(4.dp))
                             Text(
                                 text = "주문번호 ${firstItem.orderCode}",
-                                fontSize = 12.sp,
+                                fontSize = 13.sp,
                                 fontFamily = Pretendard,
-                                color = Color.Gray
+                                color = DarkBlack
                             )
                         }
                     }
@@ -152,27 +154,35 @@ fun RecentOrderSection(
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp)
                                 .clickable { navController.navigate("product/${item.productId}") },
-                            horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 AsyncImage(
                                     model = item.thumbnailUrl,
                                     contentDescription = item.productName,
-                                    modifier = Modifier.size(60.dp)
+                                    modifier = Modifier.size(85.dp)
+                                        .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
+                                        .padding(2.dp)
+                                        .clip(RoundedCornerShape(8.dp))
                                 )
                                 Spacer(Modifier.width(12.dp))
-                                Column {
+                                Column (
+                                    modifier = Modifier.weight(1f)
+                                ){
+                                    Spacer(Modifier.height(2.dp))
                                     Text(
                                         text = OrderStatusMapper.getStatusText(item.status.toInt()),
                                         color = MainPurple,
-                                        fontSize = 12.sp,
+                                        fontSize = 14.sp,
+                                        lineHeight = 15.sp,
                                         fontFamily = Pretendard,
                                         fontWeight = FontWeight.Bold
                                     )
+                                    Spacer(Modifier.height(2.dp))
                                     Text(
                                         text = item.productName,
                                         fontSize = 14.sp,
+                                        lineHeight = 16.sp,
                                         fontFamily = Pretendard,
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis
@@ -180,7 +190,8 @@ fun RecentOrderSection(
                                     Row {
                                         Text(
                                             text = PriceUtil.formatPrice(item.unitPrice),
-                                            fontSize = 13.sp,
+                                            fontSize = 14.sp,
+                                            lineHeight = 15.sp,
                                             fontWeight = FontWeight.Bold,
                                             fontFamily = Pretendard,
                                             modifier = Modifier.alignByBaseline()
@@ -233,8 +244,8 @@ fun RecentOrderSection(
                                             text = "주문 취소",
                                             modifier = Modifier
                                                 .width(90.dp)
-                                                .height(30.dp)
-                                                .padding(top = 6.dp),
+                                                .height(25.dp)
+                                                .padding(top = 3.dp),
                                             onClick = { showCancelDialog = true }
                                         )
                                     }
@@ -262,38 +273,37 @@ fun RecentOrderSection(
                                         )
                                     }
                                 }
-                            }
-
-                            // 장바구니 담기
-                            Box(
-                                modifier = Modifier
-                                    .align(Alignment.CenterVertically)
-                                    .size(40.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
-                                    .clickable {
-                                        cartVm.addOne(item.productId, 1)
-                                        scope.launch {
-                                            snackbarHostState.currentSnackbarData?.dismiss()
-                                            val result = snackbarHostState.showSnackbar(
-                                                message = "${item.productName}을 장바구니에 담았어요.",
-                                                actionLabel = "바로가기",
-                                                withDismissAction = true,
-                                                duration = SnackbarDuration.Short
-                                            )
-                                            if (result == SnackbarResult.ActionPerformed) {
-                                                navController.navigate("cart")
+                                // 장바구니 담기
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.CenterVertically)
+                                        .requiredSize(40.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                                        .clickable {
+                                            cartVm.addOne(item.productId, 1)
+                                            scope.launch {
+                                                snackbarHostState.currentSnackbarData?.dismiss()
+                                                val result = snackbarHostState.showSnackbar(
+                                                    message = "${item.productName}을 장바구니에 담았어요.",
+                                                    actionLabel = "바로가기",
+                                                    withDismissAction = true,
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                                if (result == SnackbarResult.ActionPerformed) {
+                                                    navController.navigate("cart")
+                                                }
                                             }
-                                        }
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_icon_bag),
-                                    contentDescription = "장바구니 담기",
-                                    tint = Color.Black,
-                                    modifier = Modifier.size(20.dp)
-                                )
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_icon_bag),
+                                        contentDescription = "장바구니 담기",
+                                        tint = Color.Black,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
                             }
                         }
                     }

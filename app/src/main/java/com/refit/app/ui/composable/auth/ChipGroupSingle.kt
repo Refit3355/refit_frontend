@@ -15,8 +15,8 @@ fun ChipGroupSingle(
     onChange: (String?) -> Unit
 ) {
     FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalArrangement = Arrangement.spacedBy(5.dp)
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
         options.forEach { opt ->
             SelectableChip(

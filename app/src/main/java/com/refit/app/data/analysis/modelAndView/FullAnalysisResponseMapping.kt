@@ -59,13 +59,13 @@ fun FullAnalysisResponse.toUiResult(
                 ?.takeUnless { it.isNullOrBlank() }
                 ?: summary.nn()
 
-
             val cautions = supplementConditionCautions
                 ?.joinToString("\n") { it.trim() }
                 ?.takeUnless { it.isNullOrBlank() }
                 ?: cautionText?.trim().takeUnless { it.isNullOrBlank() }
                 ?: riskyText?.trim().takeUnless { it.isNullOrBlank() }
                 ?: null
+
 
             val nothing = benefits.isBlank() && cautions.isNullOrBlank()
             if (nothing) return UiResult.Empty
@@ -76,5 +76,6 @@ fun FullAnalysisResponse.toUiResult(
                 cautionText = cautions
             )
         }
+
     }
 }

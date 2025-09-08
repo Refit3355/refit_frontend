@@ -167,8 +167,8 @@ fun LoginScreen(
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .clickable { onSignup(false) },
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp,
+                    fontWeight = FontWeight(500),
+                    fontSize = 16.sp,
                     fontFamily = Pretendard,
                 )
             }

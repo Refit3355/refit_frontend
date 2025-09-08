@@ -27,8 +27,8 @@ fun HomeProductRow(
 
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = modifier.heightIn(min = 280.dp)
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = modifier.heightIn(min = 270.dp)
     ) {
         items(products.take(10)) { p ->
             ProductCard(
@@ -36,7 +36,7 @@ fun HomeProductRow(
                 wished = p.id in wished,
                 onToggleWish = { wishVM.toggle(p.id) },
                 onClick = { onClick(p) },
-                modifier = Modifier.width(160.dp)
+                modifier = Modifier.width(130.dp)
             )
         }
     }

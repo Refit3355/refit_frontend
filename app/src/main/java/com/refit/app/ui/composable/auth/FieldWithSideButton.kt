@@ -1,7 +1,7 @@
-// FieldWithSideButton.kt
 package com.refit.app.ui.composable.auth
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,6 +11,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
 private val FieldHeight = 50.dp
+private val FieldShape = RoundedCornerShape(10.dp)
 
 @Composable
 fun FieldWithSideButton(
@@ -25,9 +26,10 @@ fun FieldWithSideButton(
     buttonText: String = "",
     buttonEnabled: Boolean = false,
     onButtonClick: () -> Unit = {},
+    textFieldModifier: Modifier = Modifier,   // ← 여길 쓰게 됨
     showButton: Boolean = true,
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    fieldModifier: Modifier = Modifier,
+    fieldModifier: Modifier = Modifier,       // (선택) 기존 유지
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
@@ -48,9 +50,12 @@ fun FieldWithSideButton(
                 readOnly = readOnly,
                 enabled = enabled,
                 visualTransformation = visualTransformation,
-                modifier = fieldModifier
+                shape = FieldShape,
+                modifier = Modifier
                     .weight(1f)
-                    .height(50.dp)
+                    .height(FieldHeight)
+                    .then(textFieldModifier)     // ★ 추가: bringIntoView 등 외부에서 전달한 Modifier 적용
+                    .then(fieldModifier)         // (선택) 기존 fieldModifier도 이어서 적용
             )
 
             if (showButton) {
@@ -59,6 +64,7 @@ fun FieldWithSideButton(
                     text = buttonText,
                     enabled = buttonEnabled,
                     onClick = onButtonClick,
+                    shape = FieldShape,
                     modifier = Modifier
                         .height(FieldHeight)
                         .defaultMinSize(minWidth = 88.dp)

@@ -116,8 +116,7 @@ fun MainScreenWithBottomNav(
         }
     }
 
-    val bottomTabs = listOf("home", "category", "myfit", "community", "my", "sleepDetail",
-        "stepsDetail", "weatherDetail")
+    val bottomTabs = listOf("home", "category", "myfit", "community", "my")
     val noBottomTabs = listOf("myfit/register", "myfit/edit", "checkout/")
 
     val inAuth = currentRoute.startsWith("auth/login")
