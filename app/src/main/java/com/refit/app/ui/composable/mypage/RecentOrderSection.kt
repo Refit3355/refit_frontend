@@ -171,10 +171,10 @@ fun RecentOrderSection(
                                         fontWeight = FontWeight.Bold
                                     )
                                     Text(
-                                        text = "[${item.brand}] ${item.productName}".limitWithEllipsis(10),
+                                        text = item.productName,
                                         fontSize = 14.sp,
                                         fontFamily = Pretendard,
-                                        maxLines = 1,
+                                        maxLines = 2,
                                         overflow = TextOverflow.Ellipsis
                                     )
                                     Row {
