@@ -146,7 +146,7 @@ fun OrderCompleteScreen(
     }
 }
 
-private fun methodLabel(code: String): String = when (code) {
+fun methodLabel(code: String): String = when (code) {
     "CARD" -> "신용카드"
     "VIRTUAL_ACCOUNT" -> "가상계좌"
     "TRANSFER" -> "계좌이체"

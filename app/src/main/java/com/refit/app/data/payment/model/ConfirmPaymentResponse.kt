@@ -15,7 +15,13 @@ data class ConfirmPaymentResponse(
     val method: String,
     val firstItemThumb: String,
     val itemCount: Int,
-    val items: List<ConfirmPaymentItem>
+    val items: List<ConfirmPaymentItem>,
+
+//   가상계좌용
+    val vaAccountNo: String? = null,
+    val vaBankCode: String? = null,
+    val vaDueDate: String? = null,         // ISO8601(예: 2025-09-13T15:53:34+09:00)
+    val vaDepositorName: String? = null
 )
 
 @Serializable
@@ -26,5 +32,5 @@ data class ConfirmPaymentItem(
     val price: Long,
     val originalPrice: Long,
     val quantity: Int,
-    val thumnailUrl: String
+    val thumbnailUrl: String
 )

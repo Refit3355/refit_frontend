@@ -44,7 +44,11 @@ fun CancelOrderReasonDialog(
     val baseRefund: Long = unitPrice * selectedCount
     val remainAfterThisCancel: Long = currentMerchandiseSubtotal - baseRefund
     val originallyFree = originalMerchandiseTotal >= freeShippingThreshold
-    val shouldChargeShipping = originallyFree && (remainAfterThisCancel < freeShippingThreshold)
+
+    val isFullCancelThisStep = remainAfterThisCancel == 0L
+    val shouldChargeShipping =
+        !isFullCancelThisStep && originallyFree && (remainAfterThisCancel < freeShippingThreshold)
+
     val shippingDeduct = if (shouldChargeShipping) shippingFee else 0L
     val expectedRefund = (baseRefund - shippingDeduct).coerceAtLeast(0L)
 
@@ -129,6 +133,7 @@ fun CancelOrderReasonDialog(
                                 if (selectedCount < maxQty) selectedCount++
                             }
                         }
+                        Text("이번 취소로 주문이 전액 취소인 경우 배송비는 차감되지 않습니다.", fontFamily = Pretendard, fontWeight = FontWeight.Medium, fontSize = 14.sp)
 
                         // 미리보기(환불 금액)
                         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
