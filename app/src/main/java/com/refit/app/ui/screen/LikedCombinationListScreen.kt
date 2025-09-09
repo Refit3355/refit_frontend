@@ -17,7 +17,7 @@ import androidx.navigation.NavController
 import com.refit.app.R
 import com.refit.app.data.local.combination.MyCombinationStore
 import com.refit.app.data.combination.modelAndView.LikedCombinationViewModel
-import com.refit.app.ui.composable.combination.CombinationCard
+import com.refit.app.ui.composable.combiking.CombinationCard
 import com.refit.app.ui.theme.Pretendard
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.Image
@@ -83,7 +83,10 @@ fun LikedCombinationListScreen(
         }
 
         else -> {
-            LazyColumn {
+            LazyColumn(
+                contentPadding = PaddingValues(8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
                 items(state.combinations) { combination ->
                     CombinationCard(
                         combination = combination,
@@ -92,17 +95,11 @@ fun LikedCombinationListScreen(
                             scope.launch {
                                 val wasSaved = savedIds.contains(id)
                                 myCombinationStore.toggle(id)
-                                if (wasSaved) {
-                                    vm.dislikeCombination(id)
-                                } else {
-                                    vm.likeCombination(id)
-                                }
+                                if (wasSaved) vm.dislikeCombination(id) else vm.likeCombination(id)
                             }
                         },
                         showSaveButton = true,
-                        onClick = { id ->
-                            navController.navigate("combinationDetail/$id")
-                        }
+                        onClick = { id -> navController.navigate("combinationDetail/$id") }
                     )
                 }
             }

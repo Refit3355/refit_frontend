@@ -35,7 +35,8 @@ fun CombinationCard(
     combination: CombinationDto,
     isSaved: Boolean,
     onToggleSave: (Long) -> Unit,
-    onClick: (Long) -> Unit
+    onClick: (Long) -> Unit,
+    showSaveButton: Boolean = true
 ) {
     Card(
         modifier = Modifier
@@ -70,11 +71,11 @@ fun CombinationCard(
                     )
                 )
 
-                Spacer(Modifier.height(6.dp))
-                Row(verticalAlignment = Alignment.Bottom) {
+                Spacer(Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         PriceUtil.formatPrice(combination.discountedTotalPrice),
-                        fontSize = 18.sp,
+                        fontSize = 16.sp,
                         style = TextStyle(
                             fontFamily = PretendardVariable,
                             fontWeight = FontWeight(600)
@@ -83,14 +84,17 @@ fun CombinationCard(
                     Spacer(Modifier.width(8.dp))
                     Text(
                         PriceUtil.formatPrice(combination.originalTotalPrice),
-                        fontSize = 14.sp,
-                        fontFamily = Pretendard,
+                        fontSize = 16.sp,
+                        style = TextStyle(
+                            fontFamily = PretendardVariable,
+                            fontWeight = FontWeight(550)
+                        ),
                         color = Color.Gray,
                         textDecoration = TextDecoration.LineThrough
                     )
                 }
 
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(14.dp))
 
                 // 상품 이미지
                 BoxWithConstraints(
@@ -141,32 +145,32 @@ fun CombinationCard(
             }
 
             // 저장 버튼
-            Column(
-                modifier = Modifier.align(Alignment.TopEnd).padding(top = 14.dp, end = 14.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable { onToggleSave(combination.combinationId) },
-                    contentAlignment = Alignment.Center
+            if (showSaveButton) {
+                Column(
+                    modifier = Modifier.align(Alignment.TopEnd).padding(top = 14.dp, end = 14.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Image(
-                        painter = painterResource(
-                            if (isSaved) R.drawable.ic_bookmark_purple else R.drawable.ic_bookmark_basic
-                        ),
-                        contentDescription = "저장",
-                        modifier = Modifier.size(24.dp),
-                        colorFilter = ColorFilter.tint(if (isSaved) MainPurple else DarkBlack)
+                    Box(
+                        modifier = Modifier.size(24.dp).clickable { onToggleSave(combination.combinationId) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(
+                                if (isSaved) R.drawable.ic_bookmark_purple else R.drawable.ic_bookmark_basic
+                            ),
+                            contentDescription = "저장",
+                            modifier = Modifier.size(24.dp),
+                            colorFilter = ColorFilter.tint(if (isSaved) MainPurple else DarkBlack)
+                        )
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = "저장 ${combination.likes}",
+                        fontSize = 12.sp,
+                        fontFamily = Pretendard,
+                        fontWeight = FontWeight(500)
                     )
                 }
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = "저장 ${combination.likes}",
-                    fontSize = 12.sp,
-                    fontFamily = Pretendard,
-                    fontWeight = FontWeight(500)
-                )
             }
         }
     }
