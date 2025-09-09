@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
+import com.refit.app.ui.theme.PretendardVariable
 import kotlin.math.max
 
 @SuppressLint("Range")
@@ -86,8 +88,10 @@ fun SleepCard(
                         }
                         append("이에요")
                     },
-                    fontFamily = Pretendard,
-                    fontWeight = FontWeight(600),
+                    style = TextStyle(
+                        fontFamily = PretendardVariable,
+                        fontWeight = FontWeight(600)
+                    ),
                     fontSize = 20.sp,
                     color = Color(0xFF3A3A3A)
                 )
@@ -98,13 +102,15 @@ fun SleepCard(
             Column {
                 Text(
                     msg,
-                    fontFamily = Pretendard,
-                    fontWeight = FontWeight(500),
+                    style = TextStyle(
+                        fontFamily = PretendardVariable,
+                        fontWeight = FontWeight(580)
+                    ),
                     fontSize = 15.sp,
                     color = Color(0xFF3A3A3A)
                 )
 
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(13.dp))
 
                 Box(
                     modifier = Modifier
@@ -122,7 +128,7 @@ fun SleepCard(
                     )
                 }
 
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(10.dp))
 
                 // 평균/권장 라벨 (막대 아래, 비율 위치)
                 Box(modifier = Modifier.fillMaxWidth()) {

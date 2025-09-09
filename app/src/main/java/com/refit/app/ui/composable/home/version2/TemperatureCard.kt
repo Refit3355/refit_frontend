@@ -15,6 +15,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.remember
+import androidx.compose.ui.text.TextStyle
+import com.refit.app.ui.theme.PretendardVariable
 
 @Composable
 fun TemperatureCard(
@@ -53,15 +55,19 @@ fun TemperatureCard(
                 Row {
                     Text(
                         "현재 기온 ",
-                        fontFamily = Pretendard,
-                        fontWeight = FontWeight(600),
+                        style = TextStyle(
+                            fontFamily = PretendardVariable,
+                            fontWeight = FontWeight(600)
+                        ),
                         fontSize = 20.sp,
                         color = Color(0xFF111111)
                     )
                     Text(
                         "${temperatureC}℃",
-                        fontFamily = Pretendard,
-                        fontWeight = FontWeight(600),
+                        style = TextStyle(
+                            fontFamily = PretendardVariable,
+                            fontWeight = FontWeight(600)
+                        ),
                         fontSize = 20.sp,
                         color = MainPurple
                     )
@@ -69,8 +75,10 @@ fun TemperatureCard(
                 Spacer(Modifier.height(2.dp))
                 Text(
                     "오늘 날씨에 맞는 케어를 준비했어요",
-                    fontFamily = Pretendard,
-                    fontWeight = FontWeight(600),
+                    style = TextStyle(
+                        fontFamily = PretendardVariable,
+                        fontWeight = FontWeight(600)
+                    ),
                     fontSize = 20.sp,
                     color = Color(0xFF3A3A3A)
                 )
@@ -81,17 +89,21 @@ fun TemperatureCard(
             Column {
                 Text(
                     "오늘의 케어 팁 \uD83D\uDCA1",
-                    fontFamily = Pretendard,
-                    fontWeight = FontWeight(600),
+                    style = TextStyle(
+                        fontFamily = PretendardVariable,
+                        fontWeight = FontWeight(600)
+                    ),
                     fontSize = 15.sp,
                     color = MainPurple
                 )
-                Spacer(Modifier.height(3.dp))
+                Spacer(Modifier.height(8.dp))
                 Text(
                     tipMsg,
-                    fontFamily = Pretendard,
-                    fontWeight = FontWeight(500),
-                    fontSize = 14.sp,
+                    style = TextStyle(
+                        fontFamily = PretendardVariable,
+                        fontWeight = FontWeight(550)
+                    ),
+                    fontSize = 15.sp,
                     color = Color(0xFF333333)
                 )
             }

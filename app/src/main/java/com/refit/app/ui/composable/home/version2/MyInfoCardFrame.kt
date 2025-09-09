@@ -30,7 +30,7 @@ fun MyInfoCardFrame(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 305.dp, max = 305.dp)
+            .heightIn(min = 295.dp, max = 305.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(LightPurple)
             .padding(vertical = 30.dp, horizontal = 25.dp)
@@ -43,7 +43,7 @@ fun MyInfoCardFrame(
             Spacer(Modifier.width(0.dp))
             mascot()
         }
-        Spacer(Modifier.height(14.dp))
+        Spacer(Modifier.height(18.dp))
         Box(
             modifier = Modifier
                 .fillMaxWidth()

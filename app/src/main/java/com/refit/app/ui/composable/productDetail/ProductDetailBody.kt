@@ -27,6 +27,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,6 +40,7 @@ import com.refit.app.R
 import com.refit.app.data.product.model.ProductDetail
 import com.refit.app.ui.screen.formatRecommended
 import com.refit.app.ui.theme.Pretendard
+import com.refit.app.ui.theme.PretendardVariable
 
 @Composable
 fun ProductDetailBody(
@@ -89,11 +91,11 @@ fun ProductDetailBody(
                     Spacer(Modifier.height(6.dp))
                     Text(
                         text = detail.name,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontFamily = Pretendard,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 20.sp
-                        )
+                        style = TextStyle(
+                            fontFamily = PretendardVariable,
+                            fontWeight = FontWeight(600)
+                        ),
+                        fontSize = 20.sp,
                     )
                 }
 
