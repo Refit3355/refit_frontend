@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
@@ -26,6 +27,7 @@ fun OutlinedLikeTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String = "",
+    shape: Shape = RoundedCornerShape(5.dp),
     modifier: Modifier = Modifier,
     singleLine: Boolean = true,
     readOnly: Boolean = false,
@@ -34,7 +36,6 @@ fun OutlinedLikeTextField(
     textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     placeholderTextStyle: TextStyle = MaterialTheme.typography.bodyMedium,
 ) {
-    val shape = RoundedCornerShape(16.dp)
     val interaction = remember { MutableInteractionSource() }
     val focused = interaction.collectIsFocusedAsState().value
 

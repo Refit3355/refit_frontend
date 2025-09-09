@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.refit.app.ui.theme.MainPurple
@@ -19,6 +20,7 @@ import com.refit.app.ui.theme.Pretendard
 fun InlineActionButton(
     text: String,
     onClick: () -> Unit,
+    shape: Shape = RoundedCornerShape(10.dp),
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
@@ -27,7 +29,7 @@ fun InlineActionButton(
         enabled = enabled,
         modifier = modifier
             .fillMaxHeight(),
-        shape = RoundedCornerShape(5.dp),
+        shape = shape,
         colors = ButtonDefaults.buttonColors(
             containerColor = MainPurple,
             contentColor = Color.White

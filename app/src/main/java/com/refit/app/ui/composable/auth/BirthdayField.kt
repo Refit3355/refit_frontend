@@ -3,6 +3,7 @@ package com.refit.app.ui.composable.auth
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import java.time.*
 import java.time.format.DateTimeFormatter
 
@@ -52,9 +53,27 @@ fun BirthdayField(
             },
             dismissButton = {
                 TextButton(onClick = { open = false }) { Text("취소") }
-            }
+            },
+            colors = DatePickerDefaults.colors(
+                containerColor = Color.White
+            )
         ) {
-            DatePicker(state = datePickerState)
+            DatePicker(
+                state = datePickerState,
+                colors = DatePickerDefaults.colors(
+                    containerColor = Color.White,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    headlineContentColor = MaterialTheme.colorScheme.onSurface,
+                    weekdayContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    subheadContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    navigationContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    dayContentColor = MaterialTheme.colorScheme.onSurface,
+                    disabledDayContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                    selectedDayContentColor = MaterialTheme.colorScheme.onPrimary,
+                    selectedDayContainerColor = MaterialTheme.colorScheme.primary,
+                    todayDateBorderColor = MaterialTheme.colorScheme.primary
+                )
+            )
         }
     }
 }

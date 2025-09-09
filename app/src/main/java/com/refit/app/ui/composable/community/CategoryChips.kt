@@ -26,21 +26,21 @@ fun CategoryChips(
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+        modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
     ) {
         CommunityCategory.values().forEach { category ->
             val isSelected = category == selected
             Surface(
                 color = if (isSelected) MainPurple else Color.Transparent,
                 shape = RoundedCornerShape(50),
-                border = if (isSelected) null else androidx.compose.foundation.BorderStroke(1.2.dp, Color.Gray),
+                border = if (isSelected) null else androidx.compose.foundation.BorderStroke(1.dp, Color.Gray),
                 onClick = { onSelect(category) }
             ) {
                 Text(
                     text = category.label,
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
+                    modifier = Modifier.padding(horizontal = 18.dp, vertical = 4.dp),
                     color = if (isSelected) Color.White else Color.Gray,
-                    fontSize = 15.sp,
+                    fontSize = 14.sp,
                     fontFamily = Pretendard,
                     fontWeight = FontWeight(500)
                 )

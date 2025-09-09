@@ -22,8 +22,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import com.refit.app.ui.theme.MainPurple
+import com.refit.app.ui.theme.Pretendard
 
 @Composable
 fun SwipeRevealBox(
@@ -102,6 +104,6 @@ private fun ActionButton(
             Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
         }
         Spacer(Modifier.height(4.dp))
-        Text(label, color = MainPurple, style = MaterialTheme.typography.labelSmall)
+        Text(label, color = MainPurple, fontFamily = Pretendard, fontWeight = FontWeight(500), fontSize = 13.sp)
     }
 }

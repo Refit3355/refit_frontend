@@ -17,8 +17,8 @@ fun ChipGroupMulti(
     maxSelection: Int? = null
 ) {
     FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
         options.forEach { opt ->
             val isSelected = opt in selected

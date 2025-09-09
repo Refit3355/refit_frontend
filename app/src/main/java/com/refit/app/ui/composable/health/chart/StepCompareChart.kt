@@ -4,7 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
-import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.model.GradientColor
 import com.refit.app.ui.composable.health.ChartBox
 import com.refit.app.ui.composable.health.RoundedBarChartRenderer
 import com.refit.app.ui.theme.MainPurple
@@ -23,44 +28,67 @@ fun StepCompareChart(
         onVisible = onVisible
     ) { ctx ->
         com.github.mikephil.charting.charts.BarChart(ctx).apply {
-            val my = BarEntry(0f, todaySteps)
-            val avg = BarEntry(1f, koreanAvgSteps)
-            val mySet = BarDataSet(listOf(my), "나").apply {
-                color = MainPurple.toArgb()
+            // 1) 단일 DataSet에 2개 막대: "나", "평균"
+            val entries = listOf(
+                BarEntry(0f, todaySteps),
+                BarEntry(1f, koreanAvgSteps)
+            )
+            val set = BarDataSet(entries, "").apply {
+                setDrawValues(true)
                 valueFormatter = RoundCommaValueFormatter()
                 setValueTextColor(Color.DarkGray.toArgb())
-                setValueTextSize(10f)
-                setDrawValues(true)
+                setValueTextSize(11f)
+                gradientColors = listOf(
+                    // "나" (보라 40% 투명)
+                    GradientColor(
+                        MainPurple.copy(alpha = 0.4f).toArgb(),
+                        MainPurple.copy(alpha = 0.4f).toArgb()
+                    ),
+                    // "평균" (연한 그레이 그라데이션)
+                    GradientColor(
+                        Color(0xFFDADADA).toArgb(),
+                        Color(0xFFF0F0F0).toArgb()
+                    )
+                )
+                highLightAlpha = 0
             }
-            val avgSet = BarDataSet(listOf(avg), "한국인 평균").apply {
-                color = Color.LightGray.toArgb()
-                valueFormatter = RoundCommaValueFormatter()
-                setValueTextColor(Color.DarkGray.toArgb())
-                setValueTextSize(10f)
-                setDrawValues(true)
-            }
-            val groupSpace = 0.4f
-            val barSpace = 0.05f
-            val barWidth = 0.2f
-            data = BarData(mySet, avgSet).apply { this.barWidth = barWidth }
-            val groupWidth = data.getGroupWidth(groupSpace, barSpace)
-            xAxis.axisMinimum = 0f
-            xAxis.axisMaximum = groupWidth
-            groupBars(0f, groupSpace, barSpace)
+
+            data = BarData(set).apply { barWidth = 0.5f }
+            setFitBars(true)
             renderer = RoundedBarChartRenderer(this, animator, viewPortHandler)
+
+            // 2) 터치/줌/하이라이트 비활성화
+            setTouchEnabled(false)
+            setHighlightPerTapEnabled(false)
+            setHighlightPerDragEnabled(false)
+            setScaleEnabled(false)
+            setPinchZoom(false)
+            isDoubleTapToZoomEnabled = false
+            setOnChartValueSelectedListener(null)
+
+            // 3) 데코
             description.isEnabled = false
+            legend.isEnabled = false
+
             axisRight.isEnabled = false
             axisLeft.apply {
                 isEnabled = false
-                val maxVal = maxOf(todaySteps, koreanAvgSteps)
                 axisMinimum = 0f
-                axisMaximum = (maxVal * 1.1f)
-            }
-            xAxis.apply {
-                isEnabled = false
+                axisMaximum = (maxOf(todaySteps, koreanAvgSteps) * 1.1f)
                 setDrawGridLines(false)
+                setDrawAxisLine(false)
             }
-            legend.isEnabled = true
+
+            xAxis.apply {
+                isEnabled = true
+                position = XAxis.XAxisPosition.BOTTOM
+                setDrawGridLines(false)
+                setDrawAxisLine(false)
+                granularity = 1f
+                valueFormatter = IndexAxisValueFormatter(listOf("나", "평균"))
+                textSize = 13f
+            }
+
             if (chartVisible) {
                 animateY(1000, com.github.mikephil.charting.animation.Easing.EaseOutCubic)
             }

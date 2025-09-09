@@ -55,7 +55,7 @@ fun RecommendationScreen(
                     gifRes = R.raw.walking_jellbbo,
                     message = buildAnnotatedString {
                         append("${nickname}님의 ")
-                        withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                        withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.SemiBold)) {
                             append("발걸음 속도")
                         }
                         append("에\n")
@@ -72,7 +72,7 @@ fun RecommendationScreen(
                     gifRes = R.raw.sleeping_jellbbo,
                     message = buildAnnotatedString {
                         append("${nickname}님의 ")
-                        withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                        withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.SemiBold)) {
                             append("수면 시간")
                         }
                         append("을 고려한\n")
@@ -89,7 +89,7 @@ fun RecommendationScreen(
                     gifRes = R.raw.weather_jellbbo,
                     message = buildAnnotatedString {
                         append("오늘의 ")
-                        withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                        withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.SemiBold)) {
                             append("날씨")
                         }
                         append("에 필요한\n")
@@ -106,7 +106,7 @@ fun RecommendationScreen(
                     gifRes = R.raw.rhythming_jellbbo,
                     message = buildAnnotatedString {
                         append("${nickname}님의 ")
-                        withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                        withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.SemiBold)) {
                             append("생활 리듬")
                         }
                         append("을 고려한\n")
@@ -123,7 +123,7 @@ fun RecommendationScreen(
                     gifRes = R.raw.sleeping_jellbbo,
                     message = buildAnnotatedString {
                         append("${nickname}님을 위한 ")
-                        withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                        withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.SemiBold)) {
                             append("맞춤형 추천")
                         }
                         append("을 준비했어요.\n")

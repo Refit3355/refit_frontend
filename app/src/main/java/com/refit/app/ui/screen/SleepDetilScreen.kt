@@ -39,6 +39,11 @@ import com.refit.app.ui.theme.Pretendard
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
+import com.refit.app.ui.composable.health.chartHeader.TitleLine
+import com.refit.app.ui.composable.health.chartHeader.InfoCallout
+import androidx.compose.ui.text.AnnotatedString
+
+private fun minToHM(min: Int): String = "${min/60}h ${min%60}m"
 
 @Composable
 fun SleepDetailScreen(
@@ -61,8 +66,8 @@ fun SleepDetailScreen(
     if (rows.isEmpty()) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+                .padding(16.dp)
+                .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -98,7 +103,6 @@ fun SleepDetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
         val imageLoader = ImageLoader.Builder(ctx)
@@ -116,109 +120,84 @@ fun SleepDetailScreen(
             imageLoader = imageLoader,
             gifRes = R.raw.sleeping_jellbbo,
             message = buildAnnotatedString {
-                append("${nickname}님 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
-                    append("재충전을 위해서\n")
-                }
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
-                    append("잠시 쉬어가도 ")
-                }
-                append("괜찮아요.")
+                append("${nickname}님, 잘하고 계세요.\n오늘 밤은 ")
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("10분만 더 일찍") }
+                append(" 누워볼까요?")
             }
         )
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(30.dp))
 
-        // ---------------- 1번째 차트 ----------------
-        ChartHeader(
-            iconRes = R.drawable.jellbbo_research,
-            text = buildAnnotatedString {
-                append("최근 7일 동안의 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
-                    append("수면 기록")
+        // 본문 구역만 좌우 여백
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+        ) {
+
+            // 1) 주간 수면 시간
+            TitleLine(iconRes = R.drawable.ic_sleep, title = "주간 수면 시간")
+            Spacer(Modifier.height(8.dp))
+            InfoCallout(
+                text = buildAnnotatedString {
+                    append("지난 7일의 수면 패턴을 정리했어요. ")
+                    append("짧더라도 일정한 시간에 잠들고 일어나는 ")
+                    withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("규칙 수면") }
+                    append("이 컨디션 유지에 도움이 됩니다.")
                 }
-                append("을 확인했어요.\n충분한 수면은 피부 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
-                    append("재생")
+            )
+            Spacer(Modifier.height(10.dp))
+
+            // 차트: 리미트라인 라벨은 내부에서 숨김 처리
+            SleepChart(
+                sleepEntries = sleepEntries,
+                koreanAvgSleep = koreanAvgSleep,
+                pretendardBold = pretendardBold,
+                indexFormatter = indexFormatter,
+                chartVisible = chart1Visible
+            ) { chart1Visible = true }
+
+            Spacer(Modifier.height(80.dp))
+
+            // 2) 어제 vs 한국 평균
+            TitleLine(iconRes = R.drawable.ic_compare, title = "어제 수면 vs 평균")
+            Spacer(Modifier.height(8.dp))
+            InfoCallout(
+                text = buildAnnotatedString {
+                    append("어제 수면을 한국인 평균과 비교했어요. ")
+                    append("부담 없는 ")
+                    withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("취침 루틴") }
+                    append("을 만들어 보세요.")
                 }
-                append("과 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
-                    append("면역력")
+            )
+            Spacer(Modifier.height(10.dp))
+            SleepCompareAvgChart(
+                yesterdaySleep = yesterdaySleep,
+                koreanAvgSleep = koreanAvgSleep,
+                chartVisible = chart2Visible
+            ) { chart2Visible = true }
+
+            Spacer(Modifier.height(80.dp))
+
+            // 3) 어제 vs 권장 수면
+            TitleLine(iconRes = R.drawable.ic_compare, title = "어제 수면 vs 권장")
+            Spacer(Modifier.height(8.dp))
+            InfoCallout(
+                text = buildAnnotatedString {
+                    append("권장 수면 시간과 비교해 현재 위치를 알려드려요. ")
+                    append("오늘은 ")
+                    withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) { append("잠들기 전 10분") }
+                    append("만 더 일찍 눕는 건 어떨까요?")
                 }
-                append(" 유지에 도움을 줍니다.")
-            }
-        )
-        SleepChart(
-            sleepEntries = sleepEntries,
-            koreanAvgSleep = koreanAvgSleep,
-            pretendardBold = pretendardBold,
-            indexFormatter = indexFormatter,
-            chartVisible = chart1Visible
-        ) { chart1Visible = true }
+            )
+            Spacer(Modifier.height(10.dp))
+            SleepCompareRecChart(
+                yesterdaySleep = yesterdaySleep,
+                recommendedSleep = recommendedSleep,
+                chartVisible = chart3Visible
+            ) { chart3Visible = true }
 
-        Spacer(Modifier.height(32.dp))
-
-        // ---------------- 2번째 차트 ----------------
-        ChartHeader(
-            iconRes = R.drawable.jellbbo_research,
-            text = buildAnnotatedString {
-                append("오늘 나의 수면 시간과 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
-                    append("일반인 평균 시간")
-                }
-                append("을 비교해 보았어요.")
-            }
-        )
-        SleepCompareAvgChart(
-            yesterdaySleep = yesterdaySleep,
-            koreanAvgSleep = koreanAvgSleep,
-            chartVisible = chart2Visible
-        ) { chart2Visible = true }
-
-        Spacer(Modifier.height(32.dp))
-
-        // ---------------- 3번째 차트 ----------------
-        ChartHeader(
-            iconRes = R.drawable.jellbbo_research,
-            text = buildAnnotatedString {
-                append("오늘 나의 수면 시간과 ")
-                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
-                    append("권장 수면 시간")
-                }
-                append("을 비교해 보았어요.")
-            }
-        )
-        SleepCompareRecChart(
-            yesterdaySleep = yesterdaySleep,
-            recommendedSleep = recommendedSleep,
-            chartVisible = chart3Visible
-        ) { chart3Visible = true }
-
-        Spacer(Modifier.height(32.dp))
-
-        // ---------------- 추천 상품 섹션 ----------------
-        val recommendMsg = buildAnnotatedString {
-            append(nickname)
-            append("님을 위한 ")
-            withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
-                append("맞춤형 상품들 보러가기")
-            }
+            Spacer(Modifier.height(32.dp))
         }
-
-        SectionHeader(
-            title = recommendMsg,
-            onMore = {
-                navController.currentBackStackEntry?.savedStateHandle?.set(
-                    "recommendation_items",
-                    recommendState.items
-                )
-                navController.navigate("recommendation/1")
-            }
-        )
-
-        HomeProductRow(
-            products = recommendState.items.take(10),
-            onClick = { p -> navController.navigate("product/${p.id}") }
-        )
     }
 }

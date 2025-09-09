@@ -80,14 +80,14 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color(0xFFE9E4F2))
-                    .padding(top = 36.dp)
+                    .padding(top = 26.dp)
             ) {
                 GreetingCard(
                     nickname = nickname ?: "사용자",
                     tags = allTags
                 )
 
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(18.dp))
 
                 MetricRow(
                     items = listOf(
@@ -168,8 +168,6 @@ fun HomeScreen(
                     )
                 }
 
-                Spacer(Modifier.height(16.dp))
-
                 // === 수면시간 기반 섹션 ===
                 run {
                     val sleepMsg = if ((uiState.sleepMinutes ?: 0) > 420) {
@@ -190,8 +188,6 @@ fun HomeScreen(
                     )
                 }
 
-                Spacer(Modifier.height(16.dp))
-
                 // === 날씨 기반 섹션 ===
                 SectionHeader(
                     title = highlightText("매일 달라지는 날씨에 맞춘 헤어 솔루션", listOf("날씨", "헤어 솔루션")),
@@ -207,8 +203,6 @@ fun HomeScreen(
                     products = uiState.weatherProducts.take(10),
                     onClick = { p -> navController.navigate("product/${p.id}") }
                 )
-
-                Spacer(Modifier.height(16.dp))
 
                 // === 생활 리듬 기반 섹션 ===
                 SectionHeader(

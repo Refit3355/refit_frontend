@@ -11,7 +11,7 @@ import com.refit.app.data.health.model.MetricItem
 @Composable
 fun MetricRow(items: List<MetricItem>) {
     Row(
-        modifier = Modifier.padding(horizontal = 16.dp),
+        modifier = Modifier.padding(horizontal = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items.forEach { MetricCard(item = it, modifier = Modifier.weight(1f)) }

@@ -1,6 +1,7 @@
 package com.refit.app.ui.composable.auth
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -10,6 +11,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
 private val FieldHeight = 50.dp
+private val FieldShape = RoundedCornerShape(10.dp)
 
 @Composable
 fun FieldWithSideButton(
@@ -48,6 +50,7 @@ fun FieldWithSideButton(
                 readOnly = readOnly,
                 enabled = enabled,
                 visualTransformation = visualTransformation,
+                shape = FieldShape,
                 modifier = Modifier
                     .weight(1f)
                     .height(FieldHeight)
@@ -61,6 +64,7 @@ fun FieldWithSideButton(
                     text = buttonText,
                     enabled = buttonEnabled,
                     onClick = onButtonClick,
+                    shape = FieldShape,
                     modifier = Modifier
                         .height(FieldHeight)
                         .defaultMinSize(minWidth = 88.dp)

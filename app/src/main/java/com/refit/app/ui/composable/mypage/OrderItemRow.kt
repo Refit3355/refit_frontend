@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavController
 import com.refit.app.R
 import com.refit.app.data.me.model.OrderItemDto
@@ -72,12 +73,13 @@ fun OrderItemRow(
             Spacer(Modifier.width(12.dp))
 
             Column(Modifier.weight(1f)) {
-                // [브랜드] 상품명
                 Text(
-                    text = "[${item.brand}] ${item.productName}",
+                    text = item.productName,
                     fontFamily = Pretendard,
                     fontSize = 15.sp,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 // 가격/수량
