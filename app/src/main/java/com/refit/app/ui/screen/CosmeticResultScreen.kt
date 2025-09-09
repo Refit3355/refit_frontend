@@ -1,14 +1,18 @@
 package com.refit.app.ui.screen
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -51,10 +55,11 @@ fun CosmeticResultScreen(data: UiResult.Cosmetic) {
         Spacer(Modifier.height(12.dp))
 
         // ── 맨 아래: 큰 글씨 토글만 추가 ──
-        LargeTextToggleRow(
+        LargeTextToggleCard(
             checked = largeText,
             onCheckedChange = { largeText = it }
         )
+        Spacer(Modifier.height(8.dp))
 
         // 본문 전체를 LocalTextStyle로 감싸 글씨 크기만 키움 (UI 구조/디자인 그대로)
         CompositionLocalProvider(LocalTextStyle provides baseTextStyle) {
@@ -108,29 +113,98 @@ fun CosmeticResultScreen(data: UiResult.Cosmetic) {
 }
 
 @Composable
-private fun LargeTextToggleRow(
+fun LargeTextToggleCard(
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = Modifier
+    // 상태에 따른 컬러 토큰
+    val onColor = Color(0xFF5F0080)
+    val offColor = Color(0xFFEDEDED)
+    val borderOn = onColor.copy(alpha = 0.25f)
+    val borderOff = Color(0xFFE6E6E6)
+
+    val bg by animateColorAsState(
+        targetValue = if (checked) onColor.copy(alpha = 0.06f) else Color.White,
+        label = "bg"
+    )
+    val border by animateColorAsState(
+        targetValue = if (checked) borderOn else borderOff,
+        label = "border"
+    )
+
+    Surface(
+        modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+            .padding(horizontal = 16.dp)
+            .heightIn(min = 64.dp),
+        shape = RoundedCornerShape(16.dp),
+        color = bg,
+        tonalElevation = if (checked) 1.dp else 0.dp,
+        shadowElevation = 0.dp,
+        border = BorderStroke(1.dp, border)
     ) {
-        Text(
-            text = "큰 글씨",
-            style = MaterialTheme.typography.labelLarge,
-            fontSize = 18.sp,
-            fontFamily = Pretendard
-        )
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // 좌측 아이콘 배지 (Aa)
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(
+                        color = if (checked) onColor.copy(alpha = 0.12f) else Color(0xFFF7F7F8),
+                        shape = RoundedCornerShape(12.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Aa",
+                    fontFamily = Pretendard,
+                    fontSize = 18.sp,
+                    color = if (checked) onColor else Color(0xFF6B7280),
+                    letterSpacing = 0.sp
+                )
+            }
+
+            Spacer(Modifier.width(12.dp))
+
+            // 타이틀 + 서브카피
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = "큰 글씨",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontFamily = Pretendard,
+                    color = Color(0xFF111827)
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = "작은 글씨가 불편하다면, 크게 보세요.",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontFamily = Pretendard,
+                    color = Color(0xFF6B7280)
+                )
+            }
+
+            // 스위치 (상태 색상 커스텀)
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color.White,
+                    checkedTrackColor = onColor,
+                    uncheckedThumbColor = Color.White,
+                    uncheckedTrackColor = Color(0xFFCBD5E1)
+                )
+            )
+        }
     }
 }
+
 
 @Preview(showBackground = true, widthDp = 390, heightDp = 800)
 @Composable

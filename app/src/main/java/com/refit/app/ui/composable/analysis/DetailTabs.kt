@@ -44,13 +44,13 @@ fun DetailTabs(
         // 두 탭을 반반 차지하게 배치
         Row(Modifier.fillMaxWidth()) {
             TabText(
-                text = "자세하게",
+                text = "단순하게",
                 selected = selected == DetailTab.Detailed,
                 onClick = { onSelected(DetailTab.Detailed) },
                 modifier = Modifier.weight(1f),
             )
             TabText(
-                text = "단순하게",
+                text = "자세하게",
                 selected = selected == DetailTab.Simple,
                 onClick = { onSelected(DetailTab.Simple) },
                 modifier = Modifier.weight(1f)
