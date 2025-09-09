@@ -44,7 +44,7 @@ import com.refit.app.network.RetrofitInstance
 import com.refit.app.ui.screen.CartScreen
 import com.refit.app.ui.screen.CategoryScreen
 import com.refit.app.ui.screen.CommunityScreen
-import com.refit.app.ui.screen.HomeScreen
+import com.refit.app.ui.screen.HomeScreen2
 import com.refit.app.ui.screen.LoginScreen
 import com.refit.app.ui.screen.myfit.MyfitEditScreen
 import com.refit.app.ui.screen.myfit.MyfitRegisterScreen
@@ -314,7 +314,7 @@ fun MainScreenWithBottomNav(
                     }
                 }
                 // 기본 탭
-                composable("home") { HomeScreen(navController) }
+                composable("home") { HomeScreen2(navController) }
                 composable("category") { CategoryScreen(navController) }
                 composable("myfit") { MyfitScreen(navController = navController) }
                 composable("community") { CommunityScreen(navController) }
