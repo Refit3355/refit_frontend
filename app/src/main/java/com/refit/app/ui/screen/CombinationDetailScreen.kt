@@ -38,6 +38,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -54,6 +55,7 @@ import com.refit.app.data.order.model.DraftOrderRequest
 import com.refit.app.data.order.model.encodeDraftOrderRequest
 import com.refit.app.data.order.model.OrderSource
 import com.refit.app.ui.theme.DarkBlack
+import com.refit.app.ui.theme.PretendardVariable
 
 @Composable
 fun CombinationDetailScreen(
@@ -290,32 +292,38 @@ fun CombinationDetailScreen(
                                         text = product.productName,
                                         fontSize = 14.sp,
                                         lineHeight = 14.sp,
-                                        fontWeight = FontWeight(500),
                                         color = Color(0xFF3A3A3A),
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
-                                        fontFamily = Pretendard,
-                                        modifier = Modifier.fillMaxWidth()
+                                        modifier = Modifier.fillMaxWidth(),
+                                        style = TextStyle(
+                                            fontFamily = PretendardVariable,
+                                            fontWeight = FontWeight(600)
+                                        )
                                     )
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         if (product.discountRate > 0) {
                                             Text(
                                                 "${product.discountRate}%",
-                                                color = Color(0xFFFF0000),
+                                                color = MaterialTheme.colorScheme.error,
                                                 fontSize = 14.sp,
                                                 lineHeight = 14.sp,
-                                                fontWeight = FontWeight(500),
-                                                fontFamily = Pretendard
+                                                style = TextStyle(
+                                                    fontFamily = PretendardVariable,
+                                                    fontWeight = FontWeight(600)
+                                                )
                                             )
-                                            Spacer(Modifier.width(2.dp))
+                                            Spacer(Modifier.width(4.dp))
                                         }
                                         Text(
                                             PriceUtil.formatPrice(product.discountedPrice),
                                             fontSize = 14.sp,
                                             lineHeight = 14.sp,
-                                            fontWeight = FontWeight(500),
                                             color = Color(0xFF3A3A3A),
-                                            fontFamily = Pretendard
+                                            style = TextStyle(
+                                                fontFamily = PretendardVariable,
+                                                fontWeight = FontWeight(600)
+                                            )
                                         )
                                     }
                                 }
@@ -354,12 +362,13 @@ fun CombinationDetailScreen(
 
                     Text(
                         detail.combinationName,
-                        fontWeight = FontWeight.SemiBold,
                         fontSize = 20.sp,
-                        style = MaterialTheme.typography.titleMedium,
                         color = Color.Black,
-                        fontFamily = Pretendard,
-                        modifier = contentInset
+                        modifier = contentInset,
+                        style = TextStyle(
+                            fontFamily = PretendardVariable,
+                            fontWeight = FontWeight(600)
+                        )
                     )
 
                     Spacer(Modifier.height(10.dp))
@@ -370,10 +379,12 @@ fun CombinationDetailScreen(
                     ) {
                         Text(
                             PriceUtil.formatPrice(detail.discountedTotalPrice),
-                            fontWeight = FontWeight.Bold,
                             color = Color.Black,
                             fontSize = 20.sp,
-                            fontFamily = Pretendard
+                            style = TextStyle(
+                                fontFamily = PretendardVariable,
+                                fontWeight = FontWeight(600)
+                            )
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(

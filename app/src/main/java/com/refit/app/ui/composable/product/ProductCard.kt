@@ -77,7 +77,7 @@ fun ProductCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .then(
-                        if (small) Modifier.height(120.dp) // ✅ 작은 버전: 고정 높이
+                        if (small) Modifier.height(120.dp)
                         else Modifier.aspectRatio(1f)
                     )
                     .clip(imageShape)
@@ -134,22 +134,20 @@ fun ProductCard(
 
             if (hasDiscount) {
                 Column {
-                    // 1줄차: 정가 (취소선)
                     Text(
                         formatWon(item.price),
                         style = priceStrikeStyle,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         textDecoration = TextDecoration.LineThrough
                     )
-                    Spacer(Modifier.height(if (small) 1.dp else 2.dp)) // ✅ 작은 버전은 간격 축소
-                    // 2줄차: 할인율 + 할인가
+                    Spacer(Modifier.height(if (small) 1.dp else 2.dp))
                     Row {
                         Text(
                             "${item.discountRate}%",
                             color = MaterialTheme.colorScheme.error,
                             style = priceStrongStyle
                         )
-                        Spacer(Modifier.width(if (small) 4.dp else 8.dp)) // ✅ 작은 버전은 간격 축소
+                        Spacer(Modifier.width(if (small) 4.dp else 8.dp))
                         Text(
                             formatWon(item.discountedPrice),
                             style = priceStrongStyle

@@ -45,6 +45,10 @@ val Pretendard = FontFamily(
     Font(R.font.pretendard_extrabold, FontWeight.ExtraBold)
 )
 
+val PretendardVariable = FontFamily(
+    Font(R.font.pretendard_variable)
+)
+
 @Composable
 fun RefitTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

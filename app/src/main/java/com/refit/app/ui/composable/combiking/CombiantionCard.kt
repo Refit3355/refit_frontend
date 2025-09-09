@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,7 @@ import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 import com.refit.app.data.combination.model.CombinationDto
 import com.refit.app.ui.theme.DarkBlack
+import com.refit.app.ui.theme.PretendardVariable
 import com.refit.app.util.common.PriceUtil
 
 @Composable
@@ -40,7 +42,7 @@ fun CombinationCard(
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 4.dp)
             .clickable { onClick(combination.combinationId) },
-        colors = CardDefaults.cardColors(containerColor = LightPurple),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF6F6F6)),
         shape = RoundedCornerShape(12.dp)
     ) {
         Box(Modifier.fillMaxWidth().padding(4.dp)) {
@@ -61,18 +63,22 @@ fun CombinationCard(
                 Spacer(Modifier.height(8.dp))
                 Text(
                     combination.combinationName,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    fontFamily = Pretendard
+                    fontSize = 18.sp,
+                    style = TextStyle(
+                        fontFamily = PretendardVariable,
+                        fontWeight = FontWeight(600)
+                    )
                 )
 
                 Spacer(Modifier.height(6.dp))
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
                         PriceUtil.formatPrice(combination.discountedTotalPrice),
-                        fontSize = 17.sp,
-                        fontFamily = Pretendard,
-                        fontWeight = FontWeight.SemiBold
+                        fontSize = 18.sp,
+                        style = TextStyle(
+                            fontFamily = PretendardVariable,
+                            fontWeight = FontWeight(600)
+                        )
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
