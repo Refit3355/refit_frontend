@@ -1,5 +1,6 @@
 package com.refit.app.ui.screen
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -61,8 +63,7 @@ fun AnalysisScreen(
                 brush = Brush.verticalGradient(
                     colors = listOf(
                         Color(0xFFFFFFFF),
-                        Color(0xFFD7BFDF),
-                        Color(0xFFD1ABE1)
+                        Color(0xFFD7BFDF)
                     )
                 )
             )
@@ -75,7 +76,7 @@ fun AnalysisScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            Spacer(Modifier.height(15.dp))
+            Spacer(Modifier.height(30.dp))
 
             Text(
                 text = "사진 한 장으로,\n나에게 맞는 성분 확인하기",
@@ -87,14 +88,16 @@ fun AnalysisScreen(
                 lineHeight = 30.sp
             )
 
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(20.dp))
 
             Text(
                 text = "더 빠르게, 더 안전하게, 더 똑똑하게\n나만의 제품을 선택할 수 있습니다.",
                 color = Color.Gray,
                 fontSize = 17.sp,
-                textAlign = TextAlign.Center,
-                fontFamily = Pretendard,
+                style = TextStyle(
+                    fontFamily = Pretendard,
+                    fontWeight = FontWeight(500)
+                )
             )
 
             Spacer(Modifier.height(32.dp))
@@ -103,8 +106,10 @@ fun AnalysisScreen(
                 text = "어떤 상품인가요?",
                 fontSize = 20.sp,
                 color = Color.Gray,
-                fontWeight = FontWeight.Medium,
-                fontFamily = Pretendard,
+                style = TextStyle(
+                    fontFamily = Pretendard,
+                    fontWeight = FontWeight(500)
+                ),
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
@@ -117,22 +122,34 @@ fun AnalysisScreen(
                 OutlinedButton(
                     onClick = { selected = "뷰티" },
                     shape = RoundedCornerShape(24.dp),
-                    border = ButtonDefaults.outlinedButtonBorder,
+                    border = BorderStroke(
+                        1.dp,
+                        if (selected == "뷰티") MainPurple else Color.Gray
+                    ),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = if (selected == "뷰티") MainPurple.copy(alpha = 0.1f) else Color.Transparent,
                         contentColor = if (selected == "뷰티") MainPurple else Color.Gray
                     )
-                ) { Text("뷰티", fontFamily = Pretendard) }
+                ) { Text("뷰티", style = TextStyle(
+                    fontFamily = Pretendard,
+                    fontWeight = FontWeight(500)
+                )) }
 
                 OutlinedButton(
                     onClick = { selected = "헬스" },
                     shape = RoundedCornerShape(24.dp),
-                    border = ButtonDefaults.outlinedButtonBorder,
+                    border = BorderStroke(
+                        0.7.dp,
+                        if (selected == "헬스") MainPurple else Color.Gray
+                    ),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = if (selected == "헬스") MainPurple.copy(alpha = 0.1f) else Color.Transparent,
                         contentColor = if (selected == "헬스") MainPurple else Color.Gray
                     )
-                ) { Text("헬스", fontFamily = Pretendard) }
+                ) { Text("헬스", style = TextStyle(
+                    fontFamily = Pretendard,
+                    fontWeight = FontWeight(500)
+                )) }
             }
 
             Box(

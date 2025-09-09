@@ -15,13 +15,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.refit.app.ui.theme.Pretendard
+import com.refit.app.ui.theme.PretendardVariable
 
 @Composable
 fun IngredientChip(text: String) {
     val labelStyle = LocalTextStyle.current.merge(
         TextStyle(
             fontFamily = Pretendard,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight(500),
             color = Color.Gray
         )
     )
