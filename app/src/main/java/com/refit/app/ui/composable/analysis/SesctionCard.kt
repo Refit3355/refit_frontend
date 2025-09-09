@@ -1,5 +1,6 @@
 package com.refit.app.ui.composable.analysis
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalTextStyle
@@ -40,7 +41,7 @@ fun SectionCard(
         }
         Spacer(Modifier.height(8.dp))
         Surface(
-            color = Color(0xFFF4EEF8),
+            color = Color(0xFFF0F0F0),
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
