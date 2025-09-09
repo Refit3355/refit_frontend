@@ -84,6 +84,7 @@ import com.refit.app.ui.screen.CombinationRegisterScreen
 import com.refit.app.ui.screen.ProductSelectScreen
 import com.refit.app.data.order.model.decodeDraftOrderRequest
 import com.refit.app.ui.composable.order.CompleteItemNav
+import com.refit.app.ui.composable.order.DepositWaitingScreen
 import com.refit.app.ui.composable.order.OrderCompleteScreen
 import com.refit.app.ui.screen.ResultRouterScreen
 import com.refit.app.ui.screen.ChatbotScreen
@@ -619,6 +620,25 @@ fun MainScreenWithBottomNav(
                                     }
                                 }
 
+                                if (payload.status == "WAITING_FOR_DEPOSIT") {
+                                    val dest = buildString {
+                                        append("checkout/depositWaiting")
+                                        append("?orderCode=${enc(payload.orderCode)}")
+                                        append("&amount=${payload.amount}")
+                                        append("&orderName=${enc(payload.orderName ?: "")}")
+                                        append("&method=${enc(payload.method ?: "")}")
+                                        append("&accountNo=${enc(payload.vaAccountNo ?: "")}")
+                                        append("&bankCode=${enc(payload.vaBankCode ?: "")}")
+                                        append("&dueDate=${enc(payload.vaDueDate ?: "")}")
+                                        append("&depositor=${enc(payload.vaDepositorName ?: "")}")
+                                    }
+                                    navController.navigate(dest) {
+                                        popUpTo(NavRoutes.CheckoutRoot) { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                    return@PayResultHandler
+                                }
+
                                 // items를 JSON으로 직렬화해 쿼리로 전달
                                 val itemsParam = URLEncoder.encode(Json.encodeToString(payload.items), "utf-8")
 
@@ -703,6 +723,44 @@ fun MainScreenWithBottomNav(
                             items = items
                         )
                     }
+
+                    composable(
+                        route = "checkout/depositWaiting?orderCode={orderCode}&amount={amount}&orderName={orderName}&method={method}&accountNo={accountNo}&bankCode={bankCode}&dueDate={dueDate}&depositor={depositor}",
+                        arguments = listOf(
+                            navArgument("orderCode") { type = NavType.StringType },
+                            navArgument("amount")    { type = NavType.LongType },
+                            navArgument("orderName") { type = NavType.StringType; nullable = true; defaultValue = null },
+                            navArgument("method")    { type = NavType.StringType; nullable = true; defaultValue = null },
+                            navArgument("accountNo") { type = NavType.StringType; nullable = true; defaultValue = null },
+                            navArgument("bankCode")  { type = NavType.StringType; nullable = true; defaultValue = null },
+                            navArgument("dueDate")   { type = NavType.StringType; nullable = true; defaultValue = null },
+                            navArgument("depositor") { type = NavType.StringType; nullable = true; defaultValue = null },
+                        )
+                    ) { back ->
+                        fun dec(s: String?) = s?.let { java.net.URLDecoder.decode(it, "utf-8") }
+
+                        val orderCode = back.arguments!!.getString("orderCode")!!
+                        val amount    = back.arguments!!.getLong("amount")
+                        val orderName = dec(back.arguments?.getString("orderName"))
+                        val method    = dec(back.arguments?.getString("method"))
+                        val accountNo = back.arguments?.getString("accountNo")
+                        val bankCode  = back.arguments?.getString("bankCode")
+                        val dueDate   = dec(back.arguments?.getString("dueDate"))
+                        val depositor = dec(back.arguments?.getString("depositor"))
+
+                        DepositWaitingScreen(
+                            navController = navController,
+                            orderCode = orderCode,
+                            amount = amount,
+                            orderName = orderName,
+                            method = method,
+                            accountNo = accountNo,
+                            bankCode = bankCode,
+                            dueDate = dueDate,
+                            depositor = depositor
+                        )
+                    }
+
 
                     composable(
                         route = "productList?bhType={bhType}&effectId={effectId}&sort={sort}",

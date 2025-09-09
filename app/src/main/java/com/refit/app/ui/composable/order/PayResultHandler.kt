@@ -40,7 +40,12 @@ data class OrderCompletePayload(
     val method: String?,
     val thumb: String?,
     val itemCount: Int?,
-    val items: List<CompleteItemNav>
+    val items: List<CompleteItemNav>,
+    val status: String,                  // "APPROVED" | "WAITING_FOR_DEPOSIT"
+    val vaAccountNo: String? = null,     // 가상계좌 표시용
+    val vaBankCode: String? = null,
+    val vaDueDate: String? = null,
+    val vaDepositorName: String? = null
 )
 
 @Composable
@@ -90,6 +95,12 @@ fun PayResultHandler(
                 val thumb     = json["firstItemThumb"]?.jsonPrimitive?.contentOrNull
                 val itemCount = json["itemCount"]?.jsonPrimitive?.intOrNull
 
+                val status    = json["status"]?.jsonPrimitive?.contentOrNull ?: "APPROVED"
+                val vaAccountNo     = json["vaAccountNo"]?.jsonPrimitive?.contentOrNull
+                val vaBankCode      = json["vaBankCode"]?.jsonPrimitive?.contentOrNull
+                val vaDueDate       = json["vaDueDate"]?.jsonPrimitive?.contentOrNull
+                val vaDepositorName = json["vaDepositorName"]?.jsonPrimitive?.contentOrNull
+
                 //  items 파싱
                 val items: List<CompleteItemNav> =
                     (json["items"] as? JsonArray)?.mapNotNull { el ->
@@ -108,6 +119,27 @@ fun PayResultHandler(
 
                 loading = false
 
+                // 입금대기면 이 자리에서 바로 라우팅하고 종료
+                if (status == "WAITING_FOR_DEPOSIT") {
+                    fun enc(s: String) = java.net.URLEncoder.encode(s, "utf-8")
+                    val dest = buildString {
+                        append("checkout/depositWaiting")
+                        append("?orderCode=${enc(orderCode)}")
+                        append("&amount=$totalAmt")
+                        append("&orderName=${enc(orderName ?: "")}")
+                        append("&method=${enc(method ?: "")}")
+                        append("&accountNo=${enc(vaAccountNo ?: "")}")
+                        append("&bankCode=${enc(vaBankCode ?: "")}")
+                        append("&dueDate=${enc(vaDueDate ?: "")}")
+                        append("&depositor=${enc(vaDepositorName ?: "")}")
+                    }
+                    navController.navigate(dest) {
+                        popUpTo("checkout/") { inclusive = true }
+                        launchSingleTop = true
+                    }
+                    return@launch
+                }
+
                 onSuccessNavigate(
                     OrderCompletePayload(
                         orderPk    = orderPk,
@@ -117,7 +149,9 @@ fun PayResultHandler(
                         method     = method,
                         thumb      = thumb,
                         itemCount  = itemCount,
-                        items      = items
+                        items      = items,
+                        status     = status,
+                        vaAccountNo     = vaAccountNo,
                     )
                 )
             }.onFailure { t ->
