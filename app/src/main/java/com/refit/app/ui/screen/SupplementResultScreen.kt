@@ -44,23 +44,14 @@ fun SupplementResultScreen(data: UiResult.Supplement) {
             .verticalScroll(rememberScrollState())
     ) {
         SupplementHeaderBanner(memberName = data.memberName)
+        
+        LargeTextToggleCard(
+            checked = largeText,
+            onCheckedChange = { largeText = it },
+            modifier = Modifier.padding(vertical = 16.dp)
+        )
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "큰 글씨",
-                style = MaterialTheme.typography.labelLarge,
-                fontFamily = Pretendard
-            )
-            Switch(checked = largeText, onCheckedChange = { largeText = it })
-        }
-
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(16.dp))
 
         CompositionLocalProvider(LocalTextStyle provides baseTextStyle) {
             Column(Modifier.padding(horizontal = 20.dp)) {
