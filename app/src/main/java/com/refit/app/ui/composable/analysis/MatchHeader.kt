@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
@@ -51,9 +52,11 @@ fun MatchHeader(
             color = Color(0xFF4B4B4B),
             fontSize = 18.sp,
             lineHeight = 26.sp,
-            fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            fontFamily = Pretendard,
+            style = TextStyle(
+                fontFamily = Pretendard,
+                fontWeight = FontWeight(600)
+            ),
             modifier = Modifier.fillMaxWidth()
         )
     }

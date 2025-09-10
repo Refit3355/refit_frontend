@@ -33,9 +33,11 @@ fun IngredientParagraphSection(
             Text(
                 text = title,
                 color = titleColor,
-                fontFamily = Pretendard,
                 fontSize = 18.sp,
-                fontWeight = FontWeight.ExtraBold
+                style = TextStyle(
+                    fontFamily = Pretendard,
+                    fontWeight = FontWeight(600)
+                )
             )
         }
         Box(

@@ -26,11 +26,13 @@ import com.refit.app.ui.theme.Pretendard
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.navigation.NavController
 import com.refit.app.R
 import com.refit.app.data.cart.modelAndView.CartEditViewModel
 import com.refit.app.data.me.modelAndView.OrderViewModel
 import com.refit.app.ui.theme.DarkBlack
+import com.refit.app.ui.theme.PretendardVariable
 import com.refit.app.util.common.PriceUtil
 import com.refit.app.util.order.OrderStatusMapper
 import kotlinx.coroutines.CoroutineScope
@@ -69,7 +71,7 @@ fun RecentOrderSection(
                 Text(
                     text = "최근 주문 내역",
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                     fontFamily = Pretendard,
                     color = DarkBlack
                 )
@@ -131,11 +133,13 @@ fun RecentOrderSection(
                             Text(
                                 text = firstItem.createdAt.take(10).replace("-", ".").drop(2),
                                 fontSize = 18.sp,
-                                fontWeight = FontWeight(500),
-                                fontFamily = Pretendard,
+                                style = TextStyle(
+                                    fontFamily = PretendardVariable,
+                                    fontWeight = FontWeight(600)
+                                ),
                                 color = DarkBlack
                             )
-                            Spacer(Modifier.height(4.dp))
+                            Spacer(Modifier.height(3.dp))
                             Text(
                                 text = "주문번호 ${firstItem.orderCode}",
                                 fontSize = 13.sp,
@@ -146,7 +150,8 @@ fun RecentOrderSection(
                     }
 
                     Spacer(Modifier.height(8.dp))
-                    HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
+                    HorizontalDivider(thickness = 0.7.dp, color = Color.LightGray)
+                    Spacer(Modifier.height(8.dp))
 
                     order.items.forEach { item ->
                         Row(
@@ -178,7 +183,7 @@ fun RecentOrderSection(
                                         fontFamily = Pretendard,
                                         fontWeight = FontWeight.Bold
                                     )
-                                    Spacer(Modifier.height(2.dp))
+                                    Spacer(Modifier.height(4.dp))
                                     Text(
                                         text = item.productName,
                                         fontSize = 14.sp,
@@ -187,13 +192,16 @@ fun RecentOrderSection(
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis
                                     )
+                                    Spacer(Modifier.height(4.dp))
                                     Row {
                                         Text(
                                             text = PriceUtil.formatPrice(item.unitPrice),
                                             fontSize = 14.sp,
                                             lineHeight = 15.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            fontFamily = Pretendard,
+                                            style = TextStyle(
+                                                fontFamily = PretendardVariable,
+                                                fontWeight = FontWeight(600)
+                                            ),
                                             modifier = Modifier.alignByBaseline()
                                         )
                                         if (item.originalUnitPrice > item.unitPrice) {

@@ -19,7 +19,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.refit.app.data.order.model.OrderItemSummary
-import com.refit.app.ui.composable.product.formatWon
+import com.refit.app.ui.screen.formatWon
 
 @Composable
 private fun SectionItems(items: List<OrderItemSummary>) {

@@ -17,7 +17,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.refit.app.R
 import com.refit.app.data.me.modelAndView.MyCombinationViewModel
-import com.refit.app.ui.composable.combination.CombinationCard
+import com.refit.app.ui.composable.combiking.CombinationCard
 import com.refit.app.ui.theme.Pretendard
 import androidx.compose.ui.graphics.Color
 
@@ -71,7 +71,10 @@ fun CreatedCombinationListScreen(
         }
 
         else -> {
-            LazyColumn {
+            LazyColumn(
+                contentPadding = PaddingValues(horizontal = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
                 items(state.combinations) { combination ->
                     CombinationCard(
                         combination = combination,

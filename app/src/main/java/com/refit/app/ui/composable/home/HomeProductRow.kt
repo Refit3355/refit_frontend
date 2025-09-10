@@ -36,7 +36,8 @@ fun HomeProductRow(
                 wished = p.id in wished,
                 onToggleWish = { wishVM.toggle(p.id) },
                 onClick = { onClick(p) },
-                modifier = Modifier.width(130.dp)
+                modifier = Modifier.width(130.dp),
+                small = true
             )
         }
     }

@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,7 @@ import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
 import com.refit.app.data.combination.model.CombinationDto
 import com.refit.app.ui.theme.DarkBlack
+import com.refit.app.ui.theme.PretendardVariable
 import com.refit.app.util.common.PriceUtil
 
 @Composable
@@ -33,14 +35,15 @@ fun CombinationCard(
     combination: CombinationDto,
     isSaved: Boolean,
     onToggleSave: (Long) -> Unit,
-    onClick: (Long) -> Unit
+    onClick: (Long) -> Unit,
+    showSaveButton: Boolean = true
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 4.dp)
             .clickable { onClick(combination.combinationId) },
-        colors = CardDefaults.cardColors(containerColor = LightPurple),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF6F6F6)),
         shape = RoundedCornerShape(12.dp)
     ) {
         Box(Modifier.fillMaxWidth().padding(4.dp)) {
@@ -61,30 +64,37 @@ fun CombinationCard(
                 Spacer(Modifier.height(8.dp))
                 Text(
                     combination.combinationName,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    fontFamily = Pretendard
+                    fontSize = 18.sp,
+                    style = TextStyle(
+                        fontFamily = PretendardVariable,
+                        fontWeight = FontWeight(600)
+                    )
                 )
 
-                Spacer(Modifier.height(6.dp))
-                Row(verticalAlignment = Alignment.Bottom) {
+                Spacer(Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         PriceUtil.formatPrice(combination.discountedTotalPrice),
-                        fontSize = 17.sp,
-                        fontFamily = Pretendard,
-                        fontWeight = FontWeight.SemiBold
+                        fontSize = 16.sp,
+                        style = TextStyle(
+                            fontFamily = PretendardVariable,
+                            fontWeight = FontWeight(600)
+                        )
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
                         PriceUtil.formatPrice(combination.originalTotalPrice),
-                        fontSize = 14.sp,
-                        fontFamily = Pretendard,
+                        fontSize = 16.sp,
+                        style = TextStyle(
+                            fontFamily = PretendardVariable,
+                            fontWeight = FontWeight(550)
+                        ),
                         color = Color.Gray,
                         textDecoration = TextDecoration.LineThrough
                     )
                 }
 
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(14.dp))
 
                 // 상품 이미지
                 BoxWithConstraints(
@@ -135,32 +145,32 @@ fun CombinationCard(
             }
 
             // 저장 버튼
-            Column(
-                modifier = Modifier.align(Alignment.TopEnd).padding(top = 14.dp, end = 14.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable { onToggleSave(combination.combinationId) },
-                    contentAlignment = Alignment.Center
+            if (showSaveButton) {
+                Column(
+                    modifier = Modifier.align(Alignment.TopEnd).padding(top = 14.dp, end = 14.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Image(
-                        painter = painterResource(
-                            if (isSaved) R.drawable.ic_bookmark_purple else R.drawable.ic_bookmark_basic
-                        ),
-                        contentDescription = "저장",
-                        modifier = Modifier.size(24.dp),
-                        colorFilter = ColorFilter.tint(if (isSaved) MainPurple else DarkBlack)
+                    Box(
+                        modifier = Modifier.size(24.dp).clickable { onToggleSave(combination.combinationId) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(
+                                if (isSaved) R.drawable.ic_bookmark_purple else R.drawable.ic_bookmark_basic
+                            ),
+                            contentDescription = "저장",
+                            modifier = Modifier.size(24.dp),
+                            colorFilter = ColorFilter.tint(if (isSaved) MainPurple else DarkBlack)
+                        )
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = "저장 ${combination.likes}",
+                        fontSize = 12.sp,
+                        fontFamily = Pretendard,
+                        fontWeight = FontWeight(500)
                     )
                 }
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = "저장 ${combination.likes}",
-                    fontSize = 12.sp,
-                    fontFamily = Pretendard,
-                    fontWeight = FontWeight(500)
-                )
             }
         }
     }
