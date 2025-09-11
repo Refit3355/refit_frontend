@@ -115,12 +115,35 @@ fun RecommendationScreen(
                 )
             }
 
-            else -> {
-                // 기본: 수면 카드 재사용
+            4 -> {
+                // 마이핏 사용완료 추천
                 GifCard(
                     nickname = nickname,
                     imageLoader = imageLoader,
-                    gifRes = R.raw.sleeping_jellbbo,
+                    gifRes = R.raw.walking_jellbbo,
+                    message = buildAnnotatedString {
+                        append("사용완료한 제품과 유사한 효과를 지니고,\n내 피부타입과 고민까지 고려한 추천 상품이에요")
+                    }
+                )
+            }
+
+            5 -> {
+                // 마이핏 사용중 추천
+                GifCard(
+                    nickname = nickname,
+                    imageLoader = imageLoader,
+                    gifRes = R.raw.walking_jellbbo,
+                    message = buildAnnotatedString {
+                        append("사용중인 제품과 유사한 효과를 지니고,\n내 피부타입과 고민까지 고려한 추천 상품이에요")
+                    }
+                )
+            }
+
+            else -> {
+                GifCard(
+                    nickname = nickname,
+                    imageLoader = imageLoader,
+                    gifRes = R.raw.walking_jellbbo,
                     message = buildAnnotatedString {
                         append("${nickname}님을 위한 ")
                         withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.SemiBold)) {
