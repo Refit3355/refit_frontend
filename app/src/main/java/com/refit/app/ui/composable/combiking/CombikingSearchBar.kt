@@ -61,7 +61,7 @@ fun CombikingSearchBar(
                     fontFamily = Pretendard,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (searchMode == "combination") MainPurple else Color(0xFF2196F3)
+                    color = MainPurple
                 )
             }
 
@@ -69,6 +69,7 @@ fun CombikingSearchBar(
             Box(
                 modifier = Modifier
                     .weight(1f)
+                    .fillMaxHeight()
                     .padding(start = 4.dp, end = 8.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
@@ -81,21 +82,24 @@ fun CombikingSearchBar(
                         fontFamily = Pretendard
                     ),
                     singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 2.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     decorationBox = { innerTextField ->
-                        if (searchQuery.isEmpty()) {
-                            Text(
-                                text = if (searchMode == "combination") "조합명을 입력하세요" else "상품명을 입력하세요",
-                                color = MainPurple,
-                                fontSize = 14.sp,
-                                fontFamily = Pretendard,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            if (searchQuery.isEmpty()) {
+                                Text(
+                                    text = if (searchMode == "combination") "조합명을 입력하세요" else "상품명을 입력하세요",
+                                    color = Color(0xFF9E9E9E),
+                                    fontSize = 14.sp,
+                                    fontFamily = Pretendard,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                            innerTextField()
                         }
-                        innerTextField()
                     }
                 )
             }
