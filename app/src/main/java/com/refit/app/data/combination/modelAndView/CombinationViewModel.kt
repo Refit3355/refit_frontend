@@ -27,11 +27,11 @@ class CombinationViewModel(
     private var lastCombinationId: Long? = null
 
     /** 첫 페이지 로드 */
-    fun loadCombinations(type: String, sort: String, limit: Int = 10) {
+    fun loadCombinations(type: String, sort: String, keyword: String? = null, searchMode: String? = null, limit: Int = 10) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
 
-            val result = repo.getCombinations(type, sort, null, limit)
+            val result = repo.getCombinations(type, sort, null, limit, keyword, searchMode)
             _state.value = result.fold(
                 onSuccess = {
                     lastCombinationId = it.combinations.lastOrNull()?.combinationId

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -22,11 +23,17 @@ import com.refit.app.ui.composable.community.ChatRoomList
 import com.refit.app.ui.composable.community.CommunityCategory
 import com.refit.app.ui.composable.community.CommunityStatusTabs
 import com.refit.app.ui.composable.community.CommunityTab
+import com.refit.app.ui.composable.community.chatRoom.ListPage
+import com.refit.app.ui.composable.community.chatRoom.ProductPickerBottomSheet
 
 @Composable
 fun CommunityScreen(navController: NavController) {
     var selectedTab by rememberSaveable { mutableStateOf(CommunityTab.CHAT) }
     var selectedCategory by rememberSaveable { mutableStateOf(CommunityCategory.ALL) }
+    var searchMode by rememberSaveable { mutableStateOf("combination") }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    var showProductPicker by remember { mutableStateOf(false) }
+    var selectedProductIds by remember { mutableStateOf<List<Long>>(emptyList()) }
 
     // VM 연결
     val vm: ChatRoomsViewModel = viewModel(factory = ChatRoomsViewModelFactory)
@@ -67,7 +74,37 @@ fun CommunityScreen(navController: NavController) {
                     )
                 }
             }
-            CommunityTab.COMBI -> CombiKingSection(navController, selectedCategory)
+            CommunityTab.COMBI -> CombiKingSection(
+                navController = navController,
+                category = selectedCategory,
+                searchMode = searchMode,
+                searchQuery = searchQuery,
+                selectedProductIds = selectedProductIds,
+                onSearchModeChange = { searchMode = it },
+                onSearchQueryChange = { searchQuery = it },
+                onProductSearchClick = { showProductPicker = true }
+            )
         }
+    }
+
+    if (showProductPicker) {
+        ProductPickerBottomSheet(
+            onClose = { showProductPicker = false },
+            onSelect = { productId ->
+                selectedProductIds =
+                    if (selectedProductIds.contains(productId)) {
+                        selectedProductIds - productId
+                    } else {
+                        selectedProductIds + productId
+                    }
+            },
+            loader = { query, cursor ->
+                ListPage(
+                    items = emptyList(),
+                    nextCursor = null,
+                    hasNext = false
+                )
+            }
+        )
     }
 }

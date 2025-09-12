@@ -32,7 +32,9 @@ interface CombinationApi {
         @Query("type") type: String,              // all, beauty, health
         @Query("sort") sort: String,              // popular, latest, lowPrice, highPrice
         @Query("combinationId") combinationId: Long? = null, // 커서 ID
-        @Query("limit") limit: Int = 10           // 조회 개수
+        @Query("limit") limit: Int = 10,           // 조회 개수
+        @Query("keyword") keyword: String? = null,
+        @Query("searchMode") searchMode: String? = null // combination or product
     ): CombinationsResponse
 
     @GET("combinations/{id}")
@@ -46,4 +48,5 @@ interface CombinationApi {
     suspend fun createCombination(
         @Body req: CreateCombinationRequest
     ): CreateCombinationResponse
+
 }

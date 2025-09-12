@@ -28,9 +28,11 @@ class CombinationRepository(
         type: String,
         sort: String,
         combinationId: Long?,
-        limit: Int
+        limit: Int,
+        keyword: String? = null,
+        searchMode: String? = null
     ): Result<CombinationsResponse> = runCatching {
-        api.getCombinations(type, sort, combinationId, limit)
+        api.getCombinations(type, sort, combinationId, limit, keyword, searchMode)
     }
 
     suspend fun getCombinationDetail(id: Long): Result<CombinationDetailResponse> =
@@ -38,4 +40,5 @@ class CombinationRepository(
 
     suspend fun createCombination(req: CreateCombinationRequest): Result<CreateCombinationResponse> =
         runCatching { api.createCombination(req) }
+
 }

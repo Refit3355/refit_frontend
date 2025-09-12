@@ -39,6 +39,12 @@ import com.refit.app.ui.composable.product.SortBottomSheet
 fun CombiKingSection(
     navController: NavController,
     category: CommunityCategory,
+    searchMode: String,
+    searchQuery: String,
+    selectedProductIds: List<Long>,
+    onSearchModeChange: (String) -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    onProductSearchClick: () -> Unit,
     vm: CombinationViewModel = viewModel()
 ) {
     val state by vm.state.collectAsState()
@@ -47,11 +53,9 @@ fun CombiKingSection(
     val savedIds by myCombinationStore.savedIds.collectAsState(initial = emptySet())
     val scope = rememberCoroutineScope()
     val likedVm: LikedCombinationViewModel = viewModel()
-    val likedState by likedVm.state.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // 정렬 옵션
     val sortOptions = listOf(
         "최신순" to "latest",
         "인기순" to "popular",
@@ -63,20 +67,22 @@ fun CombiKingSection(
     var selectedSortIndex by remember { mutableStateOf(0) }
     val selectedSort = sortOptions[selectedSortIndex].second
 
-
-    // 카테고리
     val type = when (category) {
         CommunityCategory.ALL -> "all"
         CommunityCategory.BEAUTY -> "beauty"
         CommunityCategory.HEALTH -> "health"
     }
 
-    // 첫 로드
-    LaunchedEffect(type, selectedSort) {
-        vm.loadCombinations(type, selectedSort, limit = 10)
+    LaunchedEffect(searchMode, searchQuery, selectedSort, type) {
+        if (searchMode == "combination") {
+            vm.loadCombinations(type, selectedSort, keyword = searchQuery, searchMode = "combination", limit = 10)
+        } else if (searchMode == "product") {
+            vm.loadCombinations(type, selectedSort, keyword = searchQuery, searchMode = "product", limit = 10)
+        } else {
+            vm.loadCombinations(type, selectedSort, limit = 10)
+        }
     }
 
-    // 리스트 상태
     val listState = rememberLazyListState()
 
     val navBackStackEntry = navController.currentBackStackEntryAsState().value
@@ -94,6 +100,8 @@ fun CombiKingSection(
         }
     }
 
+    var showSearchModeSheet by remember { mutableStateOf(false) }
+
     Scaffold(
         containerColor = Color.White
     ) { innerPadding ->
@@ -108,7 +116,25 @@ fun CombiKingSection(
                 )
         ) {
             Column {
-                // 상단 헤더
+                // 검색 영역
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp, vertical = 8.dp)
+                ) {
+                    CombikingSearchBar(
+                        searchMode = searchMode,
+                        searchQuery = searchQuery,
+                        onSearchModeClick = { showSearchModeSheet = true },
+                        onSearchQueryChange = { onSearchQueryChange(it) },
+                        onSearchClick = {
+                            if (searchMode == "product") {
+                                onProductSearchClick()
+                            }
+                        }
+                    )
+                }
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -130,7 +156,6 @@ fun CombiKingSection(
                         Text("개의 조합", fontSize = 14.sp, fontFamily = Pretendard, fontWeight = FontWeight(500))
                     }
 
-                    // 우측 정렬 드롭다운
                     Box {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -154,7 +179,6 @@ fun CombiKingSection(
                     }
                 }
 
-                // 조합 목록
                 LazyColumn(
                     state = listState,
                     contentPadding = PaddingValues(
@@ -202,7 +226,6 @@ fun CombiKingSection(
                 }
             }
 
-            // 등록 버튼
             FloatingActionButton(
                 onClick = {
                     val defaultType = when (category) {
@@ -235,7 +258,6 @@ fun CombiKingSection(
         }
     }
 
-    // 스크롤 끝 감지해서 무한 스크롤 처리
     LaunchedEffect(listState) {
         snapshotFlow {
             listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
@@ -262,4 +284,11 @@ fun CombiKingSection(
         )
     }
 
+    if (showSearchModeSheet) {
+        SearchModeBottomSheet(
+            currentMode = searchMode,
+            onSelected = { mode -> onSearchModeChange(mode) },
+            onDismiss = { showSearchModeSheet = false }
+        )
+    }
 }
