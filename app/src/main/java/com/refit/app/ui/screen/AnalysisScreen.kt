@@ -23,11 +23,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.refit.app.R
 import com.refit.app.data.analysis.modelAndView.AnalysisViewModel
-import com.refit.app.data.analysis.modelAndView.ProductTypeUi
 import com.refit.app.data.analysis.modelAndView.UiResult
 import com.refit.app.data.analysis.modelAndView.rememberAnalysisViewModel
 import com.refit.app.ui.composable.analysis.AnalysisDialog
-import com.refit.app.ui.composable.analysis.LoadingOverlay
 import com.refit.app.ui.composable.analysis.PhotoUploadButton
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
@@ -37,24 +35,12 @@ fun AnalysisScreen(
     navController: NavHostController,
     vm: AnalysisViewModel = rememberAnalysisViewModel()
 ) {
-    val result by vm.result
-
     var showCamera by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf("뷰티") } // "뷰티" | "헬스"
 
-    LaunchedEffect(Unit) {
-        vm.navigationEvents.collect { route ->
-            navController.navigate(route) {
-                popUpTo("ingredient") { inclusive = false }
-                launchSingleTop = true
-            }
-        }
-    }
-
     var blocked by remember { mutableStateOf<UiResult.Blocked?>(null) }
-    LaunchedEffect(result) {
-        blocked = (result as? UiResult.Blocked)
-    }
+    val result by vm.result
+    LaunchedEffect(result) { blocked = (result as? UiResult.Blocked) }
 
     Box(
         modifier = Modifier
@@ -130,10 +116,12 @@ fun AnalysisScreen(
                         containerColor = if (selected == "뷰티") MainPurple.copy(alpha = 0.1f) else Color.Transparent,
                         contentColor = if (selected == "뷰티") MainPurple else Color.Gray
                     )
-                ) { Text("뷰티", style = TextStyle(
-                    fontFamily = Pretendard,
-                    fontWeight = FontWeight(500)
-                )) }
+                ) {
+                    Text(
+                        "뷰티",
+                        style = TextStyle(fontFamily = Pretendard, fontWeight = FontWeight(500))
+                    )
+                }
 
                 OutlinedButton(
                     onClick = { selected = "헬스" },
@@ -146,10 +134,12 @@ fun AnalysisScreen(
                         containerColor = if (selected == "헬스") MainPurple.copy(alpha = 0.1f) else Color.Transparent,
                         contentColor = if (selected == "헬스") MainPurple else Color.Gray
                     )
-                ) { Text("헬스", style = TextStyle(
-                    fontFamily = Pretendard,
-                    fontWeight = FontWeight(500)
-                )) }
+                ) {
+                    Text(
+                        "헬스",
+                        style = TextStyle(fontFamily = Pretendard, fontWeight = FontWeight(500))
+                    )
+                }
             }
 
             Box(
@@ -171,6 +161,9 @@ fun AnalysisScreen(
                 onPickFromGallery = { uri ->
                     if (uri != null) {
                         vm.analyzeFromUri(uri, selected)
+                        navController.navigate("ingredient/result") {
+                            launchSingleTop = true
+                        }
                     }
                 },
                 onOpenInAppCamera = { showCamera = true }
@@ -183,29 +176,22 @@ fun AnalysisScreen(
                 onCroppedBytes = { bytes ->
                     showCamera = false
                     vm.analyzeFromBytes(bytes, selected)
+                    navController.navigate("ingredient/result") {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
 
-        val loading = result is UiResult.Loading
-        val error = (result as? UiResult.Error)?.msg
-
-        val hostState = remember { SnackbarHostState() }
-        if (error != null) {
-            LaunchedEffect(error) { hostState.showSnackbar(error) }
-        }
-        if (loading) {
-            LoadingOverlay(visible = true)
-        }
-        SnackbarHost(hostState = hostState)
-
-        // 분석 불가 다이얼로그
         blocked?.let { b ->
             AnalysisDialog(
                 title = b.title,
                 text = b.message,
                 iconRes = R.drawable.ic_danger_analysis,
-                onDismiss = { blocked = null }
+                onDismiss = {
+                    blocked = null
+                    vm.acknowledgeBlocked()
+                }
             )
         }
     }
