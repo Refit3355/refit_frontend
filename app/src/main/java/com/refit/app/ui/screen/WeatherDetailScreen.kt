@@ -43,6 +43,8 @@ import java.time.format.TextStyle
 import java.util.*
 import com.refit.app.ui.composable.health.chartHeader.TitleLine
 import com.refit.app.ui.composable.health.chartHeader.InfoCallout
+import com.refit.app.ui.composable.home.HomeProductRow
+import com.refit.app.ui.composable.home.SectionHeader
 
 @OptIn(ExperimentalPermissionsApi::class)
 @SuppressLint("MissingPermission")
@@ -226,6 +228,35 @@ fun WeatherDetailScreen(
                 chartVisible = chart4Visible,
                 onVisible = { chart4Visible = true }
             )
+
+            Spacer(Modifier.height(62.dp))
+
+            // ---------------- 추천 상품 섹션 ----------------
+            val recommendMsg = buildAnnotatedString {
+                append(nickname)
+                append("님을 위한 ")
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                    append("날씨 맞춤 상품")
+                }
+            }
+
+            SectionHeader(
+                title = recommendMsg,
+                onMore = {
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "recommendation_items",
+                        recommendState.items
+                    )
+                    navController.navigate("recommendation/2")
+                }
+            )
+
+            HomeProductRow(
+                products = recommendState.items.take(10),
+                onClick = { p -> navController.navigate("product/${p.id}") }
+            )
+
+            Spacer(Modifier.height(32.dp))
         }
     }
 }

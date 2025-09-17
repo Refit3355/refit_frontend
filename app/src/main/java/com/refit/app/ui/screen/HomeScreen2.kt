@@ -148,7 +148,6 @@ fun HomeScreen2(
                         )
                         navController.navigate("recommendation/0")
                     })
-
                     if (uiState.isLoadingStep) {
                         Column(
                             modifier = Modifier
@@ -163,7 +162,7 @@ fun HomeScreen2(
                                 modifier = Modifier.size(80.dp),
                                 alignment = Alignment.Center
                             )
-                            Spacer(Modifier.height(8.dp)) // GIF와 텍스트 사이 간격
+                            Spacer(Modifier.height(8.dp))
                             TypingText("로딩중...")
                         }
                     } else {
@@ -212,6 +211,7 @@ fun HomeScreen2(
                         )
                     }
                 }
+
                 // === 날씨 기반 섹션 ===
                 SectionHeader(
                     title = highlightText("매일 달라지는 날씨에 맞춘 헤어 솔루션", listOf("날씨", "헤어 솔루션")),
@@ -223,7 +223,6 @@ fun HomeScreen2(
                         navController.navigate("recommendation/2")
                     }
                 )
-
                 if (uiState.isLoadingWeather) {
                     Column(
                         modifier = Modifier
@@ -247,7 +246,6 @@ fun HomeScreen2(
                         onClick = { p -> navController.navigate("product/${p.id}") }
                     )
                 }
-
 
                 // === 생활 리듬 기반 섹션 ===
                 SectionHeader(
