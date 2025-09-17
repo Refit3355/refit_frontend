@@ -44,7 +44,7 @@ fun MyInfoCarouselV2(
         {
             StepsCard(
                 nickname,
-                5700L,
+                5810L,
                 mascot = { MascotGif(R.raw.walking_jellbbo, Modifier.size(120.dp)) },
                 onClick = onStepsClick
             )

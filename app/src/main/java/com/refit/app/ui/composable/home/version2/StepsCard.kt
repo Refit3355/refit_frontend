@@ -45,9 +45,12 @@ fun StepsCard(
     mascot: @Composable () -> Unit,
     onClick: () -> Unit = {}
 ) {
-    val remain = (goal - steps).coerceAtLeast(0)
+    // 임시로 고정된 값 사용
+    val fixedSteps = 5810L
+
+    val remain = (goal - fixedSteps).coerceAtLeast(0)
     // 0f..1f 사이로 보정 + Float 캐스팅 명확화
-    val rawProgress = (steps.toFloat() / goal.toFloat()).coerceIn(0f, 1f)
+    val rawProgress = (fixedSteps.toFloat() / goal.toFloat()).coerceIn(0f, 1f)
     // 애니메이션으로 자연스럽게
     val animatedProgress by animateFloatAsState(targetValue = rawProgress, label = "stepsProgress")
     // 너무 작을 때도 보이도록 최소 폭(예: 4%) 보장
@@ -56,9 +59,9 @@ fun StepsCard(
     val epsilon = 1e-6f
     val avgRatio = (avg.toFloat() / goal.toFloat()).coerceIn(0.05f, 0.95f)
 
-    val goalReached = steps >= goal
-    val remainSteps = (goal - steps).coerceAtLeast(0)
-    val overAvg     = steps >= avg
+    val goalReached = fixedSteps >= goal
+    val remainSteps = (goal - fixedSteps).coerceAtLeast(0)
+    val overAvg     = fixedSteps >= avg
     val nearGoal    = !goalReached && remainSteps <= 500
 
     val goalMsg = buildAnnotatedString {
@@ -83,7 +86,7 @@ fun StepsCard(
                 }
                 append("걸음 🚶")
             }
-            steps == 0L -> {
+            fixedSteps == 0L -> {
                 withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.SemiBold)) {
                     append("가벼운 산책")
                 }
@@ -128,7 +131,7 @@ fun StepsCard(
                                 fontWeight = FontWeight(600)
                             )
                         ) {
-                            append("%,d".format(steps))
+                            append("%,d".format(fixedSteps))
                         }
                         append("걸음 \n걸었어요!")
                     },
