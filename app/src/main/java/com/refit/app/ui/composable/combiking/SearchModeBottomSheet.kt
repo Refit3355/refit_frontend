@@ -48,7 +48,7 @@ fun SearchModeBottomSheet(
 
             Spacer(Modifier.height(4.dp))
 
-            listOf("combination" to "조합명", "product" to "상품명").forEach { (value, label) ->
+            listOf("product" to "상품명", "combination" to "조합명").forEach { (value, label) ->
                 Row(
                     Modifier
                         .fillMaxWidth()
