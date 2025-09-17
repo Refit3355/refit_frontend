@@ -45,6 +45,7 @@ fun StepsCard(
     mascot: @Composable () -> Unit,
     onClick: () -> Unit = {}
 ) {
+
     val remain = (goal - steps).coerceAtLeast(0)
     // 0f..1f 사이로 보정 + Float 캐스팅 명확화
     val rawProgress = (steps.toFloat() / goal.toFloat()).coerceIn(0f, 1f)

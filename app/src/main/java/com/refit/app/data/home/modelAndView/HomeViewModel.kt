@@ -25,7 +25,13 @@ class HomeViewModel : ViewModel() {
         val stepProducts: List<Product> = emptyList(),
         val sleepProducts: List<Product> = emptyList(),
         val weatherProducts: List<Product> = emptyList(),
-        val rhythmProducts: List<Product> = emptyList()
+        val rhythmProducts: List<Product> = emptyList(),
+
+        // 섹션별 로딩 상태 플래그
+        val isLoadingStep: Boolean = true,
+        val isLoadingSleep: Boolean = true,
+        val isLoadingWeather: Boolean = true,
+        val isLoadingRhythm: Boolean = true
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -134,6 +140,14 @@ class HomeViewModel : ViewModel() {
     // === 추천상품 로드 ===
     private fun loadProducts() {
         viewModelScope.launch {
+
+            _uiState.value = _uiState.value.copy(
+                isLoadingStep = true,
+                isLoadingSleep = true,
+                isLoadingWeather = true,
+                isLoadingRhythm = true
+            )
+
             val stepProducts = recommendationRepo.fetchRecommendations(0, 100).getOrElse { emptyList() }
             val sleepProducts = recommendationRepo.fetchRecommendations(1, 100).getOrElse { emptyList() }
             val weatherProducts = recommendationRepo.fetchRecommendations(2, 100).getOrElse { emptyList() }
@@ -143,7 +157,11 @@ class HomeViewModel : ViewModel() {
                 stepProducts = stepProducts,
                 sleepProducts = sleepProducts,
                 weatherProducts = weatherProducts,
-                rhythmProducts = rhythmProducts
+                rhythmProducts = rhythmProducts,
+                isLoadingStep = false,
+                isLoadingSleep = false,
+                isLoadingWeather = false,
+                isLoadingRhythm = false
             )
         }
     }

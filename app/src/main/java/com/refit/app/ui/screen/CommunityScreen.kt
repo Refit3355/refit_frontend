@@ -30,7 +30,7 @@ import com.refit.app.ui.composable.community.chatRoom.ProductPickerBottomSheet
 fun CommunityScreen(navController: NavController) {
     var selectedTab by rememberSaveable { mutableStateOf(CommunityTab.CHAT) }
     var selectedCategory by rememberSaveable { mutableStateOf(CommunityCategory.ALL) }
-    var searchMode by rememberSaveable { mutableStateOf("combination") }
+    var searchMode by rememberSaveable { mutableStateOf("product") }
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var showProductPicker by remember { mutableStateOf(false) }
     var selectedProductIds by remember { mutableStateOf<List<Long>>(emptyList()) }
