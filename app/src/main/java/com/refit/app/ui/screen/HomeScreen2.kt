@@ -39,6 +39,7 @@ import com.refit.app.ui.composable.product.floating.SpeedDialItem
 import com.refit.app.ui.composable.product.floating.SpeedDialMenu
 import com.refit.app.ui.theme.MainPurple
 import com.refit.app.ui.theme.Pretendard
+import com.refit.app.util.common.TypingText
 import com.refit.app.util.home.highlightText
 
 @SuppressLint("ResourceType")
@@ -147,10 +148,30 @@ fun HomeScreen2(
                         )
                         navController.navigate("recommendation/0")
                     })
-                    HomeProductRow(
-                        products = uiState.stepProducts.take(10),
-                        onClick = { p -> navController.navigate("product/${p.id}") }
-                    )
+
+                    if (uiState.isLoadingStep) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            AsyncImage(
+                                model = R.raw.ic_loading_analysis,
+                                contentDescription = "Loading Mascot",
+                                imageLoader = imageLoader,
+                                modifier = Modifier.size(80.dp),
+                                alignment = Alignment.Center
+                            )
+                            Spacer(Modifier.height(8.dp)) // GIF와 텍스트 사이 간격
+                            TypingText("로딩중...")
+                        }
+                    } else {
+                        HomeProductRow(
+                            products = uiState.stepProducts.take(10),
+                            onClick = { p -> navController.navigate("product/${p.id}") }
+                        )
+                    }
                 }
 
                 // === 수면시간 기반 섹션 ===
@@ -167,12 +188,30 @@ fun HomeScreen2(
                         )
                         navController.navigate("recommendation/1")
                     })
-                    HomeProductRow(
-                        products = uiState.sleepProducts.take(10),
-                        onClick = { p -> navController.navigate("product/${p.id}") }
-                    )
+                    if (uiState.isLoadingSleep) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            AsyncImage(
+                                model = R.raw.ic_loading_analysis,
+                                contentDescription = "Loading Mascot",
+                                imageLoader = imageLoader,
+                                modifier = Modifier.size(80.dp),
+                                alignment = Alignment.Center
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            TypingText("로딩중...")
+                        }
+                    } else {
+                        HomeProductRow(
+                            products = uiState.sleepProducts.take(10),
+                            onClick = { p -> navController.navigate("product/${p.id}") }
+                        )
+                    }
                 }
-
                 // === 날씨 기반 섹션 ===
                 SectionHeader(
                     title = highlightText("매일 달라지는 날씨에 맞춘 헤어 솔루션", listOf("날씨", "헤어 솔루션")),
@@ -184,10 +223,31 @@ fun HomeScreen2(
                         navController.navigate("recommendation/2")
                     }
                 )
-                HomeProductRow(
-                    products = uiState.weatherProducts.take(10),
-                    onClick = { p -> navController.navigate("product/${p.id}") }
-                )
+
+                if (uiState.isLoadingWeather) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        AsyncImage(
+                            model = R.raw.ic_loading_analysis,
+                            contentDescription = "Loading Mascot",
+                            imageLoader = imageLoader,
+                            modifier = Modifier.size(80.dp),
+                            alignment = Alignment.Center
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        TypingText("로딩중...")
+                    }
+                } else {
+                    HomeProductRow(
+                        products = uiState.weatherProducts.take(10),
+                        onClick = { p -> navController.navigate("product/${p.id}") }
+                    )
+                }
+
 
                 // === 생활 리듬 기반 섹션 ===
                 SectionHeader(
@@ -200,10 +260,29 @@ fun HomeScreen2(
                         navController.navigate("recommendation/3")
                     }
                 )
-                HomeProductRow(
-                    products = uiState.rhythmProducts.take(10),
-                    onClick = { p -> navController.navigate("product/${p.id}") }
-                )
+                if (uiState.isLoadingRhythm) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        AsyncImage(
+                            model = R.raw.ic_loading_analysis,
+                            contentDescription = "Loading Mascot",
+                            imageLoader = imageLoader,
+                            modifier = Modifier.size(80.dp),
+                            alignment = Alignment.Center
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        TypingText("로딩중...")
+                    }
+                } else {
+                    HomeProductRow(
+                        products = uiState.rhythmProducts.take(10),
+                        onClick = { p -> navController.navigate("product/${p.id}") }
+                    )
+                }
             }
 
             Spacer(Modifier.height(16.dp))
