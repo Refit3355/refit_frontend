@@ -4,6 +4,7 @@ import android.graphics.Typeface
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -71,7 +72,7 @@ fun SleepDetailScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("수면 데이터가 아직 없어요.", style = MaterialTheme.typography.bodyMedium.copy(fontFamily = Pretendard))
+            CircularProgressIndicator()
         }
         return
     }
@@ -196,6 +197,33 @@ fun SleepDetailScreen(
                 recommendedSleep = recommendedSleep,
                 chartVisible = chart3Visible
             ) { chart3Visible = true }
+
+            Spacer(Modifier.height(62.dp))
+
+            // ---------------- 추천 상품 섹션 ----------------
+            val recommendMsg = buildAnnotatedString {
+                append(nickname)
+                append("님을 위한 ")
+                withStyle(SpanStyle(color = MainPurple, fontWeight = FontWeight.Bold)) {
+                    append("수면 맞춤 상품")
+                }
+            }
+
+            SectionHeader(
+                title = recommendMsg,
+                onMore = {
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "recommendation_items",
+                        recommendState.items
+                    )
+                    navController.navigate("recommendation/1")
+                }
+            )
+
+            HomeProductRow(
+                products = recommendState.items.take(10),
+                onClick = { p -> navController.navigate("product/${p.id}") }
+            )
 
             Spacer(Modifier.height(32.dp))
         }

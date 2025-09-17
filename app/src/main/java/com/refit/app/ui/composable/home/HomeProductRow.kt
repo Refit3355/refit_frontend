@@ -26,7 +26,7 @@ fun HomeProductRow(
     val wished by wishVM.wishedIds.collectAsStateWithLifecycle(initialValue = emptySet())
 
     LazyRow(
-        contentPadding = PaddingValues(horizontal = 16.dp),
+        contentPadding = PaddingValues(),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         modifier = modifier.heightIn(min = 270.dp)
     ) {
