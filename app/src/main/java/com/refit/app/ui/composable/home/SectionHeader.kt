@@ -24,7 +24,7 @@ fun SectionHeader(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(start = 20.dp, end = 6.dp)
+        modifier = Modifier.padding(start = 10.dp, end = 6.dp)
     ) {
         // 제목
         Text(
