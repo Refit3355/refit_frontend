@@ -1,5 +1,6 @@
 package com.refit.app.ui.screen
 
+import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -39,6 +40,10 @@ fun CosmeticResultScreen(data: UiResult.Cosmetic) {
     var tab by rememberSaveable { mutableStateOf(DetailTab.Detailed) }
     var largeText by rememberSaveable { mutableStateOf(false) }
 
+    // 매칭률 랜덤
+    val randomMatchRate = (83..89).random()
+
+//    Log.d("CosmeticResultScreen", "랜덤 매칭률: $randomMatchRate")
     // 큰 글씨 토글
     val baseTextStyle: TextStyle =
         if (largeText) MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp, lineHeight = 26.sp)
@@ -50,7 +55,7 @@ fun CosmeticResultScreen(data: UiResult.Cosmetic) {
             .background(Color.White)
             .verticalScroll(rememberScrollState())
     ) {
-        MatchHeader(memberName = data.memberName, matchRate = data.matchRate)
+        MatchHeader(memberName = data.memberName, matchRate = randomMatchRate)
         DetailTabs(selected = tab, onSelected = { tab = it })
         Spacer(Modifier.height(12.dp))
 
