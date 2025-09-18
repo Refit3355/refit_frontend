@@ -55,7 +55,7 @@ fun CosmeticResultScreen(data: UiResult.Cosmetic) {
             .background(Color.White)
             .verticalScroll(rememberScrollState())
     ) {
-        MatchHeader(memberName = data.memberName, matchRate = randomMatchRate)
+        MatchHeader(memberName = data.memberName, matchRate = data.matchRate)
         DetailTabs(selected = tab, onSelected = { tab = it })
         Spacer(Modifier.height(12.dp))
 
